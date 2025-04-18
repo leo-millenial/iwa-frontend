@@ -15,10 +15,13 @@
           "responsive",
           "screen",
           "layer",
-          "nest"
+          "custom-variant",
+          "theme",
+          "import"
         ]
       }
     ],
+    "declaration-block-trailing-semicolon": null,
     "no-descending-specificity": null
   }
 }
