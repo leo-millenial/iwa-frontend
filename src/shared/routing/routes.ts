@@ -10,6 +10,12 @@ export const routes = {
       fullName: createRoute(),
       phone: createRoute(),
       confirmPhone: createRoute(),
+
+      jobseeker: {
+        profile: createRoute(),
+        experience: createRoute(),
+        aboutMe: createRoute(),
+      },
     },
   },
 };
@@ -32,5 +38,17 @@ export const routesMap: UnmappedRouteObject<object>[] = [
   {
     path: "/auth/registration/confirm-phone",
     route: routes.auth.registrationFlow.confirmPhone,
+  },
+  {
+    path: "/auth/registration/jobseeker/profile",
+    route: routes.auth.registrationFlow.jobseeker.profile,
+  },
+  {
+    path: "/auth/registration/jobseeker/experience",
+    route: routes.auth.registrationFlow.jobseeker.experience,
+  },
+  {
+    path: "/auth/registration/jobseeker/about-me",
+    route: routes.auth.registrationFlow.jobseeker.aboutMe,
   },
 ];
