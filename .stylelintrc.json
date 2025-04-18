@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-tailwindcss",
+    "stylelint-config-prettier"
+  ],
+  "rules": {
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "tailwind",
+          "apply",
+          "variants",
+          "responsive",
+          "screen",
+          "layer",
+          "nest"
+        ]
+      }
+    ],
+    "no-descending-specificity": null
+  }
+}

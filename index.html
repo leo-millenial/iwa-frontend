@@ -1,13 +1,27 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>%VITE_APP_NAME%</title>
+  <meta content="%VITE_APP_DESCRIPTION%" name="description" />
+  <meta content="%VITE_APP_NAME%" property="og:title" />
+  <meta content="%VITE_APP_DESCRIPTION%" property="og:description" />
+  <meta content="%VITE_SITE_URL%/social.png" property="og:image" />
+  <meta content="%VITE_APP_NAME%" property="og:image:alt" />
+  <meta content="en_GB" property="og:locale" />
+  <meta content="website" property="og:type" />
+  <meta content="summary_large_image" name="twitter:card" />
+  <meta content="#FF00FF" name="theme-color" />
+  <link href="/icons/icon-%MODE%.svg" rel="icon" type="image/svg+xml">
+  <link href="/icons/favicon.ico" rel="icon" sizes="any">
+  <link href="/icons/icon-192.png" rel="icon" sizes="192x192" type="image/png">
+  <link href="/icons/icon-512.png" rel="icon" sizes="512x512" type="image/png">
+  <link href="/icons/apple-touch-icon.png" rel="apple-touch-icon">
+
+</head>
+<body>
+<div id="root"></div>
+<script src="/src/main" type="module"></script>
+</body>
 </html>
