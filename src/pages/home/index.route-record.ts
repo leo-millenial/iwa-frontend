@@ -1,5 +1,5 @@
 import { currentRoute } from "./model";
-import { HomePage } from "./ui";
+import { HomePage } from "./ui.tsx";
 
 export default {
   view: HomePage,
