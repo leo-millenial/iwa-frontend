@@ -1,7 +1,7 @@
 import { Button } from "@/shared/ui/button.tsx";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
+import { Input } from "@/shared/ui/input.tsx";
+import { Label } from "@/shared/ui/label.tsx";
+import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group.tsx";
 
 export const AuthRegistrationPage = () => {
   return (

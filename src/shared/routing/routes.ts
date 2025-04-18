@@ -1,4 +1,4 @@
-import { RouteInstance, UnmappedRouteObject, createRoute } from "atomic-router";
+import { UnmappedRouteObject, createRoute } from "atomic-router";
 
 export const routes = {
   home: createRoute(),
@@ -7,7 +7,9 @@ export const routes = {
     finish: createRoute(),
     registration: createRoute(),
     registrationFlow: {
-      jobseeker: createRoute<{ step: string }>(),
+      fullName: createRoute(),
+      phone: createRoute(),
+      confirmPhone: createRoute(),
     },
   },
 };
@@ -20,7 +22,15 @@ export const routesMap: UnmappedRouteObject<object>[] = [
   { path: "/auth/finish", route: routes.auth.finish },
   { path: "/auth/registration", route: routes.auth.registration },
   {
-    path: "/auth/registration/jobseeker/:step",
-    route: routes.auth.registrationFlow.jobseeker as RouteInstance<object>,
+    path: "/auth/registration/fullname",
+    route: routes.auth.registrationFlow.fullName,
+  },
+  {
+    path: "/auth/registration/phone",
+    route: routes.auth.registrationFlow.phone,
+  },
+  {
+    path: "/auth/registration/confirm-phone",
+    route: routes.auth.registrationFlow.confirmPhone,
   },
 ];
