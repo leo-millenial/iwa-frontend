@@ -2,7 +2,7 @@ import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 
-export const SignInPage = () => {
+export const AuthSignInPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10">

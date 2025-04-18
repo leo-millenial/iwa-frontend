@@ -1,7 +1,7 @@
 import { currentRoute } from "./model";
-import { AuthSignInPage } from "./ui.tsx";
+import { AuthRegistrationPage } from "./ui.tsx";
 
 export default {
-  view: AuthSignInPage,
+  view: AuthRegistrationPage,
   route: currentRoute,
 };
