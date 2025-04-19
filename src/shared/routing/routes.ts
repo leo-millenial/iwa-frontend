@@ -24,6 +24,7 @@ export const routes = {
   },
 
   company: {
+    search: createRoute<{ companyId: string }>(),
     vacancies: createRoute<{ companyId: string }>(),
     subscription: createRoute<{ companyId: string }>(),
     help: createRoute<{ companyId: string }>(),
@@ -70,6 +71,10 @@ export const routesMap: UnmappedRouteObject<object>[] = [
   {
     path: "/auth/registration/company/about",
     route: routes.auth.registrationFlow.company.about,
+  },
+  {
+    path: "/company/:companyId",
+    route: routes.company.search as RouteInstance<object>,
   },
   {
     path: "/company/:companyId/vacancies",

@@ -14,6 +14,13 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">
             <Link
+              to={routes.company.search}
+              params={{ companyId: "123" }}
+              className="text-foreground/80 hover:text-foreground transition-colors"
+            >
+              Поиск
+            </Link>
+            <Link
               to={routes.company.vacancies}
               params={{ companyId: "123" }}
               className="text-foreground/80 hover:text-foreground transition-colors"
