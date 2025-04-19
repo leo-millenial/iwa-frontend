@@ -42,7 +42,7 @@ interface ILanguage {
 
 type Sertificate = string;
 
-export const AuthRegistrationJobseekerAboutMePage = () => {
+export const AuthRegistrationJobseekerAboutPage = () => {
   // Состояния для формы
   const [educations, setEducations] = useState<IEducation[]>([
     {

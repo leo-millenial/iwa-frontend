@@ -14,7 +14,11 @@ export const routes = {
       jobseeker: {
         profile: createRoute(),
         experience: createRoute(),
-        aboutMe: createRoute(),
+        about: createRoute(),
+      },
+
+      company: {
+        about: createRoute(),
       },
     },
   },
@@ -48,7 +52,11 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     route: routes.auth.registrationFlow.jobseeker.experience,
   },
   {
-    path: "/auth/registration/jobseeker/about-me",
-    route: routes.auth.registrationFlow.jobseeker.aboutMe,
+    path: "/auth/registration/jobseeker/about",
+    route: routes.auth.registrationFlow.jobseeker.about,
+  },
+  {
+    path: "/auth/registration/company/about",
+    route: routes.auth.registrationFlow.company.about,
   },
 ];
