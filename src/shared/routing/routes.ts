@@ -26,7 +26,7 @@ export const routes = {
   company: {
     vacancies: createRoute<{ companyId: string }>(),
     subscription: createRoute<{ companyId: string }>(),
-    help: createRoute(),
+    help: createRoute<{ companyId: string }>(),
 
     vacancy: {
       create: createRoute<{ companyId: string }>(),
@@ -80,8 +80,8 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     route: routes.company.subscription as RouteInstance<object>,
   },
   {
-    path: "/company/help",
-    route: routes.company.help,
+    path: "/company/:companyId/help",
+    route: routes.company.help as RouteInstance<object>,
   },
   {
     path: "/company/:companyId/vacancy/create",

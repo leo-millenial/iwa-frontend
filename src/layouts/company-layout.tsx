@@ -29,6 +29,7 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
             </Link>
             <Link
               to={routes.company.help}
+              params={{ companyId: "123" }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Помощь
