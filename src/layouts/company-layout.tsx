@@ -6,8 +6,8 @@ import { Button } from "@/shared/ui/button.tsx";
 
 export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10 border-b">
+    <div className="flex flex-col h-screen overflow-hidden">
+      <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
         <div className="flex items-center gap-8">
           <div className="text-2xl font-bold cursor-pointer">{import.meta.env.VITE_APP_NAME}</div>
 
@@ -62,7 +62,7 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
         </div>
       </header>
 
-      <main className="flex-1 relative">
+      <main className="flex-1 relative overflow-auto">
         {/* Фоновое изображение */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -72,7 +72,7 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
         />
 
         {/* Контент страницы */}
-        <div className="relative z-10 h-full p-4">{children}</div>
+        <div className="relative z-10 min-h-full p-4">{children}</div>
       </main>
     </div>
   );
