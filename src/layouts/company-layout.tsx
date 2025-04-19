@@ -21,10 +21,11 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
               Вакансии
             </Link>
             <Link
-              to={routes.company.pricing}
+              to={routes.company.subscription}
+              params={{ companyId: "123" }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
-              Прайс
+              Подписка
             </Link>
             <Link
               to={routes.company.help}
