@@ -25,8 +25,8 @@ export const routes = {
 
   company: {
     vacancies: createRoute<{ companyId: string }>(),
-    pricing: createRoute(),
-    help: createRoute(),
+    subscription: createRoute<{ companyId: string }>(),
+    help: createRoute<{ companyId: string }>(),
 
     vacancy: {
       create: createRoute<{ companyId: string }>(),
@@ -76,12 +76,12 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     route: routes.company.vacancies as RouteInstance<object>,
   },
   {
-    path: "/company/pricing",
-    route: routes.company.pricing,
+    path: "/company/:companyId/subscription",
+    route: routes.company.subscription as RouteInstance<object>,
   },
   {
-    path: "/company/help",
-    route: routes.company.help,
+    path: "/company/:companyId/help",
+    route: routes.company.help as RouteInstance<object>,
   },
   {
     path: "/company/:companyId/vacancy/create",
