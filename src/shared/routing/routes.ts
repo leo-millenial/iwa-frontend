@@ -29,6 +29,7 @@ export const routes = {
     search: createRoute<{ companyId: string }>(),
     vacancies: createRoute<{ companyId: string }>(),
     subscription: createRoute<{ companyId: string }>(),
+    profile: createRoute<{ companyId: string }>(),
 
     vacancy: {
       create: createRoute<{ companyId: string }>(),
@@ -112,6 +113,10 @@ export const routesMap: UnmappedRouteObject<object>[] = [
   {
     path: "/company/:companyId/vacancy/:vacancyId/edit",
     route: routes.company.vacancy.edit as RouteInstance<object>,
+  },
+  {
+    path: "/company/:companyId/profile",
+    route: routes.company.profile as RouteInstance<object>,
   },
   /* Jobseeker routes */
   {
