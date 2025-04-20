@@ -39,7 +39,7 @@ export const AuthRegistrationJobseekerProfilePage = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('images/blue-backgraund.jpg')",
+            backgroundImage: "url('images/blue-background.jpg')",
           }}
         />
 
