@@ -3,13 +3,14 @@ import { MessageSquare, Plus, Search, User } from "lucide-react";
 
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button.tsx";
+import { LogoLink } from "@/shared/ui/logo-link.tsx";
 
 export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
         <div className="flex items-center gap-8">
-          <div className="text-2xl font-bold cursor-pointer">{import.meta.env.VITE_APP_NAME}</div>
+          <LogoLink />
 
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">

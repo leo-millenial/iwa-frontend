@@ -1,13 +1,17 @@
+import { Link } from "atomic-router-react";
+
+import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button.tsx";
 import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
+import { LogoLink } from "@/shared/ui/logo-link.tsx";
 import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group.tsx";
 
 export const AuthRegistrationPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10">
-        <div className="text-2xl font-bold cursor-pointer">{import.meta.env.VITE_APP_NAME}</div>
+        <LogoLink />
       </header>
 
       <div className="flex-1 relative">
@@ -58,9 +62,11 @@ export const AuthRegistrationPage = () => {
               <Button className="w-full">Далее</Button>
 
               <div className="text-center">
-                <Button variant="link" className="text-sm">
-                  Есть аккаунт?
-                </Button>
+                <Link to={routes.auth.signIn}>
+                  <Button variant="link" className="text-sm">
+                    Есть аккаунт?
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

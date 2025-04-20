@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/shared/ui/button.tsx";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/shared/ui/input-otp";
 import { Label } from "@/shared/ui/label.tsx";
+import { LogoLink } from "@/shared/ui/logo-link.tsx";
 
 export const AuthRegistrationConfirmPhonePage = () => {
   const [countdown, setCountdown] = useState(60);
@@ -47,7 +48,7 @@ export const AuthRegistrationConfirmPhonePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10">
-        <div className="text-2xl font-bold cursor-pointer">{import.meta.env.VITE_APP_NAME}</div>
+        <LogoLink />
       </header>
 
       <div className="flex-1 relative">
