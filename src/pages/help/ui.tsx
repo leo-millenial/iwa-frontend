@@ -1,13 +1,18 @@
 import { Mail, MessageCircle, MessageSquare, Phone, PhoneCall } from "lucide-react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
+import { LayoutJobseeker } from "@/layouts/jobseeker-layout.tsx";
 
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
 
-export const CompanyHelpPage = () => {
+export const HelpPage = () => {
+  const role = "Company"; // todo $viewer.role
+
+  const Layout = role === "Company" ? LayoutCompany : LayoutJobseeker;
+
   return (
-    <LayoutCompany>
+    <Layout>
       <div className="flex flex-col h-full items-center">
         <div className="w-full max-w-5xl">
           <div className="mb-6 text-center">
@@ -68,7 +73,7 @@ export const CompanyHelpPage = () => {
           </div>
         </div>
       </div>
-    </LayoutCompany>
+    </Layout>
   );
 };
 

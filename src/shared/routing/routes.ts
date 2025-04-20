@@ -2,6 +2,8 @@ import { RouteInstance, UnmappedRouteObject, createRoute } from "atomic-router";
 
 export const routes = {
   home: createRoute(),
+  help: createRoute(),
+
   auth: {
     signIn: createRoute(),
     finish: createRoute(),
@@ -27,12 +29,20 @@ export const routes = {
     search: createRoute<{ companyId: string }>(),
     vacancies: createRoute<{ companyId: string }>(),
     subscription: createRoute<{ companyId: string }>(),
-    help: createRoute<{ companyId: string }>(),
 
     vacancy: {
       create: createRoute<{ companyId: string }>(),
       view: createRoute<{ companyId: string; vacancyId: string }>(),
       edit: createRoute<{ companyId: string; vacancyId: string }>(),
+    },
+  },
+
+  jobseeker: {
+    search: createRoute<{ jobseekerId: string }>(),
+    resume: {
+      create: createRoute<{ jobseekerId: string }>(),
+      view: createRoute<{ jobseekerId: string; resumeId: string }>(),
+      edit: createRoute<{ jobseekerId: string; resumeId: string }>(),
     },
   },
 };
@@ -41,6 +51,11 @@ export const notFoundRoute = createRoute();
 
 export const routesMap: UnmappedRouteObject<object>[] = [
   { path: "/", route: routes.home },
+  {
+    path: "/help",
+    route: routes.help as RouteInstance<object>,
+  },
+  /* Auth */
   { path: "/auth/sign-in", route: routes.auth.signIn },
   { path: "/auth/finish", route: routes.auth.finish },
   { path: "/auth/registration", route: routes.auth.registration },
@@ -72,6 +87,7 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     path: "/auth/registration/company/about",
     route: routes.auth.registrationFlow.company.about,
   },
+  /* Company routes */
   {
     path: "/company/:companyId",
     route: routes.company.search as RouteInstance<object>,
@@ -84,10 +100,7 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     path: "/company/:companyId/subscription",
     route: routes.company.subscription as RouteInstance<object>,
   },
-  {
-    path: "/company/:companyId/help",
-    route: routes.company.help as RouteInstance<object>,
-  },
+
   {
     path: "/company/:companyId/vacancy/create",
     route: routes.company.vacancy.create as RouteInstance<object>,
@@ -99,5 +112,14 @@ export const routesMap: UnmappedRouteObject<object>[] = [
   {
     path: "/company/:companyId/vacancy/:vacancyId/edit",
     route: routes.company.vacancy.edit as RouteInstance<object>,
+  },
+  /* Jobseeker routes */
+  {
+    path: "/jobseeker/:jobseekerId",
+    route: routes.jobseeker.search as RouteInstance<object>,
+  },
+  {
+    path: "/jobseeker/:jobseekerId/resume/create",
+    route: routes.jobseeker.resume.create as RouteInstance<object>,
   },
 ];
