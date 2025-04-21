@@ -1,5 +1,6 @@
 import { Link } from "atomic-router-react";
 import { useUnit } from "effector-react";
+import { Loader2 } from "lucide-react";
 
 import { routes } from "@/shared/routing";
 import { UserRole } from "@/shared/types/user.interface.ts";
@@ -14,6 +15,7 @@ import {
   $email,
   $error,
   $password,
+  $pending,
   $role,
   AuthRegistrationStartPageError,
   confirmPasswordChanged,
@@ -25,12 +27,13 @@ import {
 import { ErrorMessage } from "./ui/error-message.tsx";
 
 export const AuthRegistrationPage = () => {
-  const [email, password, confirmPassword, role, error] = useUnit([
+  const [email, password, confirmPassword, role, error, pending] = useUnit([
     $email,
     $password,
     $confirmPassword,
     $role,
     $error,
+    $pending,
   ]);
 
   const [
@@ -55,7 +58,7 @@ export const AuthRegistrationPage = () => {
           }}
         />
 
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="absolute inset-0 flex flex-col gap-2 items-center justify-center p-4">
           <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-md">
             <div className="space-y-2 text-center">
               <h1 className="text-2xl font-bold">Регистрация</h1>
@@ -113,11 +116,10 @@ export const AuthRegistrationPage = () => {
                 />
               </div>
 
-              <Button onClick={() => handleNextClick()} className="w-full">
+              <Button disabled={pending} onClick={() => handleNextClick()} className="w-full">
+                {pending && <Loader2 className="animate-spin" />}
                 Далее
               </Button>
-
-              <ErrorMessage message={getErrorMessage(error)} />
 
               <div className="text-center">
                 <Link to={routes.auth.signIn}>
@@ -128,6 +130,7 @@ export const AuthRegistrationPage = () => {
               </div>
             </div>
           </div>
+          <ErrorMessage message={getErrorMessage(error)} />
         </div>
       </div>
     </div>

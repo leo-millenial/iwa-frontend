@@ -1,9 +1,11 @@
 import { useUnit } from "effector-react";
+import { Loader2 } from "lucide-react";
 
 import {
   $error,
   $firstName,
   $lastName,
+  $pending,
   FullNameError,
   firstNameChanged,
   lastNameChanged,
@@ -17,7 +19,7 @@ import { Label } from "@/shared/ui/label.tsx";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
 
 export const AuthRegistrationFullNamePage = () => {
-  const [firstName, lastName, error] = useUnit([$firstName, $lastName, $error]);
+  const [firstName, lastName, error, pending] = useUnit([$firstName, $lastName, $error, $pending]);
   const [firstNameChangedHandle, lastNameChangedHandle, nextClickedHandle] = useUnit([
     firstNameChanged,
     lastNameChanged,
@@ -30,7 +32,7 @@ export const AuthRegistrationFullNamePage = () => {
         <LogoLink />
       </header>
 
-      <div className="absolute inset-0 flex items-center justify-center p-4">
+      <div className="absolute inset-0 flex flex-col gap-2 items-center justify-center p-4">
         <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-md">
           <div className="space-y-2 text-center">
             <h1 className="text-2xl font-bold">Регистрация</h1>
@@ -58,13 +60,13 @@ export const AuthRegistrationFullNamePage = () => {
               />
             </div>
 
-            <ErrorMessage message={getErrorMessage(error)} />
-
-            <Button className="w-full" onClick={() => nextClickedHandle()}>
+            <Button disabled={pending} className="w-full" onClick={() => nextClickedHandle()}>
+              {pending && <Loader2 className="animate-spin" />}
               Далее
             </Button>
           </div>
         </div>
+        <ErrorMessage message={getErrorMessage(error)} />
       </div>
     </div>
   );

@@ -22,19 +22,17 @@ import {
   zRegistrationVerifySmsDto,
 } from "@/shared/api/__generated__/zod.gen";
 
-export const startRegistrationFx = createEffect(
-  async (data: z.infer<typeof zRegistrationStep1Dto>) => {
-    const res = await registrationControllerStartRegistration({ body: data });
-    return res.data;
-  },
-);
+const startRegistrationFx = createEffect(async (data: z.infer<typeof zRegistrationStep1Dto>) => {
+  const res = await registrationControllerStartRegistration({ body: data });
+  return res.data;
+});
 
 export const startRegistrationMutation = createMutation({
   effect: startRegistrationFx,
   contract: zodContract(zRegistrationControllerStartRegistrationResponse),
 });
 
-export const step2Fx = createEffect(async (data: z.infer<typeof zRegistrationStep2Dto>) => {
+const step2Fx = createEffect(async (data: z.infer<typeof zRegistrationStep2Dto>) => {
   const res = await registrationControllerProcessStep2({ body: data });
   return res.data;
 });
@@ -44,17 +42,17 @@ export const step2Mutation = createMutation({
   contract: zodContract(zRegistrationControllerStartRegistrationResponse),
 });
 
-export const step3Fx = createEffect(async (data: z.infer<typeof zRegistrationStep3Dto>) => {
+const step3Fx = createEffect(async (data: z.infer<typeof zRegistrationStep3Dto>) => {
   const res = await registrationControllerProcessStep3({ body: data });
   return res.data;
 });
 
 export const step3Mutation = createMutation({
   effect: step3Fx,
-  contract: zodContract(zRegistrationStep3Dto),
+  contract: zodContract(zRegistrationControllerStartRegistrationResponse),
 });
 
-export const sendSmsFx = createEffect(async (data: z.infer<typeof zRegistrationSendSmsDto>) => {
+const sendSmsFx = createEffect(async (data: z.infer<typeof zRegistrationSendSmsDto>) => {
   const res = await registrationControllerSendSmsCode({ body: data });
   return res.data;
 });
@@ -64,7 +62,7 @@ export const sendSmsMutation = createMutation({
   contract: zodContract(zRegistrationSendSmsDto),
 });
 
-export const verifySmsFx = createEffect(async (data: z.infer<typeof zRegistrationVerifySmsDto>) => {
+const verifySmsFx = createEffect(async (data: z.infer<typeof zRegistrationVerifySmsDto>) => {
   const res = await registrationControllerVerifySmsCode({ body: data });
   return res.data;
 });
@@ -74,7 +72,7 @@ export const verifySmsMutation = createMutation({
   contract: zodContract(zRegistrationVerifySmsDto),
 });
 
-export const step5Fx = createEffect(async (data: z.infer<typeof zRegistrationStep5Dto>) => {
+const step5Fx = createEffect(async (data: z.infer<typeof zRegistrationStep5Dto>) => {
   const res = await registrationControllerProcessStep5({ body: data });
   return res.data;
 });
@@ -89,7 +87,7 @@ export const zAuthTokens = z.object({
   refresh_token: z.string(),
 });
 
-export const completeRegistrationFx = createEffect(async (params: { sessionId: string }) => {
+const completeRegistrationFx = createEffect(async (params: { sessionId: string }) => {
   const res = await registrationControllerCompleteRegistration({ body: params });
   return res.data;
 });

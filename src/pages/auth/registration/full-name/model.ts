@@ -31,6 +31,7 @@ export const lastNameChanged = createEvent<string>();
 export const $firstName = createStore("");
 export const $lastName = createStore("");
 export const $error = createStore<FullNameError>(null);
+export const $pending = step2Mutation.$pending;
 
 $firstName.on(firstNameChanged, (_, firstName) => firstName);
 $lastName.on(lastNameChanged, (_, lastName) => lastName);
@@ -85,12 +86,17 @@ sample({
   },
   target: $error,
 });
-
 sample({
   clock: nextClicked,
   source: { firstName: $firstName, lastName: $lastName, sessionId: $sessionId },
   filter: and($sessionId, not($error)),
   target: step2Mutation.start,
+});
+
+sample({
+  clock: nextClicked,
+  filter: not($sessionId),
+  target: routes.auth.registration.open,
 });
 
 sample({
@@ -106,4 +112,9 @@ sample({
   clock: $completedStep,
   filter: (step) => step === RegistrationStep.FullNameSucceed,
   target: routes.auth.registrationFlow.phone.open,
+});
+
+sample({
+  clock: currentRoute.closed,
+  target: $error.reinit,
 });

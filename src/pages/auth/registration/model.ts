@@ -1,5 +1,4 @@
 import { createEvent, createStore, sample } from "effector";
-import { persist } from "effector-storage/local";
 import { not } from "patronum";
 import { z } from "zod";
 
@@ -46,8 +45,7 @@ export const $confirmPassword = createStore("");
 export const $completedStep = createStore<RegistrationStep>(RegistrationStep.Initial);
 export const $sessionId = createStore("");
 export const $error = createStore<AuthRegistrationStartPageError>(null);
-
-persist({ store: $sessionId, key: "sessionId" });
+export const $pending = startRegistrationMutation.$pending;
 
 $email.on(emailChanged, (_, email) => email);
 $password.on(passwordChanged, (_, password) => password);
@@ -61,7 +59,6 @@ $error.reset([emailChanged, passwordChanged, confirmPasswordChanged]);
 
 const emailSchema = z.string().min(1, "Email обязателен").email("Введите корректный email");
 
-// Валидация при нажатии на кнопку "Далее"
 sample({
   clock: nextClicked,
   source: { email: $email, password: $password, confirmPassword: $confirmPassword },
