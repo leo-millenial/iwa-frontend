@@ -11,9 +11,12 @@
     "lint:fix": "eslint . --fix",
     "lint:style": "stylelint \"**/*.{css,scss,vue}\"",
     "lint:style:fix": "stylelint \"**/*.{css,vue}\" --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate:api": "ts-node-esm scripts/generate.ts"
   },
   "dependencies": {
+    "@farfetched/core": "^0.13.1",
+    "@farfetched/zod": "^0.13.1",
     "@radix-ui/react-accordion": "^1.2.7",
     "@radix-ui/react-avatar": "^1.1.6",
     "@radix-ui/react-checkbox": "^1.2.2",
@@ -37,6 +40,7 @@
     "date-fns": "^4.1.0",
     "effector": "^23.3.0",
     "effector-react": "^23.3.0",
+    "effector-storage": "^7.1.0",
     "embla-carousel-react": "^8.6.0",
     "history": "^5.3.0",
     "input-otp": "^1.4.2",
@@ -51,14 +55,18 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
+    "@hey-api/client-fetch": "^0.10.0",
+    "@hey-api/openapi-ts": "^0.66.5",
     "@stylistic/stylelint-plugin": "^3.1.2",
     "@tailwindcss/postcss": "^4.1.4",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/chokidar": "^2.1.7",
     "@types/node": "^22.14.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.21",
+    "chokidar": "^4.0.3",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-effector": "^0.15.0",
@@ -79,9 +87,11 @@
     "stylelint-config-tailwindcss": "^1.0.0",
     "stylelint-order": "^6.0.4",
     "stylelint-plugin-logical-css": "^1.2.3",
+    "ts-node": "^10.9.2",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.26.1",
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "zod": "^3.24.3"
   },
   "packageManager": "pnpm@10.6.5+sha512.cdf928fca20832cd59ec53826492b7dc25dc524d4370b6b4adbf65803d32efaa6c1c88147c0ae4e8d579a6c9eec715757b50d4fa35eea179d868eada4ed043af"
 }
