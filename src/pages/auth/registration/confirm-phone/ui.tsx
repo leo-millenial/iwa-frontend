@@ -1,4 +1,11 @@
+import { useUnit } from "effector-react";
 import { useEffect, useRef, useState } from "react";
+
+import {
+  $code,
+  codeChanged,
+  confirmClicked,
+} from "@/pages/auth/registration/confirm-phone/model.ts";
 
 import { Button } from "@/shared/ui/button.tsx";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/shared/ui/input-otp";
@@ -6,10 +13,13 @@ import { Label } from "@/shared/ui/label.tsx";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
 
 export const AuthRegistrationConfirmPhonePage = () => {
-  const [countdown, setCountdown] = useState(60);
+  const [countdown, setCountdown] = useState(0);
   const [isDisabled, setIsDisabled] = useState(true);
-  const [otpValue, setOtpValue] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const code = useUnit($code);
+  const [handleConfirmClick, handleCodeChange] = useUnit([confirmClicked, codeChanged]);
 
   useEffect(() => {
     let timer: number | undefined;
@@ -18,14 +28,14 @@ export const AuthRegistrationConfirmPhonePage = () => {
       timer = window.setInterval(() => {
         setCountdown((prevCountdown) => prevCountdown - 1);
       }, 1000);
-    } else if (countdown === 0 && isDisabled) {
+    } else if (countdown === 0 && isDisabled && codeSent) {
       setIsDisabled(false);
     }
 
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [countdown, isDisabled]);
+  }, [countdown, isDisabled, codeSent]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,6 +53,14 @@ export const AuthRegistrationConfirmPhonePage = () => {
   const handleResendCode = () => {
     setCountdown(60);
     setIsDisabled(true);
+    setCodeSent(true);
+  };
+
+  const handleConfirm = () => {
+    handleConfirmClick();
+    setCountdown(60);
+    setIsDisabled(true);
+    setCodeSent(true);
   };
 
   return (
@@ -73,7 +91,12 @@ export const AuthRegistrationConfirmPhonePage = () => {
               <div className="space-y-4">
                 <Label htmlFor="otp-input">Код подтверждения</Label>
                 <div className="flex justify-center" ref={containerRef}>
-                  <InputOTP maxLength={6} value={otpValue} onChange={setOtpValue} id="otp-input">
+                  <InputOTP
+                    maxLength={6}
+                    value={code}
+                    onChange={(value) => handleCodeChange(value)}
+                    id="otp-input"
+                  >
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
@@ -87,7 +110,12 @@ export const AuthRegistrationConfirmPhonePage = () => {
               </div>
 
               <div className="space-y-4">
-                <Button className="w-full" variant="default" disabled={otpValue.length !== 6}>
+                <Button
+                  className="w-full"
+                  variant="default"
+                  disabled={code.length !== 6}
+                  onClick={handleConfirm}
+                >
                   Подтвердить
                 </Button>
 
@@ -97,7 +125,9 @@ export const AuthRegistrationConfirmPhonePage = () => {
                   disabled={isDisabled}
                   onClick={handleResendCode}
                 >
-                  {isDisabled ? `Отправить код повторно (${countdown}с)` : "Отправить код повторно"}
+                  {codeSent && isDisabled
+                    ? `Отправить код повторно (${countdown}с)`
+                    : "Отправить код повторно"}
                 </Button>
               </div>
             </div>

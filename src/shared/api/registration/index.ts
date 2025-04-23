@@ -69,7 +69,7 @@ const verifySmsFx = createEffect(async (data: z.infer<typeof zRegistrationVerify
 
 export const verifySmsMutation = createMutation({
   effect: verifySmsFx,
-  contract: zodContract(zRegistrationVerifySmsDto),
+  contract: zodContract(zRegistrationControllerStartRegistrationResponse),
 });
 
 const step5Fx = createEffect(async (data: z.infer<typeof zRegistrationStep5Dto>) => {

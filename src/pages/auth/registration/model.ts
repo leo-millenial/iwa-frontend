@@ -29,6 +29,7 @@ export enum RegistrationStep {
 }
 
 const SESSION_STORAGE_KEY = "registration_session_id";
+const SESSION_ROLE_KEY = "registration_session_role";
 
 export const nextClicked = createEvent();
 export const emailChanged = createEvent<string>();
@@ -127,6 +128,12 @@ persist({
   pickup: pickupSessionId,
 });
 
+persist({
+  store: $role,
+  key: SESSION_ROLE_KEY,
+  pickup: pickupSessionId,
+});
+
 sample({
   clock: appStarted,
   fn: () => {
@@ -134,4 +141,13 @@ sample({
     return savedSessionId ? JSON.parse(savedSessionId) : "";
   },
   target: pickupSessionId,
+});
+
+sample({
+  clock: appStarted,
+  fn: () => {
+    const savedRole = localStorage.getItem(SESSION_ROLE_KEY);
+    return savedRole ? JSON.parse(savedRole) : UserRole.Company;
+  },
+  target: roleChanged,
 });
