@@ -1,3 +1,4 @@
+import { useMaskito } from "@maskito/react";
 import { useUnit } from "effector-react";
 import { Loader2 } from "lucide-react";
 
@@ -8,11 +9,14 @@ import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
 
-import { $error, $pending, $phone, PhoneError, nextClicked, phoneChanged } from "./model.ts";
+import { getPhoneErrorMessage, options } from "./lib/phone.ts";
+import { $error, $pending, nextClicked, phoneChanged } from "./model.ts";
 
 export const AuthRegistrationPhonePage = () => {
-  const [phone, error, pending] = useUnit([$phone, $error, $pending]);
+  const [error, pending] = useUnit([$error, $pending]);
   const [phoneChangedHandle, nextClickedHandle] = useUnit([phoneChanged, nextClicked]);
+
+  const maskedInputRef = useMaskito({ options });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -40,9 +44,12 @@ export const AuthRegistrationPhonePage = () => {
                 <Label htmlFor="phone">Телефон</Label>
                 <Input
                   id="phone"
+                  ref={maskedInputRef}
                   placeholder="+7"
-                  value={phone}
-                  onChange={(e) => phoneChangedHandle(e.target.value)}
+                  onInput={(e) => {
+                    const input = e.currentTarget as HTMLInputElement;
+                    phoneChangedHandle(input.value);
+                  }}
                 />
               </div>
 
@@ -57,15 +64,4 @@ export const AuthRegistrationPhonePage = () => {
       </div>
     </div>
   );
-};
-
-export const getPhoneErrorMessage = (error: PhoneError): string | null => {
-  if (!error) return null;
-
-  const errorMessages: Record<Exclude<PhoneError, null>, string> = {
-    PHONE_REQUIRED: "Номер телефона обязателен для заполнения",
-    PHONE_INVALID_FORMAT: "Введите корректный российский номер телефона",
-  };
-
-  return errorMessages[error];
 };

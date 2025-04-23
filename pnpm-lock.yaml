@@ -14,6 +14,18 @@ importers:
       '@farfetched/zod':
         specifier: ^0.13.1
         version: 0.13.1(@farfetched/core@0.13.1(effector@23.3.0))(zod@3.24.3)
+      '@maskito/core':
+        specifier: ^3.7.1
+        version: 3.7.1
+      '@maskito/kit':
+        specifier: ^3.7.2
+        version: 3.7.2(@maskito/core@3.7.1)
+      '@maskito/phone':
+        specifier: ^3.7.1
+        version: 3.7.1(@maskito/core@3.7.1)(@maskito/kit@3.7.2(@maskito/core@3.7.1))(libphonenumber-js@1.12.7)
+      '@maskito/react':
+        specifier: ^3.7.1
+        version: 3.7.1(@maskito/core@3.7.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-accordion':
         specifier: ^1.2.7
         version: 1.2.7(@types/react-dom@19.1.2(@types/react@19.1.2))(@types/react@19.1.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -95,6 +107,9 @@ importers:
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      libphonenumber-js:
+        specifier: ^1.12.7
+        version: 1.12.7
       lucide-react:
         specifier: ^0.498.0
         version: 0.498.0(react@19.1.0)
@@ -138,9 +153,6 @@ importers:
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^5.2.2
         version: 5.2.2(prettier@3.5.3)
-      '@types/chokidar':
-        specifier: ^2.1.7
-        version: 2.1.7
       '@types/node':
         specifier: ^22.14.1
         version: 22.14.1
@@ -160,7 +172,7 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3
       eslint:
-        specifier: ^9.22.0
+        specifier: ^9.24.0
         version: 9.24.0(jiti@2.4.2)
       eslint-config-prettier:
         specifier: ^10.1.2
@@ -645,6 +657,28 @@ packages:
 
   '@keyv/serialize@1.0.3':
     resolution: {integrity: sha512-qnEovoOp5Np2JDGonIDL6Ayihw0RhnRh6vxPuHo4RDn1UOzwEo4AeIfpL6UGIrsceWrCMiVPgwRjbHu4vYFc3g==}
+
+  '@maskito/core@3.7.1':
+    resolution: {integrity: sha512-q6SsL1xH9/cw4TPcNYb+QfNeziI7OshXCP+Ls9NvN4PCKtrGQwIKyHpkCSCZZaIBixcqdRzEHZnkA26pX8a7ew==}
+
+  '@maskito/kit@3.7.2':
+    resolution: {integrity: sha512-2gx/7k0iRcKWq7+2yeUEUuv13+4KibxkQrTdGSwZZVNbPsmj4b7r5KTbjfHl2ZdwuASSxJiVV8DWF91ON+cmBA==}
+    peerDependencies:
+      '@maskito/core': ^3.7.2
+
+  '@maskito/phone@3.7.1':
+    resolution: {integrity: sha512-smHYuuGQsRyv45dluVVQ3E0V9bp81cGgY92K+du4ZUP4728yOt4Kw6ZQwSlcD6uS33j8wIT3iLyggUe9BC2vuA==}
+    peerDependencies:
+      '@maskito/core': ^3.7.1
+      '@maskito/kit': ^3.7.1
+      libphonenumber-js: '>=1.0.0'
+
+  '@maskito/react@3.7.1':
+    resolution: {integrity: sha512-/5Y+LOXmIBSm8tuplLBGBK8pA5BKY+UCc4Mtg7+tiRTnBadtBhVg8C2+OQRTU1DYCfQ5pZLeobDYsBrVKziV/g==}
+    peerDependencies:
+      '@maskito/core': ^3.7.1
+      react: '>=16.8'
+      react-dom: '>=16.8'
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1413,10 +1447,6 @@ packages:
 
   '@types/babel__traverse@7.20.7':
     resolution: {integrity: sha512-dkO5fhS7+/oos4ciWxyEyjWe48zmG6wbCheo/G2ZnHx4fs3EU6YC6UM8rk56gAjNJ9P3MTH2jo5jb92/K6wbng==}
-
-  '@types/chokidar@2.1.7':
-    resolution: {integrity: sha512-A7/MFHf6KF7peCzjEC1BBTF8jpmZTokb3vr/A0NxRGfwRLK3Ws+Hq6ugVn6cJIMfM6wkCak/aplWrxbTcu8oig==}
-    deprecated: This is a stub types definition. chokidar provides its own type definitions, so you do not need this installed.
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
@@ -2496,6 +2526,9 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  libphonenumber-js@1.12.7:
+    resolution: {integrity: sha512-0nYZSNj/QEikyhcM5RZFXGlCB/mr4PVamnT1C2sKBnDDTYndrvbybYjvg+PMqAndQHlLbwQ3socolnL3WWTUFA==}
 
   lightningcss-darwin-arm64@1.29.2:
     resolution: {integrity: sha512-cK/eMabSViKn/PG8U/a7aCorpeKLMlK0bQeNHmdb7qUnBkNPnL+oV5DjJUo0kqWsJUapZsM4jCfYItbqBDvlcA==}
@@ -3853,6 +3886,24 @@ snapshots:
     dependencies:
       buffer: 6.0.3
 
+  '@maskito/core@3.7.1': {}
+
+  '@maskito/kit@3.7.2(@maskito/core@3.7.1)':
+    dependencies:
+      '@maskito/core': 3.7.1
+
+  '@maskito/phone@3.7.1(@maskito/core@3.7.1)(@maskito/kit@3.7.2(@maskito/core@3.7.1))(libphonenumber-js@1.12.7)':
+    dependencies:
+      '@maskito/core': 3.7.1
+      '@maskito/kit': 3.7.2(@maskito/core@3.7.1)
+      libphonenumber-js: 1.12.7
+
+  '@maskito/react@3.7.1(@maskito/core@3.7.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@maskito/core': 3.7.1
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -4577,10 +4628,6 @@ snapshots:
   '@types/babel__traverse@7.20.7':
     dependencies:
       '@babel/types': 7.27.0
-
-  '@types/chokidar@2.1.7':
-    dependencies:
-      chokidar: 4.0.3
 
   '@types/estree@1.0.7': {}
 
@@ -5803,6 +5850,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libphonenumber-js@1.12.7: {}
 
   lightningcss-darwin-arm64@1.29.2:
     optional: true

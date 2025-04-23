@@ -7,7 +7,23 @@ import { defineConfig } from "vite";
 import { HeyApiPlugin } from "./vite-plugin-heyapi";
 
 export default defineConfig({
-  plugins: [react({ babel: { babelrc: true } }), tailwindcss(), HeyApiPlugin()],
+  plugins: [
+    react({
+      babel: {
+        presets: ["patronum/babel-preset", "atomic-router/babel-preset"],
+        plugins: [
+          [
+            "effector/babel-plugin",
+            {
+              factories: ["patronum"],
+            },
+          ],
+        ],
+      },
+    }),
+    tailwindcss(),
+    HeyApiPlugin(),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

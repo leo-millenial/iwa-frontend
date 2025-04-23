@@ -1,4 +1,5 @@
 import { createEvent, createStore, sample } from "effector";
+import { persist } from "effector-storage/local";
 import { not } from "patronum";
 import { z } from "zod";
 
@@ -114,3 +115,5 @@ sample({
   filter: (step) => step === RegistrationStep.EmailSucceed,
   target: routes.auth.registrationFlow.fullName.open,
 });
+
+persist({ store: $sessionId, key: "session-id" });

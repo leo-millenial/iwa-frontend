@@ -1,5 +1,5 @@
-import { createEvent, createStore, sample } from "effector";
-import { and, not } from "patronum";
+import { createEffect, createEvent, createStore, sample } from "effector";
+import { debug } from "patronum";
 import { z } from "zod";
 
 import {
@@ -16,7 +16,6 @@ export const currentRoute = routes.auth.registrationFlow.phone;
 
 export type PhoneError = "PHONE_REQUIRED" | "PHONE_INVALID_FORMAT" | null;
 
-// Схема валидации для российского номера телефона
 const phoneSchema = z
   .string()
   .min(1, { message: "PHONE_REQUIRED" })
@@ -31,11 +30,44 @@ export const $phone = createStore("");
 export const $error = createStore<PhoneError>(null);
 export const $pending = step3Mutation.$pending;
 
+export const $sessionLoaded = $sessionId.map((id) => Boolean(id));
+
+const getSessionIdFx = createEffect(() => {
+  // Пытаемся получить sessionId из localStorage
+  const sessionId = localStorage.getItem("sessionId");
+  console.log("GET SESSION ID FROM STORAGE: ", sessionId);
+  return sessionId;
+});
+
+sample({
+  clock: nextClicked,
+  source: $sessionId,
+  filter: (sessionId) => !sessionId,
+  target: getSessionIdFx,
+});
+
+sample({
+  clock: getSessionIdFx.doneData,
+  filter: Boolean,
+  target: $sessionId,
+});
+
+debug({ $sessionLoaded });
+debug({ $sessionId });
+debug({ nextClicked });
+
+$sessionId.watch((id) => {
+  console.log("SESSION ID ", id);
+  console.log("TYPEOF SESSION ID ", typeof id);
+});
+
+export const $normalizedPhone = $phone.map((raw) => raw.replace(/\D/g, ""));
+
 $phone.on(phoneChanged, (_, phone) => phone);
 
 sample({
   clock: nextClicked,
-  source: $phone,
+  source: $normalizedPhone,
   fn: (phone) => {
     const result = phoneSchema.safeParse(phone);
     if (!result.success) {
@@ -48,8 +80,21 @@ sample({
 
 sample({
   clock: nextClicked,
-  source: { phone: $phone, sessionId: $sessionId },
-  filter: and($sessionId, not($error)),
+  source: { phone: $normalizedPhone, sessionId: $sessionId, error: $error },
+  filter: ({ sessionId, error }) => {
+    console.log("FILTER - SESSION ID: ", sessionId);
+    console.log("FILTER - ERROR: ", error);
+    console.log("FILTER - SESSION ID EXISTS: ", Boolean(sessionId));
+    console.log("FILTER - NO ERROR: ", !error);
+    const canProceed = Boolean(sessionId) && !error;
+    console.log("FILTER RESULT: ", canProceed);
+    return canProceed;
+  },
+  fn: ({ phone, sessionId }) => {
+    console.log("PHONE ", phone);
+    console.log("SESSION ID ", sessionId);
+    return { phone, sessionId };
+  },
   target: step3Mutation.start,
 });
 

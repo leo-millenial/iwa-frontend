@@ -152,8 +152,9 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
 
         setTimeout(() => {
           setIsLoading(false);
-        }, 500); // Имитация задержки загрузки
-      } catch (err) {
+        }, 500);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err: unknown) {
         setError("Не удалось загрузить данные вакансии");
         setIsLoading(false);
       }
@@ -254,6 +255,7 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
 
       setIsSaving(false);
       // В реальном приложении здесь будет редирект на страницу просмотра вакансии
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Не удалось сохранить изменения");
       setIsSaving(false);
