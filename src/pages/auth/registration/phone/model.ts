@@ -1,5 +1,5 @@
-import { createEffect, createEvent, createStore, sample } from "effector";
-import { debug } from "patronum";
+import { createEvent, createStore, sample } from "effector";
+import { and, not } from "patronum";
 import { z } from "zod";
 
 import {
@@ -31,35 +31,7 @@ export const $error = createStore<PhoneError>(null);
 export const $pending = step3Mutation.$pending;
 
 export const $sessionLoaded = $sessionId.map((id) => Boolean(id));
-
-const getSessionIdFx = createEffect(() => {
-  // Пытаемся получить sessionId из localStorage
-  const sessionId = localStorage.getItem("sessionId");
-  console.log("GET SESSION ID FROM STORAGE: ", sessionId);
-  return sessionId;
-});
-
-sample({
-  clock: nextClicked,
-  source: $sessionId,
-  filter: (sessionId) => !sessionId,
-  target: getSessionIdFx,
-});
-
-sample({
-  clock: getSessionIdFx.doneData,
-  filter: Boolean,
-  target: $sessionId,
-});
-
-debug({ $sessionLoaded });
-debug({ $sessionId });
-debug({ nextClicked });
-
-$sessionId.watch((id) => {
-  console.log("SESSION ID ", id);
-  console.log("TYPEOF SESSION ID ", typeof id);
-});
+const $canProceed = and($sessionLoaded, not($error));
 
 export const $normalizedPhone = $phone.map((raw) => raw.replace(/\D/g, ""));
 
@@ -80,21 +52,8 @@ sample({
 
 sample({
   clock: nextClicked,
-  source: { phone: $normalizedPhone, sessionId: $sessionId, error: $error },
-  filter: ({ sessionId, error }) => {
-    console.log("FILTER - SESSION ID: ", sessionId);
-    console.log("FILTER - ERROR: ", error);
-    console.log("FILTER - SESSION ID EXISTS: ", Boolean(sessionId));
-    console.log("FILTER - NO ERROR: ", !error);
-    const canProceed = Boolean(sessionId) && !error;
-    console.log("FILTER RESULT: ", canProceed);
-    return canProceed;
-  },
-  fn: ({ phone, sessionId }) => {
-    console.log("PHONE ", phone);
-    console.log("SESSION ID ", sessionId);
-    return { phone, sessionId };
-  },
+  source: { phone: $normalizedPhone, sessionId: $sessionId },
+  filter: $canProceed,
   target: step3Mutation.start,
 });
 
@@ -116,4 +75,9 @@ sample({
 sample({
   clock: phoneChanged,
   target: $error.reinit,
+});
+
+sample({
+  clock: step3Mutation.finished.failure,
+  target: routes.auth.registration.open,
 });

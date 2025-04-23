@@ -4,6 +4,7 @@ import { not } from "patronum";
 import { z } from "zod";
 
 import { startRegistrationMutation } from "@/shared/api/registration";
+import { appStarted } from "@/shared/init";
 import { routes } from "@/shared/routing";
 import { UserRole } from "@/shared/types/user.interface.ts";
 
@@ -27,6 +28,8 @@ export enum RegistrationStep {
   SendDataSucceed,
 }
 
+const SESSION_STORAGE_KEY = "registration_session_id";
+
 export const nextClicked = createEvent();
 export const emailChanged = createEvent<string>();
 export const passwordChanged = createEvent<string>();
@@ -38,6 +41,7 @@ export const registrationResponseSucceed = createEvent<{
 }>();
 
 export const setError = createEvent<AuthRegistrationStartPageError>();
+export const pickupSessionId = createEvent<string>();
 
 export const $role = createStore<UserRole>(UserRole.Company);
 export const $email = createStore("");
@@ -55,6 +59,7 @@ $role.on(roleChanged, (_, role) => role);
 $error.on(setError, (_, error) => error);
 $completedStep.on(registrationResponseSucceed, (_, { currentStep }) => currentStep);
 $sessionId.on(registrationResponseSucceed, (_, { sessionId }) => sessionId);
+$sessionId.on(pickupSessionId, (_, sessionId) => sessionId);
 
 $error.reset([emailChanged, passwordChanged, confirmPasswordChanged]);
 
@@ -116,4 +121,17 @@ sample({
   target: routes.auth.registrationFlow.fullName.open,
 });
 
-persist({ store: $sessionId, key: "session-id" });
+persist({
+  store: $sessionId,
+  key: SESSION_STORAGE_KEY,
+  pickup: pickupSessionId,
+});
+
+sample({
+  clock: appStarted,
+  fn: () => {
+    const savedSessionId = localStorage.getItem(SESSION_STORAGE_KEY);
+    return savedSessionId ? JSON.parse(savedSessionId) : "";
+  },
+  target: pickupSessionId,
+});
