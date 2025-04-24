@@ -1,42 +1,48 @@
 import { useUnit } from "effector-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import {
+  $canResend,
   $code,
+  $codeErrorMessage,
+  $resendTimeout,
   codeChanged,
   confirmClicked,
+  sendSmsAgainClicked,
 } from "@/pages/auth/registration/confirm-phone/model.ts";
 
+import { sendSmsMutation, verifySmsMutation } from "@/shared/api/registration";
 import { Button } from "@/shared/ui/button.tsx";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/shared/ui/input-otp";
 import { Label } from "@/shared/ui/label.tsx";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
 
 export const AuthRegistrationConfirmPhonePage = () => {
-  const [countdown, setCountdown] = useState(0);
-  const [isDisabled, setIsDisabled] = useState(true);
-  const [codeSent, setCodeSent] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const code = useUnit($code);
-  const [handleConfirmClick, handleCodeChange] = useUnit([confirmClicked, codeChanged]);
+  const [
+    code,
+    codeErrorMessage,
+    resendTimeout,
+    canResend,
+    isSmsSending,
+    isVerifying,
+    handleCodeChange,
+    handleConfirmClick,
+    handleResendClick,
+  ] = useUnit([
+    $code,
+    $codeErrorMessage,
+    $resendTimeout,
+    $canResend,
+    sendSmsMutation.$pending,
+    verifySmsMutation.$pending,
+    codeChanged,
+    confirmClicked,
+    sendSmsAgainClicked,
+  ]);
 
-  useEffect(() => {
-    let timer: number | undefined;
-
-    if (countdown > 0 && isDisabled) {
-      timer = window.setInterval(() => {
-        setCountdown((prevCountdown) => prevCountdown - 1);
-      }, 1000);
-    } else if (countdown === 0 && isDisabled && codeSent) {
-      setIsDisabled(false);
-    }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [countdown, isDisabled, codeSent]);
-
+  // Автофокус на первое поле ввода кода
   useEffect(() => {
     const timer = setTimeout(() => {
       if (containerRef.current) {
@@ -49,19 +55,6 @@ export const AuthRegistrationConfirmPhonePage = () => {
 
     return () => clearTimeout(timer);
   }, []);
-
-  const handleResendCode = () => {
-    setCountdown(60);
-    setIsDisabled(true);
-    setCodeSent(true);
-  };
-
-  const handleConfirm = () => {
-    handleConfirmClick();
-    setCountdown(60);
-    setIsDisabled(true);
-    setCodeSent(true);
-  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -107,27 +100,32 @@ export const AuthRegistrationConfirmPhonePage = () => {
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
+                {codeErrorMessage && (
+                  <p className="text-sm text-destructive text-center">{codeErrorMessage}</p>
+                )}
               </div>
 
               <div className="space-y-4">
                 <Button
                   className="w-full"
                   variant="default"
-                  disabled={code.length !== 6}
-                  onClick={handleConfirm}
+                  disabled={code.length !== 6 || isVerifying}
+                  onClick={handleConfirmClick}
                 >
-                  Подтвердить
+                  {isVerifying ? "Проверка..." : "Подтвердить"}
                 </Button>
 
                 <Button
                   className="w-full"
                   variant="outline"
-                  disabled={isDisabled}
-                  onClick={handleResendCode}
+                  disabled={!canResend || isSmsSending}
+                  onClick={handleResendClick}
                 >
-                  {codeSent && isDisabled
-                    ? `Отправить код повторно (${countdown}с)`
-                    : "Отправить код повторно"}
+                  {isSmsSending
+                    ? "Отправка..."
+                    : canResend
+                      ? "Отправить код повторно"
+                      : `Отправить код повторно через ${resendTimeout}с`}
                 </Button>
               </div>
             </div>
