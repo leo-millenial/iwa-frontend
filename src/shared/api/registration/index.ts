@@ -24,6 +24,9 @@ import {
 
 const startRegistrationFx = createEffect(async (data: z.infer<typeof zRegistrationStep1Dto>) => {
   const res = await registrationControllerStartRegistration({ body: data });
+  if (!res.data) {
+    throw res.error;
+  }
   return res.data;
 });
 
