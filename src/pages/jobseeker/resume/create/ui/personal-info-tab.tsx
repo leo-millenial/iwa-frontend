@@ -30,7 +30,7 @@ export const PersonalInfoTab = ({ resume, setResume, onNext }: PersonalInfoTabPr
   const [photoError, setPhotoError] = useState<string | null>(null);
 
   // Обработчики изменения основных данных резюме
-  const handlePersonalInfoChange = (field: keyof IResume, value: any) => {
+  const handlePersonalInfoChange = (field: keyof IResume, value: never) => {
     setResume((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -41,7 +41,7 @@ export const PersonalInfoTab = ({ resume, setResume, onNext }: PersonalInfoTabPr
     }));
   };
 
-  const handleIncomeChange = (field: keyof Income, value: any) => {
+  const handleIncomeChange = (field: keyof Income, value: never) => {
     setResume((prev) => ({
       ...prev,
       income: { ...prev.income, [field]: value } as Income,

@@ -1,23 +1,34 @@
+import { useUnit } from "effector-react";
+import { Loader2 } from "lucide-react";
+
+import { ErrorMessage } from "@/pages/auth/registration/ui/error-message.tsx";
+
 import { Button } from "@/shared/ui/button.tsx";
-import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
+import { LogoLink } from "@/shared/ui/logo-link.tsx";
+import { PhoneInput, getPhoneErrorMessage } from "@/shared/ui/phone-input.tsx";
+
+import { $error, $pending, nextClicked, phoneChanged } from "./model.ts";
 
 export const AuthRegistrationPhonePage = () => {
+  const [error, pending] = useUnit([$error, $pending]);
+  const [phoneChangedHandle, nextClickedHandle] = useUnit([phoneChanged, nextClicked]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10">
-        <div className="text-2xl font-bold cursor-pointer">{import.meta.env.VITE_APP_NAME}</div>
+        <LogoLink />
       </header>
 
       <div className="flex-1 relative">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('images/blue-backgraund.jpg')",
+            backgroundImage: "url('images/blue-background.jpg')",
           }}
         />
 
-        <div className="absolute inset-0 flex items-center justify-center p-4">
+        <div className="absolute inset-0 flex flex-col gap-2 items-center justify-center p-4">
           <div className="w-full max-w-md p-6 space-y-6 bg-card rounded-lg shadow-md">
             <div className="space-y-2 text-center">
               <h1 className="text-2xl font-bold">Регистрация</h1>
@@ -27,12 +38,16 @@ export const AuthRegistrationPhonePage = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">Телефон</Label>
-                <Input id="phone" placeholder="+7" />
+                <PhoneInput id="phone" onChange={phoneChangedHandle} />
               </div>
 
-              <Button className="w-full">Далее</Button>
+              <Button disabled={pending} className="w-full" onClick={() => nextClickedHandle()}>
+                {pending && <Loader2 className="animate-spin" />}
+                Далее
+              </Button>
             </div>
           </div>
+          <ErrorMessage message={getPhoneErrorMessage(error)} />
         </div>
       </div>
     </div>

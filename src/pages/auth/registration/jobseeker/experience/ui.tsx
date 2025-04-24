@@ -9,6 +9,7 @@ import { Calendar } from "@/shared/ui/calendar.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
 import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
+import { LogoLink } from "@/shared/ui/logo-link.tsx";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover.tsx";
 import {
   Select,
@@ -133,14 +134,14 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10">
-        <div className="text-2xl font-bold cursor-pointer">{import.meta.env.VITE_APP_NAME}</div>
+        <LogoLink />
       </header>
 
       <div className="flex-1 relative">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('images/blue-backgraund.jpg')",
+            backgroundImage: "url('images/blue-background.jpg')",
           }}
         />
 

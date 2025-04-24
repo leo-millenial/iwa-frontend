@@ -1,5 +1,5 @@
+import { AuthRegistrationPage } from "./index.tsx";
 import { currentRoute } from "./model";
-import { AuthRegistrationPage } from "./ui";
 
 export default {
   view: AuthRegistrationPage,
