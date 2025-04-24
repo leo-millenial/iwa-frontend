@@ -11,12 +11,10 @@ export const phoneSchema = z
     message: "PHONE_INVALID_FORMAT",
   });
 
-export interface PhoneValidationParams {
-  normalizePhone?: (phone: string) => string;
-}
-
-export const createPhoneValidation = createFactory((params: PhoneValidationParams = {}) => {
-  const { normalizePhone = (p) => p.replace(/\D/g, "") } = params;
+// Создаем фабрику без обязательных параметров
+export const createPhoneValidation = createFactory(() => {
+  // Функция нормализации телефона по умолчанию
+  const normalizePhone = (p: string) => p.replace(/\D/g, "");
 
   // Создаем события и сторы внутри фабрики
   const validatePhone = createEvent<void>();
@@ -59,9 +57,12 @@ export const createPhoneValidation = createFactory((params: PhoneValidationParam
   });
 
   return {
+    // События
     validatePhone,
     phoneChanged,
 
+    // Сторы
+    $phone,
     $error,
     $normalizedPhone,
   };

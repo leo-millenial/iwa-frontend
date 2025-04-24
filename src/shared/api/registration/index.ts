@@ -79,7 +79,7 @@ const step5Fx = createEffect(async (data: z.infer<typeof zRegistrationStep5Dto>)
 
 export const step5Mutation = createMutation({
   effect: step5Fx,
-  contract: zodContract(zRegistrationStep5Dto),
+  contract: zodContract(zRegistrationControllerStartRegistrationResponse),
 });
 
 export const zAuthTokens = z.object({
