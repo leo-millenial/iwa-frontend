@@ -17,7 +17,8 @@ export type AuthRegistrationStartPageError =
   | "PASSWORD_NO_UPPERCASE"
   | "PASSWORD_NO_LOWERCASE"
   | "PASSWORD_NO_DIGIT"
-  | "PASSWORDS_DO_NOT_MATCH";
+  | "PASSWORDS_DO_NOT_MATCH"
+  | "EMAIL_ALREADY_EXISTS";
 
 export enum RegistrationStep {
   Initial = 0,
@@ -114,6 +115,36 @@ sample({
     sessionId: result.sessionId,
   }),
   target: registrationResponseSucceed,
+});
+
+interface ApiErrorResponse {
+  statusCode: number;
+  message: string;
+  error: string;
+}
+
+function isApiErrorResponse(error: unknown): error is ApiErrorResponse {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "statusCode" in error &&
+    "message" in error &&
+    "error" in error &&
+    typeof error.message === "string"
+  );
+}
+
+sample({
+  clock: startRegistrationMutation.finished.failure,
+  fn: ({ error }) => {
+    if (isApiErrorResponse(error) && error.statusCode === 400) {
+      if (error.message.includes("уже существует")) {
+        return "EMAIL_ALREADY_EXISTS" as const;
+      }
+    }
+    return null;
+  },
+  target: setError,
 });
 
 sample({

@@ -147,6 +147,7 @@ export const getErrorMessage = (error: AuthRegistrationStartPageError): string |
     PASSWORD_NO_LOWERCASE: "Пароль должен содержать хотя бы одну строчную букву",
     PASSWORD_NO_DIGIT: "Пароль должен содержать хотя бы одну цифру",
     PASSWORDS_DO_NOT_MATCH: "Пароли не совпадают",
+    EMAIL_ALREADY_EXISTS: "Пользователь с таким email уже существует",
   };
 
   return errorMessages[error];
