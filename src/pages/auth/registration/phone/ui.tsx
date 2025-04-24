@@ -1,22 +1,18 @@
-import { useMaskito } from "@maskito/react";
 import { useUnit } from "effector-react";
 import { Loader2 } from "lucide-react";
 
 import { ErrorMessage } from "@/pages/auth/registration/ui/error-message.tsx";
 
 import { Button } from "@/shared/ui/button.tsx";
-import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
+import { PhoneInput, getPhoneErrorMessage } from "@/shared/ui/phone-input.tsx";
 
-import { getPhoneErrorMessage, options } from "./lib/phone.ts";
 import { $error, $pending, nextClicked, phoneChanged } from "./model.ts";
 
 export const AuthRegistrationPhonePage = () => {
   const [error, pending] = useUnit([$error, $pending]);
   const [phoneChangedHandle, nextClickedHandle] = useUnit([phoneChanged, nextClicked]);
-
-  const maskedInputRef = useMaskito({ options });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -42,15 +38,7 @@ export const AuthRegistrationPhonePage = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">Телефон</Label>
-                <Input
-                  id="phone"
-                  ref={maskedInputRef}
-                  placeholder="+7"
-                  onInput={(e) => {
-                    const input = e.currentTarget as HTMLInputElement;
-                    phoneChangedHandle(input.value);
-                  }}
-                />
+                <PhoneInput id="phone" onChange={phoneChangedHandle} />
               </div>
 
               <Button disabled={pending} className="w-full" onClick={() => nextClickedHandle()}>

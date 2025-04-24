@@ -11,10 +11,9 @@ import {
 
 import { step3Mutation } from "@/shared/api/registration";
 import { routes } from "@/shared/routing";
+import { PhoneError } from "@/shared/ui/phone-input.tsx";
 
 export const currentRoute = routes.auth.registrationFlow.phone;
-
-export type PhoneError = "PHONE_REQUIRED" | "PHONE_INVALID_FORMAT" | null;
 
 const phoneSchema = z
   .string()
