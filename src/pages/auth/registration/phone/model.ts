@@ -1,6 +1,6 @@
-import { createEvent, createStore, sample } from "effector";
+import { invoke } from "@withease/factories";
+import { createEvent, sample } from "effector";
 import { and, not } from "patronum";
-import { z } from "zod";
 
 import {
   $completedStep,
@@ -10,43 +10,22 @@ import {
 } from "@/pages/auth/registration/model.ts";
 
 import { step3Mutation } from "@/shared/api/registration";
+import { createPhoneValidation } from "@/shared/lib/phone/phone-validation";
 import { routes } from "@/shared/routing";
-import { PhoneError } from "@/shared/ui/phone-input.tsx";
 
 export const currentRoute = routes.auth.registrationFlow.phone;
 
-const phoneSchema = z
-  .string()
-  .min(1, { message: "PHONE_REQUIRED" })
-  .regex(/^(\+7|7|8)?[\s-]?\(?[9][0-9]{2}\)?[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}$/, {
-    message: "PHONE_INVALID_FORMAT",
-  });
-
 export const nextClicked = createEvent();
-export const phoneChanged = createEvent<string>();
 
-export const $phone = createStore("");
-export const $error = createStore<PhoneError>(null);
+const { phoneChanged, validatePhone, $error, $normalizedPhone } = invoke(createPhoneValidation);
+
 export const $pending = step3Mutation.$pending;
-
 export const $sessionLoaded = $sessionId.map((id) => Boolean(id));
-const $canProceed = and($sessionLoaded, not($error));
-
-export const $normalizedPhone = $phone.map((raw) => raw.replace(/\D/g, ""));
-
-$phone.on(phoneChanged, (_, phone) => phone);
+const $canProceed = and($sessionLoaded, not($error), $normalizedPhone);
 
 sample({
   clock: nextClicked,
-  source: $normalizedPhone,
-  fn: (phone) => {
-    const result = phoneSchema.safeParse(phone);
-    if (!result.success) {
-      return result.error.errors[0].message as PhoneError;
-    }
-    return null;
-  },
-  target: $error,
+  target: validatePhone,
 });
 
 sample({
@@ -72,11 +51,8 @@ sample({
 });
 
 sample({
-  clock: phoneChanged,
-  target: $error.reinit,
-});
-
-sample({
   clock: step3Mutation.finished.failure,
   target: routes.auth.registration.open,
 });
+
+export { phoneChanged, $error, $normalizedPhone };
