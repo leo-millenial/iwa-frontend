@@ -1,9 +1,31 @@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { CalendarIcon, Upload } from "lucide-react";
-import { useState } from "react";
+import { useUnit } from "effector-react";
+import { CalendarIcon } from "lucide-react";
 
+import {
+  $birthDate,
+  $currency,
+  $firstName,
+  $formError,
+  $gender,
+  $lastName,
+  $middleName,
+  $position,
+  $salary,
+  birthDateChanged,
+  currencyChanged,
+  firstNameChanged,
+  formSubmitted,
+  genderChanged,
+  lastNameChanged,
+  middleNameChanged,
+  positionChanged,
+  salaryChanged,
+} from "@/pages/auth/registration/jobseeker/profile/model.ts";
+
+import { Gender } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Calendar } from "@/shared/ui/calendar.tsx";
 import { Input } from "@/shared/ui/input.tsx";
@@ -20,13 +42,49 @@ import {
 } from "@/shared/ui/select.tsx";
 
 export const AuthRegistrationJobseekerProfilePage = () => {
-  const [birthDate, setBirthDate] = useState<Date | undefined>();
-  const [gender, setGender] = useState("male");
-  const [currency, setCurrency] = useState("RUB");
+  const {
+    birthDate,
+    gender,
+    currency,
+    firstName,
+    lastName,
+    middleName,
+    position,
+    salary,
+    formError,
+    handleBirthDateChange,
+    handleGenderChange,
+    handleCurrencyChange,
+    handleFirstNameChange,
+    handleLastNameChange,
+    handleMiddleNameChange,
+    handlePositionChange,
+    handleSalaryChange,
+    handleSubmit,
+  } = useUnit({
+    birthDate: $birthDate,
+    gender: $gender,
+    currency: $currency,
+    firstName: $firstName,
+    lastName: $lastName,
+    middleName: $middleName,
+    position: $position,
+    salary: $salary,
+    formError: $formError,
+    handleBirthDateChange: birthDateChanged,
+    handleGenderChange: genderChanged,
+    handleCurrencyChange: currencyChanged,
+    handleFirstNameChange: firstNameChanged,
+    handleLastNameChange: lastNameChanged,
+    handleMiddleNameChange: middleNameChanged,
+    handlePositionChange: positionChanged,
+    handleSalaryChange: salaryChanged,
+    handleSubmit: formSubmitted,
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Форма отправлена");
+    handleSubmit();
   };
 
   return (
@@ -49,32 +107,32 @@ export const AuthRegistrationJobseekerProfilePage = () => {
               <h1 className="text-2xl font-bold">Регистрация</h1>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Фото профиля */}
-              <div className="space-y-2">
-                <Label>Фото профиля</Label>
-                <div className="flex justify-center">
-                  <div className="relative w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-input">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
-                    <input
-                      type="file"
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      accept="image/*"
-                    />
-                  </div>
-                </div>
+            {formError && (
+              <div className="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
+                {formError === "EMPTY_FORM" && "Пожалуйста, заполните все обязательные поля"}
+                {formError === "INVALID_NAME" && "Пожалуйста, введите корректные ФИО"}
+                {formError === "INVALID_BIRTH_DATE" && "Пожалуйста, выберите дату рождения"}
+                {formError === "INVALID_POSITION" && "Пожалуйста, укажите желаемую должность"}
+                {formError === "INVALID_SALARY" && "Пожалуйста, укажите корректный доход"}
+                {formError === "SERVER_ERROR" && "Произошла ошибка при отправке данных"}
               </div>
+            )}
 
+            <form onSubmit={onSubmit} className="space-y-4">
               {/* Пол */}
               <div className="space-y-2">
                 <Label>Пол</Label>
-                <RadioGroup value={gender} onValueChange={setGender} className="flex space-x-4">
+                <RadioGroup
+                  value={gender}
+                  onValueChange={handleGenderChange}
+                  className="flex space-x-4"
+                >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="male" id="male" />
+                    <RadioGroupItem value={Gender.Male} id="male" />
                     <Label htmlFor="male">Мужчина</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="female" id="female" />
+                    <RadioGroupItem value={Gender.Female} id="female" />
                     <Label htmlFor="female">Женщина</Label>
                   </div>
                 </RadioGroup>
@@ -104,8 +162,8 @@ export const AuthRegistrationJobseekerProfilePage = () => {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={birthDate}
-                      onSelect={setBirthDate}
+                      selected={birthDate || undefined}
+                      onSelect={handleBirthDateChange}
                       disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                       locale={ru}
                       initialFocus
@@ -117,23 +175,47 @@ export const AuthRegistrationJobseekerProfilePage = () => {
               {/* ФИО */}
               <div className="space-y-2">
                 <Label htmlFor="lastName">Фамилия</Label>
-                <Input id="lastName" name="lastName" placeholder="Введите фамилию" />
+                <Input
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Введите фамилию"
+                  value={lastName}
+                  onChange={(e) => handleLastNameChange(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="firstName">Имя</Label>
-                <Input id="firstName" name="firstName" placeholder="Введите имя" />
+                <Input
+                  id="firstName"
+                  name="firstName"
+                  placeholder="Введите имя"
+                  value={firstName}
+                  onChange={(e) => handleFirstNameChange(e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="middleName">Отчество</Label>
-                <Input id="middleName" name="middleName" placeholder="Введите отчество" />
+                <Input
+                  id="middleName"
+                  name="middleName"
+                  placeholder="Введите отчество"
+                  value={middleName}
+                  onChange={(e) => handleMiddleNameChange(e.target.value)}
+                />
               </div>
 
               {/* Желаемая должность */}
               <div className="space-y-2">
                 <Label htmlFor="position">Желаемая должность</Label>
-                <Input id="position" name="position" placeholder="Введите желаемую должность" />
+                <Input
+                  id="position"
+                  name="position"
+                  placeholder="Введите желаемую должность"
+                  value={position}
+                  onChange={(e) => handlePositionChange(e.target.value)}
+                />
               </div>
 
               {/* Доход и валюта */}
@@ -146,9 +228,11 @@ export const AuthRegistrationJobseekerProfilePage = () => {
                     type="number"
                     placeholder="Введите сумму"
                     className="flex-1"
+                    value={salary}
+                    onChange={(e) => handleSalaryChange(e.target.value)}
                   />
 
-                  <Select value={currency} onValueChange={setCurrency}>
+                  <Select value={currency} onValueChange={handleCurrencyChange}>
                     <SelectTrigger className="w-24">
                       <SelectValue placeholder="Валюта" />
                     </SelectTrigger>

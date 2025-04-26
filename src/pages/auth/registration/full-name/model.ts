@@ -1,4 +1,5 @@
 import { createEvent, createStore, sample } from "effector";
+import { persist } from "effector-storage/session";
 import { and, not } from "patronum";
 import { z } from "zod";
 
@@ -21,8 +22,10 @@ export type FullNameError =
   | "LAST_NAME_TOO_SHORT"
   | "LAST_NAME_TOO_LONG";
 
-export const currentRoute = routes.auth.registrationFlow.fullName;
+export const FIRST_NAME_SESSION_KEY = "registration_firstName";
+export const LAST_NAME_SESSION_KEY = "registration_lastName";
 
+export const currentRoute = routes.auth.registrationFlow.fullName;
 export const nextClicked = createEvent();
 
 export const firstNameChanged = createEvent<string>();
@@ -35,6 +38,16 @@ export const $pending = step2Mutation.$pending;
 
 $firstName.on(firstNameChanged, (_, firstName) => firstName);
 $lastName.on(lastNameChanged, (_, lastName) => lastName);
+
+persist({
+  key: FIRST_NAME_SESSION_KEY,
+  store: $firstName,
+});
+
+persist({
+  key: LAST_NAME_SESSION_KEY,
+  store: $lastName,
+});
 
 $error.reset([firstNameChanged, lastNameChanged]);
 
