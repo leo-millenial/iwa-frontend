@@ -14,7 +14,7 @@ import { $normalizedPhone } from "@/pages/auth/registration/phone/model.ts";
 import { completeRegistrationMutation, step5Mutation } from "@/shared/api/registration";
 import { appStarted } from "@/shared/init";
 import { routes } from "@/shared/routing";
-import { setTokens } from "@/shared/tokens";
+import { setToken } from "@/shared/tokens";
 import {
   CertificateUrl,
   IEducation,
@@ -324,7 +324,7 @@ sample({
       refresh_token: result.refresh_token,
     };
   },
-  target: setTokens,
+  target: setToken,
 });
 
 sample({

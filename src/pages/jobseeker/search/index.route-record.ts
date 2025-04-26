@@ -4,13 +4,13 @@ import { createRouteView } from "atomic-router-react";
 import { PageLoader } from "@/shared/ui/page-loader.tsx";
 
 import { authenticatedRoute, currentRoute } from "./model";
-import { CompanySearchPage } from "./ui.tsx";
+import { JobseekerSearchPage } from "./ui.tsx";
 
 const typedAuthenticatedRoute = authenticatedRoute as unknown as RouteInstance<RouteParams>;
 
 const AuthenticationView = createRouteView({
   route: typedAuthenticatedRoute,
-  view: CompanySearchPage,
+  view: JobseekerSearchPage,
   otherwise: PageLoader,
 });
 

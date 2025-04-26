@@ -8,8 +8,6 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
-  passwordHash: string;
-  refreshTokenHash?: string;
   role: UserRole;
   phone: string;
 }

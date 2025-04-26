@@ -1,9 +1,22 @@
+import { useUnit } from "effector-react";
+
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
+import { PhoneInput } from "@/shared/ui/phone-input.tsx";
+
+import { $password, formSubmitted, passwordChanged, phoneChanged } from "./model.ts";
 
 export const AuthSignInPage = () => {
+  const [handleSubmitForm, handlePasswordChange, handlePhoneChange] = useUnit([
+    formSubmitted,
+    passwordChanged,
+    phoneChanged,
+  ]);
+
+  const password = useUnit($password);
+
   return (
     <div className="flex flex-col min-h-screen">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-10">
@@ -21,16 +34,16 @@ export const AuthSignInPage = () => {
         <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-80px)]">
           <div className="w-full max-w-md p-8">
             <Card className="w-full shadow-lg">
-              <CardHeader className="space-y-3">
+              <CardHeader className="space-y-2">
                 <CardTitle className="text-3xl font-bold">Вход</CardTitle>
               </CardHeader>
               <CardContent>
-                <form className="space-y-6">
-                  <div className="space-y-3">
-                    <label htmlFor="login" className="text-sm font-medium">
-                      Логин
+                <form className="space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="phone" className="text-sm font-medium">
+                      Телефон
                     </label>
-                    <Input id="login" placeholder="Введите логин" className="h-11" />
+                    <PhoneInput id="phone" onChange={(value) => handlePhoneChange(value)} />
                   </div>
                   <div className="space-y-3">
                     <label htmlFor="password" className="text-sm font-medium">
@@ -41,12 +54,20 @@ export const AuthSignInPage = () => {
                       type="password"
                       placeholder="Введите пароль"
                       className="h-11"
+                      value={password}
+                      onChange={(e) => handlePasswordChange(e.target.value)}
                     />
                   </div>
                 </form>
               </CardContent>
               <CardFooter className="pt-4">
-                <Button className="w-full h-11 text-base font-medium">Войти</Button>
+                <Button
+                  onClick={() => handleSubmitForm()}
+                  type="submit"
+                  className="w-full h-11 text-base font-medium"
+                >
+                  Войти
+                </Button>
               </CardFooter>
             </Card>
           </div>
