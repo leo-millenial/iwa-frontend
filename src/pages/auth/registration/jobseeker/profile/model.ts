@@ -33,6 +33,8 @@ export const positionChanged = createEvent<string>();
 export const salaryChanged = createEvent<string>();
 export const currencyChanged = createEvent<string>();
 export const setFormError = createEvent<ProfileFormError>();
+export const cityChanged = createEvent<string>();
+export const regionChanged = createEvent<string>();
 
 export const $gender = createStore<Gender>(Gender.Male);
 export const $birthDate = createStore<Date | null>(null);
@@ -43,6 +45,8 @@ export const $position = createStore<string>("");
 export const $salary = createStore<string>("");
 export const $currency = createStore<string>("RUB");
 export const $formError = createStore<ProfileFormError>(null);
+export const $city = createStore("");
+export const $region = createStore("");
 
 persist({
   store: $gender,
@@ -105,6 +109,8 @@ $position.on(positionChanged, (_, position) => position);
 $salary.on(salaryChanged, (_, salary) => salary);
 $currency.on(currencyChanged, (_, currency) => currency);
 $formError.on(setFormError, (_, error) => error);
+$city.on(cityChanged, (_, city) => city);
+$region.on(regionChanged, (_, region) => region);
 
 $formError.reset(
   genderChanged,

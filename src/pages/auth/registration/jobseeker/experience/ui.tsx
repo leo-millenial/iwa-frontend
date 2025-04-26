@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { useUnit } from "effector-react";
 import { CalendarIcon, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
-import { useState } from "react";
 
 import { Button } from "@/shared/ui/button.tsx";
 import { Calendar } from "@/shared/ui/calendar.tsx";
@@ -21,27 +21,23 @@ import {
 import { Switch } from "@/shared/ui/switch.tsx";
 import { Textarea } from "@/shared/ui/textarea.tsx";
 
-enum EmploymentType {
-  FullTime = "FullTime",
-  PartTime = "PartTime",
-  Remote = "Remote",
-  Office = "Office",
-  Hybrid = "Hybrid",
-}
-
-type WorkExperienceEndDate = Date | null;
-
-interface IWorkExperience {
-  id: string;
-  position?: string;
-  company?: string;
-  employmentType?: EmploymentType;
-  startDate?: Date;
-  endDate?: WorkExperienceEndDate;
-  website?: string;
-  responsibilitiesDescription?: string;
-  currentJob?: boolean;
-}
+import {
+  $activeExperienceIndex,
+  $currentExperience,
+  $formError,
+  $isEditing,
+  $pending,
+  $workExperiences,
+  EmploymentType,
+  activeExperienceIndexChanged,
+  currentExperienceChanged,
+  experienceAdded,
+  experienceEditCancelled,
+  experienceEditStarted,
+  experienceEdited,
+  experienceRemoved,
+  formSubmitted,
+} from "./model";
 
 const employmentTypeLabels = {
   [EmploymentType.FullTime]: "Полный рабочий день",
@@ -52,17 +48,41 @@ const employmentTypeLabels = {
 };
 
 export const AuthRegistrationJobseekerExperiencePage = () => {
-  const [workExperiences, setWorkExperiences] = useState<IWorkExperience[]>([]);
-  const [currentExperience, setCurrentExperience] = useState<IWorkExperience>({
-    id: crypto.randomUUID(),
-    currentJob: false,
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [activeExperienceIndex, setActiveExperienceIndex] = useState(0);
+  const [
+    workExperiences,
+    currentExperience,
+    isEditing,
+    activeExperienceIndex,
+    formError,
+    pending,
+    handleExperienceAdded,
+    handleExperienceEdited,
+    handleExperienceEditStarted,
+    handleExperienceEditCancelled,
+    handleExperienceRemoved,
+    handleCurrentExperienceChanged,
+    handleActiveExperienceIndexChanged,
+    handleFormSubmitted,
+  ] = useUnit([
+    $workExperiences,
+    $currentExperience,
+    $isEditing,
+    $activeExperienceIndex,
+    $formError,
+    $pending,
+    experienceAdded,
+    experienceEdited,
+    experienceEditStarted,
+    experienceEditCancelled,
+    experienceRemoved,
+    currentExperienceChanged,
+    activeExperienceIndexChanged,
+    formSubmitted,
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Форма отправлена", { workExperiences });
+    handleFormSubmitted();
   };
 
   const handleAddExperience = () => {
@@ -71,64 +91,29 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
     }
 
     if (isEditing) {
-      setWorkExperiences(
-        workExperiences.map((exp) => (exp.id === currentExperience.id ? currentExperience : exp)),
-      );
-      setIsEditing(false);
+      handleExperienceEdited(currentExperience);
     } else {
-      setWorkExperiences([...workExperiences, currentExperience]);
-      // Устанавливаем активный индекс на новый опыт
-      setActiveExperienceIndex(workExperiences.length);
-    }
-
-    // Сброс формы
-    setCurrentExperience({
-      id: crypto.randomUUID(),
-      currentJob: false,
-    });
-  };
-
-  const handleEditExperience = (experience: IWorkExperience) => {
-    setCurrentExperience(experience);
-    setIsEditing(true);
-  };
-
-  const handleDeleteExperience = (id: string) => {
-    const index = workExperiences.findIndex((exp) => exp.id === id);
-    setWorkExperiences(workExperiences.filter((exp) => exp.id !== id));
-
-    // Корректируем активный индекс после удаления
-    if (workExperiences.length > 1) {
-      if (index <= activeExperienceIndex) {
-        setActiveExperienceIndex(Math.max(0, activeExperienceIndex - 1));
-      }
-    } else {
-      setActiveExperienceIndex(0);
-    }
-
-    if (isEditing && currentExperience.id === id) {
-      setCurrentExperience({
-        id: crypto.randomUUID(),
-        currentJob: false,
-      });
-      setIsEditing(false);
+      handleExperienceAdded(currentExperience);
     }
   };
 
   const handleCurrentJobChange = (checked: boolean) => {
-    setCurrentExperience({
-      ...currentExperience,
+    handleCurrentExperienceChanged({
       currentJob: checked,
       endDate: checked ? null : currentExperience.endDate,
     });
   };
 
   const nextExperience = () => {
-    setActiveExperienceIndex((prev) => (prev === workExperiences.length - 1 ? 0 : prev + 1));
+    handleActiveExperienceIndexChanged(
+      activeExperienceIndex === workExperiences.length - 1 ? 0 : activeExperienceIndex + 1,
+    );
   };
 
   const prevExperience = () => {
-    setActiveExperienceIndex((prev) => (prev === 0 ? workExperiences.length - 1 : prev - 1));
+    handleActiveExperienceIndexChanged(
+      activeExperienceIndex === 0 ? workExperiences.length - 1 : activeExperienceIndex - 1,
+    );
   };
 
   return (
@@ -153,6 +138,15 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                 Расскажите о вашем опыте работы, чтобы работодатели могли лучше оценить ваши навыки
               </p>
             </div>
+
+            {formError && (
+              <div className="p-3 bg-destructive/15 text-destructive rounded-md text-sm">
+                {formError === "EMPTY_REQUIRED_FIELDS" &&
+                  "Пожалуйста, заполните все обязательные поля"}
+                {formError === "INVALID_DATES" && "Пожалуйста, проверьте правильность дат"}
+                {formError === "SERVER_ERROR" && "Произошла ошибка при отправке данных"}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Карусель опыта работы */}
@@ -182,7 +176,7 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                handleEditExperience(workExperiences[activeExperienceIndex])
+                                handleExperienceEditStarted(workExperiences[activeExperienceIndex])
                               }
                               className="h-8 px-2"
                             >
@@ -192,7 +186,7 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() =>
-                                handleDeleteExperience(workExperiences[activeExperienceIndex].id)
+                                handleExperienceRemoved(workExperiences[activeExperienceIndex].id)
                               }
                               className="h-8 px-2"
                             >
@@ -263,50 +257,53 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
 
               {/* Форма добавления/редактирования опыта */}
               <Card>
-                <CardHeader className="pb-2">
+                <CardHeader>
                   <CardTitle className="text-lg">
                     {isEditing ? "Редактирование опыта" : "Добавление опыта работы"}
                   </CardTitle>
+                  <CardDescription>
+                    {isEditing
+                      ? "Измените информацию о вашем опыте работы"
+                      : "Заполните информацию о вашем опыте работы"}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1">
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
                       <Label htmlFor="position">Должность</Label>
                       <Input
                         id="position"
                         value={currentExperience.position || ""}
                         onChange={(e) =>
-                          setCurrentExperience({ ...currentExperience, position: e.target.value })
+                          handleCurrentExperienceChanged({ position: e.target.value })
                         }
                         placeholder="Например: Frontend-разработчик"
                       />
                     </div>
-
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <Label htmlFor="company">Компания</Label>
                       <Input
                         id="company"
                         value={currentExperience.company || ""}
                         onChange={(e) =>
-                          setCurrentExperience({ ...currentExperience, company: e.target.value })
+                          handleCurrentExperienceChanged({ company: e.target.value })
                         }
                         placeholder="Например: ООО Рога и Копыта"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <Label htmlFor="employmentType">Тип занятости</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="employment-type">Тип занятости</Label>
                     <Select
                       value={currentExperience.employmentType}
                       onValueChange={(value) =>
-                        setCurrentExperience({
-                          ...currentExperience,
+                        handleCurrentExperienceChanged({
                           employmentType: value as EmploymentType,
                         })
                       }
                     >
-                      <SelectTrigger id="employmentType">
+                      <SelectTrigger id="employment-type">
                         <SelectValue placeholder="Выберите тип занятости" />
                       </SelectTrigger>
                       <SelectContent>
@@ -319,9 +316,9 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                     </Select>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <Label>Дата начала</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative">
+                    <div className="space-y-2">
+                      <Label htmlFor="start-date">Дата начала</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
@@ -330,42 +327,37 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                               "w-full justify-start text-left font-normal",
                               !currentExperience.startDate && "text-muted-foreground",
                             )}
-                            type="button"
                           >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
                             {currentExperience.startDate ? (
                               format(currentExperience.startDate, "MMMM yyyy", { locale: ru })
                             ) : (
                               <span>Выберите дату</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
-                            selected={currentExperience.startDate}
-                            onSelect={(date) =>
-                              setCurrentExperience({ ...currentExperience, startDate: date })
-                            }
-                            disabled={(date) => date > new Date()}
-                            locale={ru}
+                            selected={currentExperience.startDate || undefined}
+                            onSelect={(date) => handleCurrentExperienceChanged({ startDate: date })}
                             initialFocus
                           />
                         </PopoverContent>
                       </Popover>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-2 relative -top-4.5">
                       <div className="flex items-center justify-between">
-                        <Label>Дата окончания</Label>
-                        <div className="flex items-center space-x-1">
+                        <Label htmlFor="end-date">Дата окончания</Label>
+                        <div className="flex items-center space-x-2">
                           <Switch
-                            id="currentJob"
+                            id="current-job"
                             checked={currentExperience.currentJob}
                             onCheckedChange={handleCurrentJobChange}
                           />
-                          <Label htmlFor="currentJob" className="text-xs">
-                            По настоящее время
+                          <Label htmlFor="current-job" className="text-xs">
+                            Текущее место работы
                           </Label>
                         </div>
                       </div>
@@ -379,70 +371,65 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                                 "text-muted-foreground",
                             )}
                             disabled={currentExperience.currentJob}
-                            type="button"
                           >
-                            {currentExperience.endDate && !currentExperience.currentJob ? (
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {currentExperience.currentJob ? (
+                              "По настоящее время"
+                            ) : currentExperience.endDate ? (
                               format(currentExperience.endDate, "MMMM yyyy", { locale: ru })
                             ) : (
-                              <span>
-                                {currentExperience.currentJob
-                                  ? "По настоящее время"
-                                  : "Выберите дату"}
-                              </span>
+                              <span>Выберите дату</span>
                             )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={currentExperience.endDate || undefined}
-                            onSelect={(date) =>
-                              setCurrentExperience({ ...currentExperience, endDate: date })
-                            }
-                            disabled={(date) =>
-                              date > new Date() ||
-                              (currentExperience.startDate
-                                ? date < currentExperience.startDate
-                                : false)
-                            }
-                            locale={ru}
+                            onSelect={(date) => handleCurrentExperienceChanged({ endDate: date })}
                             initialFocus
+                            disabled={currentExperience.currentJob}
                           />
                         </PopoverContent>
                       </Popover>
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <Label htmlFor="website">Сайт компании</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="website">Сайт компании (необязательно)</Label>
                     <Input
                       id="website"
                       value={currentExperience.website || ""}
-                      onChange={(e) =>
-                        setCurrentExperience({ ...currentExperience, website: e.target.value })
-                      }
+                      onChange={(e) => handleCurrentExperienceChanged({ website: e.target.value })}
                       placeholder="Например: https://company.com"
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <Label htmlFor="responsibilitiesDescription">Обязанности и достижения</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Обязанности и достижения</Label>
                     <Textarea
-                      id="responsibilitiesDescription"
+                      id="description"
                       value={currentExperience.responsibilitiesDescription || ""}
                       onChange={(e) =>
-                        setCurrentExperience({
-                          ...currentExperience,
+                        handleCurrentExperienceChanged({
                           responsibilitiesDescription: e.target.value,
                         })
                       }
-                      placeholder="Опишите ваши обязанности и достижения на этой должности"
-                      className="min-h-[80px]"
+                      placeholder="Опишите ваши обязанности и достижения на этой позиции"
+                      className="min-h-[100px]"
                     />
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex justify-end space-x-2">
+                    {isEditing && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleExperienceEditCancelled()}
+                      >
+                        Отмена
+                      </Button>
+                    )}
                     <Button type="button" onClick={handleAddExperience}>
                       {isEditing ? "Сохранить изменения" : "Добавить опыт"}
                     </Button>
@@ -450,12 +437,12 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                 </CardContent>
               </Card>
 
-              <div className="flex justify-between pt-2">
-                <Button variant="outline" type="button">
+              <div className="flex justify-between pt-4">
+                <Button type="button" variant="outline">
                   Назад
                 </Button>
-                <Button type="submit">
-                  {workExperiences.length > 0 ? "Сохранить и продолжить" : "Пропустить"}
+                <Button type="submit" disabled={pending}>
+                  {pending ? "Сохранение..." : "Продолжить"}
                 </Button>
               </div>
             </form>

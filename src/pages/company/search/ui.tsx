@@ -50,21 +50,6 @@ enum PostingPeriod {
   All = "За все время",
 }
 
-// Интерфейс для соискателя
-interface IJobseeker {
-  id: number;
-  name: string;
-  position: string;
-  status: JobseekerStatus;
-  salary: number;
-  age: number;
-  city: string;
-  skills: string[];
-  videoUrl: string;
-  avatarUrl: string;
-  isFavorite: boolean;
-}
-
 // Интерфейс для фильтров
 interface IFilters {
   searchQuery: string;

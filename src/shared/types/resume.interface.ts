@@ -75,6 +75,6 @@ export interface IResume {
   education?: IEducation[];
   skills?: ISkill[];
   aboutMe?: string;
-  sertificates?: CertificateUrl[];
+  certificates?: CertificateUrl[];
   languages?: ILanguage[];
 }

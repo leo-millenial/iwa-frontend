@@ -1,22 +1,5 @@
 import { useUnit } from "effector-react";
-import { PlusCircle, Trash2 } from "lucide-react";
-
-import {
-  $aboutMe,
-  $educations,
-  $languages,
-  $skills,
-  aboutMeChanged,
-  educationAdded,
-  educationFieldChanged,
-  educationRemoved,
-  languageAdded,
-  languageFieldChanged,
-  languageRemoved,
-  skillAdded,
-  skillFieldChanged,
-  skillRemoved,
-} from "@/pages/auth/registration/jobseeker/about/model.ts";
+import { Loader2, PlusCircle, Trash2 } from "lucide-react";
 
 import { LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
@@ -26,14 +9,38 @@ import { Label } from "@/shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
 
+import {
+  $aboutMe,
+  $educations,
+  $formError,
+  $languages,
+  $pending,
+  $skills,
+  AboutFormError,
+  aboutMeChanged,
+  educationAdded,
+  educationFieldChanged,
+  educationRemoved,
+  formSubmitted,
+  languageAdded,
+  languageFieldChanged,
+  languageRemoved,
+  skillAdded,
+  skillFieldChanged,
+  skillRemoved,
+} from "./model.ts";
+
 export const AuthRegistrationJobseekerAboutPage = () => {
+  const handleSubmitForm = useUnit(formSubmitted);
+  const [formError, pending] = useUnit([$formError, $pending]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Здесь будет логика отправки данных
+    handleSubmitForm();
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 relative">
       <h1 className="text-2xl font-bold mb-6 text-center">Расскажите о себе</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -54,10 +61,17 @@ export const AuthRegistrationJobseekerAboutPage = () => {
 
         {/* Кнопка завершения регистрации */}
         <div className="flex justify-center mt-8">
-          <Button type="submit" size="lg" className="px-8">
+          <Button disabled={pending} type="submit" size="lg" className="px-8">
+            {pending && <Loader2 className="animate-spin" />}
             Завершить регистрацию
           </Button>
         </div>
+
+        {formError && (
+          <div className="mt-4 bg-white p-4 text-red-500 text-center fixed top-0 right-0">
+            {getErrorMessage(formError)}
+          </div>
+        )}
       </form>
     </div>
   );
@@ -502,3 +516,22 @@ const AboutMe = () => {
 //     </Card>
 //   );
 // };
+
+export const getErrorMessage = (error: AboutFormError): string => {
+  switch (error) {
+    case "EMPTY_FORM":
+      return "Пожалуйста, заполните все обязательные поля";
+    case "INVALID_EDUCATION":
+      return "Пожалуйста, заполните все поля образования";
+    case "INVALID_SKILLS":
+      return "Пожалуйста, укажите хотя бы один навык";
+    case "INVALID_LANGUAGES":
+      return "Пожалуйста, укажите хотя бы один язык";
+    case "ABOUT_ME_TOO_LONG":
+      return "Описание о себе обязательно для заполнения и не должно превышать 1000 символов";
+    case "SERVER_ERROR":
+      return "Произошла ошибка при отправке данных. Пожалуйста, попробуйте позже";
+    default:
+      return "";
+  }
+};

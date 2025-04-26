@@ -6,6 +6,7 @@ import { CalendarIcon } from "lucide-react";
 
 import {
   $birthDate,
+  $city,
   $currency,
   $firstName,
   $formError,
@@ -13,8 +14,10 @@ import {
   $lastName,
   $middleName,
   $position,
+  $region,
   $salary,
   birthDateChanged,
+  cityChanged,
   currencyChanged,
   firstNameChanged,
   formSubmitted,
@@ -22,6 +25,7 @@ import {
   lastNameChanged,
   middleNameChanged,
   positionChanged,
+  regionChanged,
   salaryChanged,
 } from "@/pages/auth/registration/jobseeker/profile/model.ts";
 
@@ -52,6 +56,8 @@ export const AuthRegistrationJobseekerProfilePage = () => {
     position,
     salary,
     formError,
+    city,
+    region,
     handleBirthDateChange,
     handleGenderChange,
     handleCurrencyChange,
@@ -61,6 +67,8 @@ export const AuthRegistrationJobseekerProfilePage = () => {
     handlePositionChange,
     handleSalaryChange,
     handleSubmit,
+    handleRegionChange,
+    handleCityChange,
   } = useUnit({
     birthDate: $birthDate,
     gender: $gender,
@@ -71,6 +79,8 @@ export const AuthRegistrationJobseekerProfilePage = () => {
     position: $position,
     salary: $salary,
     formError: $formError,
+    city: $city,
+    region: $region,
     handleBirthDateChange: birthDateChanged,
     handleGenderChange: genderChanged,
     handleCurrencyChange: currencyChanged,
@@ -80,6 +90,8 @@ export const AuthRegistrationJobseekerProfilePage = () => {
     handlePositionChange: positionChanged,
     handleSalaryChange: salaryChanged,
     handleSubmit: formSubmitted,
+    handleCityChange: cityChanged,
+    handleRegionChange: regionChanged,
   });
 
   const onSubmit = (e: React.FormEvent) => {
@@ -243,6 +255,29 @@ export const AuthRegistrationJobseekerProfilePage = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Регион и город */}
+              <div className="space-y-2">
+                <Label htmlFor="region">Регион</Label>
+                <Input
+                  id="region"
+                  name="region"
+                  placeholder="Введите регион"
+                  value={region}
+                  onChange={(e) => handleRegionChange(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="city">Город</Label>
+                <Input
+                  id="city"
+                  name="city"
+                  placeholder="Введите город"
+                  value={city}
+                  onChange={(e) => handleCityChange(e.target.value)}
+                />
               </div>
 
               <Button type="submit" className="w-full">
