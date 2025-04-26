@@ -2,16 +2,15 @@ import { combine, createEvent, createStore, sample } from "effector";
 import { persist } from "effector-storage/local";
 
 import { appStarted } from "@/shared/init";
+import { ACCESS_TOKEN_KEY } from "@/shared/tokens/consts.ts";
 
 export const pickupTokens = createEvent();
-export const setTokens = createEvent<{ access_token?: string; refresh_token?: string }>();
-export const clearTokens = createEvent();
+export const setToken = createEvent<{ access_token?: string; refresh_token?: string }>();
+export const clearToken = createEvent();
 
 export const $accessToken = createStore("");
-export const $refreshToken = createStore("");
 
-$accessToken.on(setTokens, (_, { access_token }) => access_token);
-$refreshToken.on(setTokens, (_, { refresh_token }) => refresh_token);
+$accessToken.on(setToken, (_, { access_token }) => access_token);
 
 export const $headers = combine($accessToken, (accessToken): Record<string, string> => {
   const headers: Record<string, string> = {};
@@ -31,16 +30,10 @@ sample({
 persist({
   store: $accessToken,
   pickup: pickupTokens,
-  key: "X-Auth-Access-Token",
-});
-
-persist({
-  store: $refreshToken,
-  pickup: pickupTokens,
-  key: "X-Auth-Refresh-Token",
+  key: ACCESS_TOKEN_KEY,
 });
 
 sample({
-  clock: clearTokens,
-  target: [$accessToken.reinit, $refreshToken.reinit],
+  clock: clearToken,
+  target: $accessToken.reinit,
 });

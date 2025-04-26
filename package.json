@@ -37,6 +37,7 @@
     "@radix-ui/react-switch": "^1.2.2",
     "@radix-ui/react-tabs": "^1.1.7",
     "@tailwindcss/vite": "^4.1.4",
+    "@withease/contracts": "^1.1.0",
     "@withease/factories": "^1.0.5",
     "atomic-router": "^0.11.0",
     "atomic-router-react": "^0.10.0",

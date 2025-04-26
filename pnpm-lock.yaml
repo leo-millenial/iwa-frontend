@@ -74,6 +74,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.4
         version: 4.1.4(vite@6.3.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
+      '@withease/contracts':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@withease/factories':
         specifier: ^1.0.5
         version: 1.0.5
@@ -1485,6 +1488,9 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0
+
+  '@withease/contracts@1.1.0':
+    resolution: {integrity: sha512-TwM/nMXUFaLTRT5MpJx1654L0PZGV1/hFr1Ykb9aUwdIAi5rnmLALyvSPaESjjzxwLOBQvlINQavFJpXITNaAw==}
 
   '@withease/factories@1.0.5':
     resolution: {integrity: sha512-8qcAyBDxuI3F1Qf5ib39pzSfSma9TxyVH/ALOrtkaqnlTuRni76BMbwUyPgCTaEefPOO8sOQKe4SxZbs3p51dQ==}
@@ -4668,6 +4674,8 @@ snapshots:
       vite: 6.3.3(@types/node@22.14.1)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1)
     transitivePeerDependencies:
       - supports-color
+
+  '@withease/contracts@1.1.0': {}
 
   '@withease/factories@1.0.5': {}
 
