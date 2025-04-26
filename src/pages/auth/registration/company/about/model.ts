@@ -12,6 +12,7 @@ import {
 import { completeRegistrationMutation, step5Mutation } from "@/shared/api/registration";
 import { createPhoneValidation } from "@/shared/lib/phone/phone-validation";
 import { routes } from "@/shared/routing";
+import { setTokens } from "@/shared/tokens";
 import { ICompany } from "@/shared/types/company.interface.ts";
 import { PhoneError } from "@/shared/ui/phone-input.tsx";
 
@@ -204,6 +205,17 @@ sample({
   source: { sessionId: $sessionId },
   filter: (_, step) => step === RegistrationStep.SendDataSucceed,
   target: completeRegistrationMutation.start,
+});
+
+sample({
+  clock: completeRegistrationMutation.finished.success,
+  fn: ({ result }) => {
+    return {
+      access_token: result.access_token,
+      refresh_token: result.refresh_token,
+    };
+  },
+  target: setTokens,
 });
 
 sample({

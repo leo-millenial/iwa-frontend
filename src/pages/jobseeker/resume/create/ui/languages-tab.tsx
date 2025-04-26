@@ -1,13 +1,14 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import { ILanguage, IResume, LanguageLevel } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 
-import { ILanguage, IResume, LanguageLevel, languageLevelLabels } from "./index";
+import { languageLevelLabels } from "./index.tsx";
 
 interface LanguagesTabProps {
   resume: IResume;

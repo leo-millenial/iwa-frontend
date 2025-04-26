@@ -172,7 +172,6 @@ sample({
   target: $codeErrorMessage,
 });
 
-// Переходим на следующий шаг при успешной верификации
 sample({
   clock: $completedStep,
   source: $role,
@@ -180,7 +179,6 @@ sample({
   target: verificationSucceeded,
 });
 
-// Перенаправляем компанию на соответствующую страницу
 sample({
   clock: verificationSucceeded,
   source: $role,
@@ -188,12 +186,11 @@ sample({
   target: routes.auth.registrationFlow.company.about.open,
 });
 
-// Перенаправляем соискателя на соответствующую страницу
 sample({
   clock: verificationSucceeded,
   source: $role,
   filter: (role) => role === UserRole.Jobseeker,
-  target: routes.auth.registrationFlow.jobseeker.about.open,
+  target: routes.auth.registrationFlow.jobseeker.profile.open,
 });
 
 // Сбрасываем состояние при уходе со страницы

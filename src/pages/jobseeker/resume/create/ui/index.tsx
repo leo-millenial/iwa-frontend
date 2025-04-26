@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { LayoutJobseeker } from "@/layouts/jobseeker-layout.tsx";
 
+import { Gender, IResume, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
+import { EmploymentType } from "@/shared/types/vacancy.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
@@ -9,102 +11,9 @@ import { AdditionalInfoTab } from "./additional-info-tab";
 import { EducationTab } from "./education-tab";
 import { ExperienceTab } from "./experience-tab";
 import { LanguagesTab } from "./languages-tab";
-// Импорт компонентов для каждого таба
 import { PersonalInfoTab } from "./personal-info-tab";
 import { SkillsTab } from "./skills-tab";
 
-// Перечисления
-export enum EmploymentType {
-  FullTime = "FullTime",
-  PartTime = "PartTime",
-  Remote = "Remote",
-  Office = "Office",
-  Hybrid = "Hybrid",
-}
-
-export enum Gender {
-  Male = "Male",
-  Female = "Female",
-}
-
-export enum SkillLevel {
-  Beginner = "Beginner",
-  Intermediate = "Intermediate",
-  Advanced = "Advanced",
-}
-
-export enum LanguageLevel {
-  Beginner = "Beginner",
-  Intermediate = "Intermediate",
-  Advanced = "Advanced",
-  Native = "Native",
-}
-
-// Интерфейсы
-export interface Income {
-  amount: number;
-  currency: string | number;
-}
-
-export interface IFullName {
-  firstName: string;
-  lastName?: string;
-  patronymic?: string;
-}
-
-export interface IEducation {
-  id: string;
-  university: string;
-  faculty: string;
-  degree: string;
-  graduationDate: Date;
-}
-
-export interface ISkill {
-  id: string;
-  name: string;
-  level: SkillLevel;
-}
-
-export interface ILanguage {
-  id: string;
-  name: string;
-  level: LanguageLevel;
-}
-
-export type WorkExperienceEndDate = Date | null;
-
-export interface IWorkExperience {
-  id: string;
-  position?: string;
-  company?: string;
-  employmentType?: EmploymentType;
-  startDate?: Date;
-  endDate?: WorkExperienceEndDate;
-  currentJob?: boolean;
-  website?: string;
-  responsibilitiesDescription?: string;
-}
-
-export interface IResume {
-  jobseekerId?: string;
-  position?: string;
-  income?: Income;
-  fullName?: IFullName;
-  gender?: Gender;
-  birthday?: Date;
-  email?: string;
-  phone?: string;
-  city?: string;
-  workExperience?: IWorkExperience[];
-  education?: IEducation[];
-  skills?: ISkill[];
-  aboutMe?: string;
-  languages?: ILanguage[];
-  certificates?: string[];
-}
-
-// Лейблы для перечислений
 export const employmentTypeLabels = {
   [EmploymentType.FullTime]: "Полная занятость",
   [EmploymentType.PartTime]: "Частичная занятость",
@@ -138,7 +47,7 @@ export const JobseekerResumeCreatePage = () => {
     education: [],
     skills: [],
     languages: [],
-    certificates: [],
+    sertificates: [],
   });
 
   // Обработчик отправки формы

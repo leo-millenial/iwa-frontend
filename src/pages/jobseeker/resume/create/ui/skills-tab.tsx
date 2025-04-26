@@ -1,13 +1,14 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import { skillLevelLabels } from "@/pages/jobseeker/resume/create/ui/index.tsx";
+
+import { IResume, ISkill, SkillLevel } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-
-import { IResume, ISkill, SkillLevel, skillLevelLabels } from "./index.tsx";
 
 interface SkillsTabProps {
   resume: IResume;
