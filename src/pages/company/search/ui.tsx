@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
+import { IJobseeker } from "@/shared/types/jobseeker.interface.ts";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -127,14 +128,12 @@ const JobseekerCard = ({
   onToggleFavorite: (id: number) => void;
 }) => {
   return (
-    <Card key={jobseeker.id} className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card key={jobseeker._id} className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
         {/* Видео превью (2/3 карточки) */}
         <div className="aspect-video bg-muted relative">
           {/* Здесь будет видео */}
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-            Видео превью
-          </div>
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground"></div>
 
           {/* Кнопка избранного */}
           <Button
@@ -143,7 +142,7 @@ const JobseekerCard = ({
             className="absolute top-2 right-2 bg-white/80 hover:bg-white/90 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
-              onToggleFavorite(jobseeker.id);
+              onToggleFavorite(jobseeker._id);
             }}
           >
             {jobseeker.isFavorite ? (
@@ -230,7 +229,7 @@ const JobseekerCard = ({
                 <User className="mr-2 h-4 w-4" />
                 <span>Перейти в профиль</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleFavorite(jobseeker.id)}>
+              <DropdownMenuItem onClick={() => onToggleFavorite(jobseeker._id)}>
                 <Bookmark className="mr-2 h-4 w-4" />
                 <span>{jobseeker.isFavorite ? "Удалить из закладок" : "Добавить в закладки"}</span>
               </DropdownMenuItem>
@@ -621,7 +620,7 @@ export const CompanySearchPage = () => {
   const toggleFavorite = (id: number) => {
     setJobseekers(
       jobseekers.map((jobseeker) =>
-        jobseeker.id === id ? { ...jobseeker, isFavorite: !jobseeker.isFavorite } : jobseeker,
+        jobseeker._id === id ? { ...jobseeker, isFavorite: !jobseeker.isFavorite } : jobseeker,
       ),
     );
   };
@@ -808,7 +807,7 @@ export const CompanySearchPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredJobseekers.map((jobseeker) => (
                     <JobseekerCard
-                      key={jobseeker.id}
+                      key={jobseeker._id}
                       jobseeker={jobseeker}
                       onToggleFavorite={toggleFavorite}
                     />
