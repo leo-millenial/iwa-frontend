@@ -1,4 +1,5 @@
 import { useUnit } from "effector-react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -6,7 +7,7 @@ import { Input } from "@/shared/ui/input";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
 import { PhoneInput } from "@/shared/ui/phone-input.tsx";
 
-import { $password, formSubmitted, passwordChanged, phoneChanged } from "./model.ts";
+import { $password, $pending, formSubmitted, passwordChanged, phoneChanged } from "./model.ts";
 
 export const AuthSignInPage = () => {
   const [handleSubmitForm, handlePasswordChange, handlePhoneChange] = useUnit([
@@ -15,7 +16,7 @@ export const AuthSignInPage = () => {
     phoneChanged,
   ]);
 
-  const password = useUnit($password);
+  const [password, pending] = useUnit([$password, $pending]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -62,10 +63,12 @@ export const AuthSignInPage = () => {
               </CardContent>
               <CardFooter className="pt-4">
                 <Button
+                  disabled={pending}
                   onClick={() => handleSubmitForm()}
                   type="submit"
                   className="w-full h-11 text-base font-medium"
                 >
+                  {pending && <Loader2 className="animate-spin" />}
                   Войти
                 </Button>
               </CardFooter>
