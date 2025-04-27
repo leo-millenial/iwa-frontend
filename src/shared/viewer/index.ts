@@ -2,6 +2,8 @@ import { RouteInstance, RouteParams, RouteParamsAndQuery, chainRoute } from "ato
 import { Effect, Event, createEvent, createStore, sample } from "effector";
 
 import { getMeQuery } from "@/shared/api/user";
+import { routes } from "@/shared/routing";
+import { clearToken } from "@/shared/tokens";
 import { ICompany } from "@/shared/types/company.interface.ts";
 import { IJobseeker } from "@/shared/types/jobseeker.interface.ts";
 import { IUser, UserRole } from "@/shared/types/user.interface.ts";
@@ -25,6 +27,11 @@ export const viewerLoggedOut = createEvent();
 
 export const $viewer = createStore<Viewer | null>(null);
 
+sample({
+  clock: viewerLoggedOut,
+  target: [clearToken, routes.home.open],
+});
+
 // Создаем стор для хранения статуса авторизации
 export const $viewerStatus = createStore(ViewerStatus.Initial);
 
@@ -34,9 +41,7 @@ $viewerStatus.on(getMeQuery.start, (status) => {
   return status;
 });
 
-// Обновляем данные и статус при успешном получении данных пользователя
 $viewer.on(getMeQuery.finished.success, (_, { result }) => {
-  // Адаптируем данные API к нашему интерфейсу Viewer
   return {
     user: {
       ...result.user,

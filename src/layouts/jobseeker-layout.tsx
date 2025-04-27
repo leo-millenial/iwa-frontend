@@ -1,11 +1,25 @@
 import { Link } from "atomic-router-react";
-import { MessageSquare, Plus, Search, User } from "lucide-react";
+import { useUnit } from "effector-react";
+import { LogOut, MessageSquare, Plus, Search, User } from "lucide-react";
 
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu.tsx";
 import { LogoLink } from "@/shared/ui/logo-link.tsx";
+import { $viewer, viewerLoggedOut } from "@/shared/viewer";
 
 export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => {
+  const viewer = useUnit($viewer);
+  const handleLoggedOut = useUnit(viewerLoggedOut);
+
+  const viewerName = viewer?.user.firstName || "";
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
@@ -46,14 +60,24 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
             <MessageSquare className="h-5 w-5" />
           </Button>
 
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <User className="h-5 w-5" />
-          </Button>
-
-          {/* Название компании */}
-          <div className="hidden md:block text-sm font-medium truncate max-w-[150px]">
-            Фамилия Имя
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-2 py-1.5 text-sm font-medium">{viewerName}</div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center gap-2 text-destructive"
+                onClick={() => handleLoggedOut()}
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Выйти</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
