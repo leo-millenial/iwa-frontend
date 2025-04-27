@@ -13,6 +13,7 @@ export const formSubmitted = createEvent();
 export const passwordChanged = createEvent<string>();
 
 export const $password = createStore("");
+export const $pending = getMeQuery.$pending;
 
 const { phoneChanged, $normalizedPhone } = invoke(createPhoneValidation);
 

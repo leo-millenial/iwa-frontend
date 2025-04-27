@@ -57,8 +57,8 @@ const jobseekerContract = obj({
   _id: str,
   userId: str,
   resumes: arr(resumeContract),
-  documentFileIds: arr(str),
-  certificateFileIds: arr(str),
+  documentFileIds: or(arr(str), val(null), val(undefined)),
+  certificateFileIds: or(arr(str), val(null), val(undefined)),
 });
 
 const companySubscriptionContract = obj({
@@ -70,19 +70,25 @@ const companySubscriptionContract = obj({
 
 const companyContract = obj({
   _id: str,
-  logoUrl: or(str, val(null), val(undefined)),
-  certificateUrls: or(arr(str), val(null), val(undefined)),
-  documentUrls: or(arr(str), val(null), val(undefined)),
-  video: or(str, val(null), val(undefined)),
+  userId: str,
   name: str,
   region: str,
   city: str,
   inn: or(str, num),
-  brands: or(arr(str), val(null), val(undefined)),
   phone: str,
+  // Делаем необязательными поля, которые могут отсутствовать
+  logoUrl: or(str, val(null), val(undefined)),
+  certificateUrls: or(arr(str), val(null), val(undefined)),
+  documentUrls: or(arr(str), val(null), val(undefined)),
+  CompanyCertificateFileIds: or(arr(str), val(null), val(undefined)),
+  CompanyDocumentFileIds: or(arr(str), val(null), val(undefined)),
+  video: or(str, val(null), val(undefined)),
+  brands: or(arr(str), val(null), val(undefined)),
   subscriptions: or(arr(companySubscriptionContract), val(null), val(undefined)),
-  membersCount: num,
-  websiteUrl: str,
+  vacancies: or(arr(str), val(null), val(undefined)),
+  // Делаем необязательными поля, которые могут отсутствовать в ответе
+  membersCount: or(num, val(null), val(undefined)),
+  websiteUrl: or(str, val(null), val(undefined)),
   description: or(str, val(null), val(undefined)),
 });
 
