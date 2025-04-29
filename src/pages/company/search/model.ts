@@ -9,14 +9,11 @@ import { chainAuthenticated } from "@/shared/viewer";
 
 export const currentRoute = routes.company.search;
 
-export const authenticatedRoute = chainAuthenticated(currentRoute, {
-  otherwise: routes.auth.signIn.open,
-});
+export const authenticatedRoute = chainAuthenticated(currentRoute);
 
 /*
    todo
     - Подсчет активных фильтров [activeFiltersCount]
-    - Сброс всех фильтров. + resetFilters +
     - Обработчик для добавления/удаления из избранного
     - toggleFavorite
     - resume.status: Активный поиск | Готов к предложениям

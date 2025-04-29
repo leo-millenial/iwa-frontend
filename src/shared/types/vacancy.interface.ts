@@ -1,5 +1,3 @@
-import { ICompany } from "./company.interface";
-
 export interface ISalary {
   amount: {
     min: number;
@@ -28,11 +26,12 @@ export enum Experience {
 
 export interface IVacancy {
   _id?: string;
+  companyId: string;
   title: string;
   description: string;
   salary: ISalary;
   city: string;
   experience: Experience;
   employmentTypes: EmploymentType[];
-  company: Omit<ICompany, "vacancies" | "user">;
+  brands?: string[];
 }
