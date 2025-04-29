@@ -1,4 +1,4 @@
-import { EmploymentType } from "./vacancy.interface";
+import { EmploymentType, Experience } from "./vacancy.interface";
 
 export type CertificateUrl = string; // url
 
@@ -77,4 +77,14 @@ export interface IResume {
   aboutMe?: string;
   certificates?: CertificateUrl[];
   languages?: ILanguage[];
+}
+
+export interface ResumeSearchParams {
+  query?: string;
+  city?: string;
+  experience?: Experience;
+  employmentTypes?: EmploymentType[];
+  salaryMin?: number;
+  salaryMax?: number;
+  skills?: string;
 }

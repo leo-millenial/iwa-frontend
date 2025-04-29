@@ -1,25 +1,29 @@
-import {
-  Bookmark,
-  ChevronUp,
-  Filter,
-  MapPin,
-  MoreVertical,
-  Search,
-  Send,
-  Star,
-  StarOff,
-  User,
-  X,
-} from "lucide-react";
+import { useUnit } from "effector-react";
+import { ChevronUp, Filter, MoreVertical, Search, Send, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
+
+import {
+  $city,
+  $employmentTypes,
+  $experience,
+  $pending,
+  $resumeList,
+  $salaryMax,
+  $salaryMin,
+  $searchQuery,
+  $skills,
+  cityChanged,
+  resetFilters,
+  searchChanged,
+  skillsChanged,
+} from "@/pages/company/search/model.ts";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
-import { IJobseeker } from "@/shared/types/jobseeker.interface.ts";
+import { IResume } from "@/shared/types/resume.interface.ts";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
-import { Checkbox } from "@/shared/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,108 +31,13 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
 import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
-import { ScrollArea } from "@/shared/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/ui/sheet";
+import { Label } from "@/shared/ui/label.tsx";
 import { Skeleton } from "@/shared/ui/skeleton";
 
-// Перечисления для статусов соискателя
-enum JobseekerStatus {
-  ActiveSearch = "Активный поиск",
-  OpenToOffers = "Готов к предложениям",
-  NotSearching = "Не ищу работу",
-  Considering = "Рассматриваю предложения",
-}
-
-// Перечисления для периодов размещения
-enum PostingPeriod {
-  Day = "За последние 24 часа",
-  Week = "За последнюю неделю",
-  Month = "За последний месяц",
-  ThreeMonths = "За последние 3 месяца",
-  All = "За все время",
-}
-
-// Интерфейс для фильтров
-interface IFilters {
-  searchQuery: string;
-  onlyFavorites: boolean;
-  selectedPeriod: PostingPeriod;
-  selectedStatus: JobseekerStatus | null;
-  salaryRange: { min: string; max: string };
-  currency: "rub" | "usd" | "eur";
-  sortBy: "relevance" | "date" | "salary";
-  city: string;
-}
-
-// Моковые данные для примера
-const mockJobseekers: IJobseeker[] = [
-  {
-    id: 1,
-    name: "Иванов Иван",
-    position: "Frontend-разработчик",
-    status: JobseekerStatus.ActiveSearch,
-    salary: 150000,
-    age: 28,
-    city: "Москва",
-    skills: ["React", "TypeScript", "JavaScript"],
-    videoUrl: "https://example.com/video1.mp4",
-    avatarUrl: "https://i.pravatar.cc/150?img=1",
-    isFavorite: false,
-  },
-  {
-    id: 2,
-    name: "Петрова Анна",
-    position: "UX/UI дизайнер",
-    status: JobseekerStatus.OpenToOffers,
-    salary: 120000,
-    age: 25,
-    city: "Санкт-Петербург",
-    skills: ["Figma", "Adobe XD", "Sketch"],
-    videoUrl: "https://example.com/video2.mp4",
-    avatarUrl: "https://i.pravatar.cc/150?img=2",
-    isFavorite: true,
-  },
-  {
-    id: 3,
-    name: "Сидоров Алексей",
-    position: "Backend-разработчик",
-    status: JobseekerStatus.Considering,
-    salary: 180000,
-    age: 32,
-    city: "Новосибирск",
-    skills: ["Node.js", "Python", "PostgreSQL"],
-    videoUrl: "https://example.com/video3.mp4",
-    avatarUrl: "https://i.pravatar.cc/150?img=3",
-    isFavorite: false,
-  },
-  {
-    id: 4,
-    name: "Козлова Мария",
-    position: "Project Manager",
-    status: JobseekerStatus.ActiveSearch,
-    salary: 200000,
-    age: 30,
-    city: "Екатеринбург",
-    skills: ["Agile", "Scrum", "Jira"],
-    videoUrl: "https://example.com/video4.mp4",
-    avatarUrl: "https://i.pravatar.cc/150?img=4",
-    isFavorite: false,
-  },
-];
-
 // Компонент карточки соискателя
-const JobseekerCard = ({
-  jobseeker,
-  onToggleFavorite,
-}: {
-  jobseeker: IJobseeker;
-  onToggleFavorite: (id: number) => void;
-}) => {
+const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number) => void }) => {
   return (
-    <Card key={jobseeker._id} className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card key={resume._id} className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
         {/* Видео превью (2/3 карточки) */}
         <div className="aspect-video bg-muted relative">
@@ -136,29 +45,29 @@ const JobseekerCard = ({
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground"></div>
 
           {/* Кнопка избранного */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2 bg-white/80 hover:bg-white/90 rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite(jobseeker._id);
-            }}
-          >
-            {jobseeker.isFavorite ? (
-              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-            ) : (
-              <StarOff className="h-5 w-5" />
-            )}
-          </Button>
+          {/*<Button*/}
+          {/*  variant="ghost"*/}
+          {/*  size="icon"*/}
+          {/*  className="absolute top-2 right-2 bg-white/80 hover:bg-white/90 rounded-full"*/}
+          {/*  onClick={(e) => {*/}
+          {/*    e.stopPropagation();*/}
+          {/*    onToggleFavorite(resume._id);*/}
+          {/*  }}*/}
+          {/*>*/}
+          {/*  {resume.isFavorite ? (*/}
+          {/*    <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />*/}
+          {/*  ) : (*/}
+          {/*    <StarOff className="h-5 w-5" />*/}
+          {/*  )}*/}
+          {/*</Button>*/}
         </div>
 
         {/* Аватар по центру */}
         <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-10">
           <div className="rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
             <img
-              src={jobseeker.avatarUrl}
-              alt={jobseeker.name}
+              // src={resume?.avatarUrl}
+              alt={resume.fullName.firstName}
               className="h-20 w-20 object-cover"
             />
           </div>
@@ -167,53 +76,56 @@ const JobseekerCard = ({
 
       {/* Информация о соискателе */}
       <CardContent className="pt-12 pb-4 px-4 text-center">
-        {/* Статус */}
-        <div className="mb-2">
-          <span
-            className={`
-            inline-block px-3 py-1 rounded-full text-xs font-medium
-            ${
-              jobseeker.status === JobseekerStatus.ActiveSearch
-                ? "bg-green-100 text-green-800"
-                : jobseeker.status === JobseekerStatus.OpenToOffers
-                  ? "bg-blue-100 text-blue-800"
-                  : jobseeker.status === JobseekerStatus.Considering
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-gray-100 text-gray-800"
-            }
-          `}
-          >
-            {jobseeker.status}
-          </span>
-        </div>
+        {/*  /!* Статус *!/*/}
+        {/*  <div className="mb-2">*/}
+        {/*    <span*/}
+        {/*      className={`*/}
+        {/*      inline-block px-3 py-1 rounded-full text-xs font-medium*/}
+        {/*      ${*/}
+        {/*        resume.status === JobseekerStatus.ActiveSearch*/}
+        {/*          ? "bg-green-100 text-green-800"*/}
+        {/*          : resume.status === JobseekerStatus.OpenToOffers*/}
+        {/*            ? "bg-blue-100 text-blue-800"*/}
+        {/*            : resume.status === JobseekerStatus.Considering*/}
+        {/*              ? "bg-yellow-100 text-yellow-800"*/}
+        {/*              : "bg-gray-100 text-gray-800"*/}
+        {/*      }*/}
+        {/*    `}*/}
+        {/*    >*/}
+        {/*      {resume.status}*/}
+        {/*    </span>*/}
+        {/*  </div>*/}
 
         {/* Имя и должность */}
-        <h3 className="font-semibold text-lg">{jobseeker.name}</h3>
-        <p className="text-muted-foreground mb-3">{jobseeker.position}</p>
+        <h3 className="font-semibold text-lg">
+          <pre>{resume.fullName.firstName}</pre>
+        </h3>
+        <p className="text-muted-foreground mb-3">{resume.position}</p>
 
         {/* Теги с информацией */}
-        <div className="flex flex-wrap justify-center gap-1 mb-4">
-          <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-            от {jobseeker.salary.toLocaleString()} ₽
-          </span>
-          <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-            {jobseeker.age} лет
-          </span>
-          <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded flex items-center">
-            <MapPin className="h-3 w-3 mr-1" />
-            {jobseeker.city}
-          </span>
-          {jobseeker.skills.slice(0, 2).map((skill, index) => (
-            <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-              {skill}
-            </span>
-          ))}
-          {jobseeker.skills.length > 2 && (
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-              +{jobseeker.skills.length - 2}
-            </span>
-          )}
-        </div>
+        {/*<div className="flex flex-wrap justify-center gap-1 mb-4">*/}
+        {/*  {resume.income?.amount && (*/}
+        {/*    <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">*/}
+        {/*      от {resume.income.amount} {resume.income.currency || "₽"}*/}
+        {/*    </span>*/}
+        {/*  )}*/}
+        {/*  {resume.city && (*/}
+        {/*    <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded flex items-center">*/}
+        {/*      <MapPin className="h-3 w-3 mr-1" />*/}
+        {/*      {resume.city}*/}
+        {/*    </span>*/}
+        {/*  )}*/}
+        {/*  {resume?.skills?.slice(0, 2).map((skill, index) => (*/}
+        {/*    <span key={index} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">*/}
+        {/*      {skill}*/}
+        {/*    </span>*/}
+        {/*  ))}*/}
+        {/*  {resume?.skills?.length > 2 && (*/}
+        {/*    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">*/}
+        {/*      +{resume?.skills?.length - 2}*/}
+        {/*    </span>*/}
+        {/*  )}*/}
+        {/*</div>*/}
 
         {/* Контекстное меню */}
         <div className="flex justify-center">
@@ -229,10 +141,19 @@ const JobseekerCard = ({
                 <User className="mr-2 h-4 w-4" />
                 <span>Перейти в профиль</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onToggleFavorite(jobseeker._id)}>
-                <Bookmark className="mr-2 h-4 w-4" />
-                <span>{jobseeker.isFavorite ? "Удалить из закладок" : "Добавить в закладки"}</span>
-              </DropdownMenuItem>
+              {/*<DropdownMenuItem onClick={() => onToggleFavorite(resume._id)}>*/}
+              {/*  {resume.isFavorite ? (*/}
+              {/*    <>*/}
+              {/*      <Star className="mr-2 h-4 w-4 text-yellow-500 fill-yellow-500" />*/}
+              {/*      <span>Удалить из закладок</span>*/}
+              {/*    </>*/}
+              {/*  ) : (*/}
+              {/*    <>*/}
+              {/*      <StarOff className="mr-2 h-4 w-4" />*/}
+              {/*      <span>Добавить в закладки</span>*/}
+              {/*    </>*/}
+              {/*  )}*/}
+              {/*</DropdownMenuItem>*/}
               <DropdownMenuItem>
                 <Send className="mr-2 h-4 w-4" />
                 <span>Отправить вакансию</span>
@@ -288,414 +209,225 @@ const LoadingState = () => (
 );
 
 // Компонент фильтров для десктопа
-const DesktopFilters = ({
-  filters,
-  setFilters,
-  activeFiltersCount,
-  resetFilters,
-}: {
-  filters: IFilters;
-  setFilters: (filters: IFilters) => void;
-  activeFiltersCount: number;
-  resetFilters: () => void;
-}) => (
-  <Card className="sticky top-4">
-    <CardContent className="p-4 space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold flex items-center">
-          <Filter className="mr-2 h-5 w-5" />
-          Фильтры
-        </h3>
-        {activeFiltersCount > 0 && <Badge variant="secondary">{activeFiltersCount}</Badge>}
-      </div>
+// Компонент фильтров для десктопа
+const DesktopFilters = () => {
+  const [city, experience, employmentTypes, salaryMin, salaryMax, skills] = useUnit([
+    $city,
+    $experience,
+    $employmentTypes,
+    $salaryMin,
+    $salaryMax,
+    $skills,
+  ]);
 
-      {/* Фильтр "только закладки" */}
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="favorites-desktop"
-          checked={filters.onlyFavorites}
-          onCheckedChange={(checked) =>
-            setFilters({ ...filters, onlyFavorites: checked as boolean })
-          }
-        />
-        <Label htmlFor="favorites-desktop">Только закладки</Label>
-      </div>
-
-      {/* Фильтр по региону */}
-      <div className="space-y-2">
-        <Label htmlFor="city-desktop">Город</Label>
-        <Input
-          id="city-desktop"
-          value={filters.city}
-          onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-          placeholder="Введите город"
-        />
-      </div>
-
-      {/* Фильтр по зарплате */}
-      <div className="space-y-2">
-        <Label>Зарплата</Label>
-        <div className="grid grid-cols-8 gap-2">
-          <Input
-            type="number"
-            placeholder="От"
-            value={filters.salaryRange.min}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                salaryRange: { ...filters.salaryRange, min: e.target.value },
-              })
-            }
-            className="col-span-3"
-          />
-          <Input
-            type="number"
-            placeholder="До"
-            value={filters.salaryRange.max}
-            onChange={(e) =>
-              setFilters({
-                ...filters,
-                salaryRange: { ...filters.salaryRange, max: e.target.value },
-              })
-            }
-            className="col-span-3"
-          />
-          <Select
-            value={filters.currency}
-            onValueChange={(value) => setFilters({ ...filters, currency: value })}
-          >
-            <SelectTrigger className="col-span-2 w-full">
-              <SelectValue placeholder="₽" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="rub">₽</SelectItem>
-              <SelectItem value="usd">$</SelectItem>
-              <SelectItem value="eur">€</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Фильтр по статусу */}
-      <div className="space-y-2">
-        <Label>Статус соискателя</Label>
-        <RadioGroup
-          value={filters.selectedStatus || ""}
-          onValueChange={(value) =>
-            setFilters({
-              ...filters,
-              selectedStatus: value ? (value as JobseekerStatus) : null,
-            })
-          }
-        >
-          {Object.values(JobseekerStatus).map((status) => (
-            <div key={status} className="flex items-center space-x-2">
-              <RadioGroupItem value={status} id={`status-${status}`} />
-              <Label htmlFor={`status-${status}`}>{status}</Label>
-            </div>
-          ))}
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="" id="status-all" />
-            <Label htmlFor="status-all">Все статусы</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      {/* Фильтр по периоду */}
-      <div className="space-y-2">
-        <Label>Период размещения</Label>
-        <RadioGroup
-          value={filters.selectedPeriod}
-          onValueChange={(value) =>
-            setFilters({ ...filters, selectedPeriod: value as PostingPeriod })
-          }
-        >
-          {Object.values(PostingPeriod).map((period) => (
-            <div key={period} className="flex items-center space-x-2">
-              <RadioGroupItem value={period} id={`period-${period}`} />
-              <Label htmlFor={`period-${period}`}>{period}</Label>
-            </div>
-          ))}
-        </RadioGroup>
-      </div>
-
-      {/* Кнопка сброса фильтров */}
-      {activeFiltersCount > 0 && (
-        <Button variant="outline" onClick={resetFilters} className="w-full">
-          Сбросить фильтры
-        </Button>
-      )}
-    </CardContent>
-  </Card>
-);
-
-// Компонент фильтров для мобильных устройств
-const MobileFilters = ({
-  filters,
-  setFilters,
-  activeFiltersCount,
-  resetFilters,
-  isOpen,
-  setIsOpen,
-}: {
-  filters: IFilters;
-  setFilters: (filters: IFilters) => void;
-  activeFiltersCount: number;
-  resetFilters: () => void;
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
-}) => (
-  <Sheet open={isOpen} onOpenChange={setIsOpen}>
-    <SheetContent side="bottom" className="h-[80vh]">
-      <SheetHeader className="mb-4">
-        <SheetTitle className="flex items-center">
-          <Filter className="mr-2 h-5 w-5" />
-          Фильтры
-          {activeFiltersCount > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {activeFiltersCount}
-            </Badge>
-          )}
-        </SheetTitle>
-        <SheetDescription>Настройте параметры поиска соискателей</SheetDescription>
-      </SheetHeader>
-
-      <ScrollArea className="h-[calc(80vh-120px)] pr-4">
-        <div className="space-y-6 pb-8">
-          {/* Фильтр "только закладки" */}
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="favorites-mobile"
-              checked={filters.onlyFavorites}
-              onCheckedChange={(checked) =>
-                setFilters({ ...filters, onlyFavorites: checked as boolean })
-              }
-            />
-            <Label htmlFor="favorites-mobile">Только закладки</Label>
-          </div>
-
-          {/* Фильтр по региону */}
-          <div className="space-y-2">
-            <Label htmlFor="city-mobile">Город</Label>
-            <Input
-              id="city-mobile"
-              value={filters.city}
-              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-              placeholder="Введите город"
-            />
-          </div>
-
-          {/* Фильтр по зарплате */}
-          <div className="space-y-2">
-            <Label>Зарплата</Label>
-            <div className="grid grid-cols-7 gap-2">
-              <Input
-                type="number"
-                placeholder="От"
-                value={filters.salaryRange.min}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    salaryRange: { ...filters.salaryRange, min: e.target.value },
-                  })
-                }
-                className="col-span-3"
-              />
-              <Input
-                type="number"
-                placeholder="До"
-                value={filters.salaryRange.max}
-                onChange={(e) =>
-                  setFilters({
-                    ...filters,
-                    salaryRange: { ...filters.salaryRange, max: e.target.value },
-                  })
-                }
-                className="col-span-3"
-              />
-              <Select
-                value={filters.currency}
-                onValueChange={(value) => setFilters({ ...filters, currency: value })}
-              >
-                <SelectTrigger className="col-span-1 w-full">
-                  <SelectValue placeholder="₽" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="rub">₽</SelectItem>
-                  <SelectItem value="usd">$</SelectItem>
-                  <SelectItem value="eur">€</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Фильтр по статусу */}
-          <div className="space-y-2">
-            <Label>Статус соискателя</Label>
-            <RadioGroup
-              value={filters.selectedStatus || ""}
-              onValueChange={(value) =>
-                setFilters({
-                  ...filters,
-                  selectedStatus: value ? (value as JobseekerStatus) : null,
-                })
-              }
-            >
-              {Object.values(JobseekerStatus).map((status) => (
-                <div key={status} className="flex items-center space-x-2">
-                  <RadioGroupItem value={status} id={`status-mobile-${status}`} />
-                  <Label htmlFor={`status-mobile-${status}`}>{status}</Label>
-                </div>
-              ))}
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="" id="status-mobile-all" />
-                <Label htmlFor="status-mobile-all">Все статусы</Label>
-              </div>
-            </RadioGroup>
-          </div>
-
-          {/* Фильтр по периоду */}
-          <div className="space-y-2">
-            <Label>Период размещения</Label>
-            <RadioGroup
-              value={filters.selectedPeriod}
-              onValueChange={(value) =>
-                setFilters({ ...filters, selectedPeriod: value as PostingPeriod })
-              }
-            >
-              {Object.values(PostingPeriod).map((period) => (
-                <div key={period} className="flex items-center space-x-2">
-                  <RadioGroupItem value={period} id={`period-mobile-${period}`} />
-                  <Label htmlFor={`period-mobile-${period}`}>{period}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-        </div>
-      </ScrollArea>
-
-      <div className="flex gap-2 mt-4">
-        {activeFiltersCount > 0 && (
-          <Button variant="outline" onClick={resetFilters} className="flex-1">
-            Сбросить
-          </Button>
-        )}
-        <Button onClick={() => setIsOpen(false)} className="flex-1">
-          Применить
-        </Button>
-      </div>
-    </SheetContent>
-  </Sheet>
-);
-
-export const CompanySearchPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [jobseekers, setJobseekers] = useState<IJobseeker[]>([]);
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const [showScrollToTop, setShowScrollToTop] = useState(false); // Состояние для отображения кнопки
-
-  // Состояние фильтров
-  const [filters, setFilters] = useState<IFilters>({
-    searchQuery: "",
-    onlyFavorites: false,
-    selectedPeriod: PostingPeriod.All,
-    selectedStatus: null,
-    salaryRange: { min: "", max: "" },
-    currency: "rub",
-    sortBy: "relevance",
-    city: "",
-  });
-
-  // Имитация загрузки данных
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setJobseekers(mockJobseekers);
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Обработчик для добавления/удаления из избранного
-  const toggleFavorite = (id: number) => {
-    setJobseekers(
-      jobseekers.map((jobseeker) =>
-        jobseeker._id === id ? { ...jobseeker, isFavorite: !jobseeker.isFavorite } : jobseeker,
-      ),
-    );
-  };
-
-  // Сброс всех фильтров
-  const resetFilters = () => {
-    setFilters({
-      searchQuery: "",
-      onlyFavorites: false,
-      selectedPeriod: PostingPeriod.All,
-      selectedStatus: null,
-      salaryRange: { min: "", max: "" },
-      currency: "rub",
-      sortBy: "relevance",
-      city: "",
-    });
-  };
+  const [handleCityChange, handleSkillsChange, handleResetFilters] = useUnit([
+    cityChanged,
+    skillsChanged,
+    resetFilters,
+  ]);
 
   // Подсчет активных фильтров
-  const countActiveFilters = () => {
-    let count = 0;
-    if (filters.onlyFavorites) count++;
-    if (filters.searchQuery) count++;
-    if (filters.selectedStatus) count++;
-    if (filters.selectedPeriod !== PostingPeriod.All) count++;
-    if (filters.salaryRange.min) count++;
-    if (filters.salaryRange.max) count++;
-    if (filters.city) count++;
-    return count;
+  const activeFiltersCount = [
+    city,
+    experience,
+    employmentTypes.length > 0,
+    salaryMin !== null,
+    salaryMax !== null,
+    skills,
+  ].filter(Boolean).length;
+
+  // Состояние для валюты
+  return (
+    <Card className="sticky top-4">
+      <CardContent className="p-4 space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold flex items-center">
+            <Filter className="mr-2 h-5 w-5" />
+            Фильтры
+          </h3>
+          {activeFiltersCount > 0 && <Badge variant="secondary">{activeFiltersCount}</Badge>}
+        </div>
+
+        {/* Фильтр "только закладки" */}
+        {/*<div className="flex items-center space-x-2">*/}
+        {/*  <Checkbox*/}
+        {/*    id="favorites-desktop"*/}
+        {/*    checked={onlyFavorites}*/}
+        {/*    onCheckedChange={(checked) => setOnlyFavorites(!!checked)}*/}
+        {/*  />*/}
+        {/*  <Label htmlFor="favorites-desktop">Только закладки</Label>*/}
+        {/*</div>*/}
+
+        {/* Фильтр по региону */}
+        <div className="space-y-2">
+          <Label htmlFor="city-desktop">Город</Label>
+          <Input
+            id="city-desktop"
+            value={city}
+            onChange={(e) => handleCityChange(e.target.value)}
+            placeholder="Введите город"
+          />
+        </div>
+
+        {/* Фильтр по зарплате */}
+        {/*<div className="space-y-2">*/}
+        {/*  <Label>Зарплата</Label>*/}
+        {/*  <div className="grid grid-cols-8 gap-2">*/}
+        {/*    <Input*/}
+        {/*      type="number"*/}
+        {/*      placeholder="От"*/}
+        {/*      value={salaryMin === null ? "" : salaryMin}*/}
+        {/*      onChange={(e) =>*/}
+        {/*        handleSalaryMinChange(e.target.value ? Number(e.target.value) : null)*/}
+        {/*      }*/}
+        {/*      className="col-span-3"*/}
+        {/*    />*/}
+        {/*    <Input*/}
+        {/*      type="number"*/}
+        {/*      placeholder="До"*/}
+        {/*      value={salaryMax === null ? "" : salaryMax}*/}
+        {/*      onChange={(e) =>*/}
+        {/*        handleSalaryMaxChange(e.target.value ? Number(e.target.value) : null)*/}
+        {/*      }*/}
+        {/*      className="col-span-3"*/}
+        {/*    />*/}
+        {/*    <Select value={currency} onValueChange={(value) => setCurrency(value)}>*/}
+        {/*      <SelectTrigger className="col-span-2 w-full">*/}
+        {/*        <SelectValue placeholder="₽" />*/}
+        {/*      </SelectTrigger>*/}
+        {/*      <SelectContent>*/}
+        {/*        <SelectItem value="rub">₽</SelectItem>*/}
+        {/*        <SelectItem value="usd">$</SelectItem>*/}
+        {/*        <SelectItem value="eur">€</SelectItem>*/}
+        {/*      </SelectContent>*/}
+        {/*    </Select>*/}
+        {/*  </div>*/}
+        {/*</div>*/}
+
+        {/* Фильтр по типу занятости */}
+        {/*<div className="space-y-2">*/}
+        {/*  <Label>Тип занятости</Label>*/}
+        {/*  <div className="space-y-2">*/}
+        {/*    {Object.values(EmploymentType).map((type) => (*/}
+        {/*      <div key={type} className="flex items-center space-x-2">*/}
+        {/*        <Checkbox*/}
+        {/*          id={`employment-${type}`}*/}
+        {/*          checked={employmentTypes.includes(type)}*/}
+        {/*          onCheckedChange={(checked) => {*/}
+        {/*            if (checked) {*/}
+        {/*              handleEmploymentTypesChange([...employmentTypes, type]);*/}
+        {/*            } else {*/}
+        {/*              handleEmploymentTypesChange(employmentTypes.filter((t) => t !== type));*/}
+        {/*            }*/}
+        {/*          }}*/}
+        {/*        />*/}
+        {/*        <Label htmlFor={`employment-${type}`}>{type}</Label>*/}
+        {/*      </div>*/}
+        {/*    ))}*/}
+        {/*  </div>*/}
+        {/*</div>*/}
+
+        {/* Фильтр по статусу */}
+        {/*<div className="space-y-2">*/}
+        {/*  <Label>Статус соискателя</Label>*/}
+        {/*  <RadioGroup*/}
+        {/*    value={selectedStatus || ""}*/}
+        {/*    onValueChange={(value) => setSelectedStatus(value ? (value as JobseekerStatus) : null)}*/}
+        {/*  >*/}
+        {/*    {Object.values(JobseekerStatus).map((status) => (*/}
+        {/*      <div key={status} className="flex items-center space-x-2">*/}
+        {/*        <RadioGroupItem value={status} id={`status-${status}`} />*/}
+        {/*        <Label htmlFor={`status-${status}`}>{status}</Label>*/}
+        {/*      </div>*/}
+        {/*    ))}*/}
+        {/*    <div className="flex items-center space-x-2">*/}
+        {/*      <RadioGroupItem value="" id="status-all" />*/}
+        {/*      <Label htmlFor="status-all">Все статусы</Label>*/}
+        {/*    </div>*/}
+        {/*  </RadioGroup>*/}
+        {/*</div>*/}
+
+        {/* Фильтр по периоду */}
+        {/*<div className="space-y-2">*/}
+        {/*  <Label>Период размещения</Label>*/}
+        {/*  <RadioGroup*/}
+        {/*    value={selectedPeriod}*/}
+        {/*    onValueChange={(value) => setSelectedPeriod(value as PostingPeriod)}*/}
+        {/*  >*/}
+        {/*    {Object.values(PostingPeriod).map((period) => (*/}
+        {/*      <div key={period} className="flex items-center space-x-2">*/}
+        {/*        <RadioGroupItem value={period} id={`period-${period}`} />*/}
+        {/*        <Label htmlFor={`period-${period}`}>{period}</Label>*/}
+        {/*      </div>*/}
+        {/*    ))}*/}
+        {/*  </RadioGroup>*/}
+        {/*</div>*/}
+
+        {/* Фильтр по навыкам */}
+        <div className="space-y-2">
+          <Label htmlFor="skills-desktop">Навыки</Label>
+          <Input
+            id="skills-desktop"
+            value={skills}
+            onChange={(e) => handleSkillsChange(e.target.value)}
+            placeholder="Введите навыки через запятую"
+          />
+        </div>
+
+        {/* Кнопка сброса фильтров */}
+        {activeFiltersCount > 0 && (
+          <Button variant="outline" onClick={handleResetFilters} className="w-full">
+            Сбросить фильтры
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export const CompanySearchPage = () => {
+  const [
+    resumeList,
+    pending,
+    searchQuery,
+    city,
+    experience,
+    employmentTypes,
+    salaryMin,
+    salaryMax,
+    skills,
+  ] = useUnit([
+    $resumeList,
+    $pending,
+    $searchQuery,
+    $city,
+    $experience,
+    $employmentTypes,
+    $salaryMin,
+    $salaryMax,
+    $skills,
+  ]);
+
+  const [handleSearchChange, handleResetFilters] = useUnit([searchChanged, resetFilters]);
+
+  const [setIsMobileFiltersOpen] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
+
+  // Подсчет активных фильтров
+  const activeFiltersCount = [
+    city,
+    experience,
+    employmentTypes.length > 0,
+    salaryMin !== null,
+    salaryMax !== null,
+    skills,
+  ].filter(Boolean).length;
+
+  // Функция для добавления/удаления из избранного
+  const toggleFavorite = (resumeId: number) => {
+    // Здесь будет логика добавления/удаления из избранного
+    console.log("Toggle favorite for resume ID:", resumeId);
   };
-
-  const activeFiltersCount = countActiveFilters();
-
-  // Фильтрация соискателей
-  const filteredJobseekers = jobseekers.filter((jobseeker) => {
-    // Фильтр по избранному
-    if (filters.onlyFavorites && !jobseeker.isFavorite) return false;
-
-    // Фильтр по поисковому запросу
-    if (
-      filters.searchQuery &&
-      !jobseeker.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
-      !jobseeker.position.toLowerCase().includes(filters.searchQuery.toLowerCase()) &&
-      !jobseeker.skills.some((skill) =>
-        skill.toLowerCase().includes(filters.searchQuery.toLowerCase()),
-      )
-    ) {
-      return false;
-    }
-
-    // Фильтр по городу
-    if (filters.city && !jobseeker.city.toLowerCase().includes(filters.city.toLowerCase())) {
-      return false;
-    }
-
-    // Фильтр по зарплате с учетом валюты
-    if (filters.salaryRange.min && jobseeker.salary < parseInt(filters.salaryRange.min)) {
-      return false;
-    }
-    if (filters.salaryRange.max && jobseeker.salary > parseInt(filters.salaryRange.max)) {
-      return false;
-    }
-    // В реальном приложении здесь также нужно учитывать конвертацию валют
-    // Например: if (filters.currency !== jobseeker.currency) { ... конвертация ... }
-
-    // Фильтр по статусу
-    if (filters.selectedStatus && jobseeker.status !== filters.selectedStatus) {
-      return false;
-    }
-
-    // Фильтр по периоду (в реальном приложении здесь будет проверка даты)
-    // Для примера просто пропускаем этот фильтр, так как у нас нет даты в моковых данных
-
-    return true;
-  });
 
   // Обработчик прокрутки для отображения/скрытия кнопки "к началу страницы"
   useEffect(() => {
@@ -726,17 +458,17 @@ export const CompanySearchPage = () => {
           <div className="w-full max-w-2xl relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Поиск по имени, должности или навыкам"
+              placeholder="Поиск по имени или должности"
               className="pl-10 pr-10"
-              value={filters.searchQuery}
-              onChange={(e) => setFilters({ ...filters, searchQuery: e.target.value })}
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
-            {filters.searchQuery && (
+            {searchQuery && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8"
-                onClick={() => setFilters({ ...filters, searchQuery: "" })}
+                onClick={() => handleSearchChange("")}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -765,26 +497,21 @@ export const CompanySearchPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Фильтры для десктопа */}
           <div className="hidden lg:block">
-            <DesktopFilters
-              filters={filters}
-              setFilters={setFilters}
-              activeFiltersCount={activeFiltersCount}
-              resetFilters={resetFilters}
-            />
+            <DesktopFilters activeFiltersCount={activeFiltersCount} resetFilters={resetFilters} />
           </div>
 
           {/* Список соискателей */}
           <div className="lg:col-span-3">
-            {isLoading ? (
+            {pending ? (
               <LoadingState />
-            ) : filteredJobseekers.length === 0 ? (
-              <EmptyState onReset={resetFilters} />
+            ) : resumeList.length === 0 ? (
+              <EmptyState onReset={handleResetFilters} />
             ) : (
               <>
                 {/* Информация о результатах */}
                 <div className="flex justify-between items-center mb-4">
                   <p className="text-muted-foreground">
-                    Найдено соискателей: <strong>{filteredJobseekers.length}</strong>
+                    Найдено резюме: <strong>{resumeList.length}</strong>
                   </p>
 
                   {/* Сортировка (можно реализовать в будущем) */}
@@ -805,10 +532,10 @@ export const CompanySearchPage = () => {
 
                 {/* Сетка с карточками соискателей */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredJobseekers.map((jobseeker) => (
-                    <JobseekerCard
-                      key={jobseeker._id}
-                      jobseeker={jobseeker}
+                  {resumeList.map((resume) => (
+                    <ResumeCard
+                      key={resume._id}
+                      resume={resume}
                       onToggleFavorite={toggleFavorite}
                     />
                   ))}
@@ -818,16 +545,6 @@ export const CompanySearchPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Мобильные фильтры */}
-      <MobileFilters
-        filters={filters}
-        setFilters={setFilters}
-        activeFiltersCount={activeFiltersCount}
-        resetFilters={resetFilters}
-        isOpen={isMobileFiltersOpen}
-        setIsOpen={setIsMobileFiltersOpen}
-      />
 
       {/* Кнопка "к началу страницы" */}
       {showScrollToTop && (
