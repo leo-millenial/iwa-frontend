@@ -521,6 +521,10 @@ export const vacancyControllerDelete = <ThrowOnError extends boolean = false>(
     ],
     url: "/api/vacancy/delete/{id}",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
   });
 };
 

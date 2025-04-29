@@ -359,9 +359,8 @@ export type VacancyResponseDto = {
   salary: {
     [key: string]: unknown;
   };
-  company: {
-    [key: string]: unknown;
-  };
+  companyId: string;
+  brands: Array<string>;
   city: string;
   employmentTypes: "FullTime" | "PartTime" | "Remote" | "Office" | "Hybrid";
 };
@@ -383,7 +382,7 @@ export type VacancyCreateDto = {
   city: string;
   experience: "Intern" | "Junior" | "Middle" | "Senior" | "Manager" | "Director";
   employmentTypes: Array<"FullTime" | "PartTime" | "Remote" | "Office" | "Hybrid">;
-  company: CompanyDto;
+  brands: Array<Array<unknown>>;
 };
 
 export type VacancyUpdateDto = {
@@ -393,6 +392,13 @@ export type VacancyUpdateDto = {
   city: string;
   experience: "Intern" | "Junior" | "Middle" | "Senior" | "Manager" | "Director";
   employmentTypes: Array<"FullTime" | "PartTime" | "Remote" | "Office" | "Hybrid">;
+};
+
+export type VacancyDeleteDto = {
+  /**
+   * ID компании, которой принадлежит вакансия
+   */
+  companyId: string;
 };
 
 export type UpdateCompanyDto = {
@@ -1092,7 +1098,7 @@ export type VacancyControllerUpdateResponse =
   VacancyControllerUpdateResponses[keyof VacancyControllerUpdateResponses];
 
 export type VacancyControllerDeleteData = {
-  body?: never;
+  body: VacancyDeleteDto;
   path: {
     id: string;
   };

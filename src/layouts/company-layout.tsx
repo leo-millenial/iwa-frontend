@@ -3,23 +3,37 @@ import { useUnit } from "effector-react";
 import { LogOut, MessageSquare, Plus, Search, User } from "lucide-react";
 
 import { routes } from "@/shared/routing";
-import { Button } from "@/shared/ui/button.tsx";
+import { Button } from "@/shared/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/shared/ui/dropdown-menu.tsx";
-import { LogoLink } from "@/shared/ui/logo-link.tsx";
+} from "@/shared/ui/dropdown-menu";
+import { LogoLink } from "@/shared/ui/logo-link";
 import { $viewer, viewerLoggedOut } from "@/shared/viewer";
 
 export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   const viewer = useUnit($viewer);
   const handleLoggedOut = useUnit(viewerLoggedOut);
 
-  const companyName = viewer!.company?.name || "";
-  const companyId = viewer!.company?._id || "";
+  // Проверка наличия viewer и company
+  if (!viewer || !viewer.company) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg">Загрузка...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Получаем данные компании из viewer.company
+  const companyName = viewer.company.name || "";
+  const companyId = viewer.company._id || "";
+  const userId = viewer.company.userId || "";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -52,7 +66,7 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
             </Link>
             <Link
               to={routes.help}
-              params={{ viewerId: viewer?.user._id }}
+              params={{ viewerId: userId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Помощь
@@ -62,10 +76,12 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
 
         <div className="flex items-center gap-4">
           {/* Кнопка добавления вакансии */}
-          <Button size="sm" className="hidden sm:flex items-center gap-1">
-            <Plus className="h-4 w-4" />
-            <span>Добавить вакансию</span>
-          </Button>
+          <Link to={routes.company.vacancy.create} params={{ companyId }}>
+            <Button size="sm" className="hidden sm:flex items-center gap-1">
+              <Plus className="h-4 w-4" />
+              <span>Добавить вакансию</span>
+            </Button>
+          </Link>
 
           {/* Иконки */}
           <Button variant="ghost" size="icon" className="rounded-full">

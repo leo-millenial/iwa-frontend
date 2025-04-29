@@ -69,6 +69,30 @@ const companySubscriptionContract = obj({
   endDate: str,
 });
 
+// Контракт для зарплаты в вакансии
+const vacancySalaryAmountContract = obj({
+  min: or(num, val(null), val(undefined)),
+  max: or(num, val(null), val(undefined)),
+});
+
+const vacancySalaryContract = obj({
+  amount: vacancySalaryAmountContract,
+  currency: str,
+});
+
+// Контракт для вакансии
+const vacancyContract = obj({
+  _id: str,
+  title: str,
+  description: str,
+  salary: vacancySalaryContract,
+  city: str,
+  experience: str,
+  employmentTypes: arr(str),
+  companyId: str,
+  brands: or(arr(str), val(null), val(undefined)),
+});
+
 const companyContract = obj({
   _id: str,
   userId: str,
@@ -77,7 +101,6 @@ const companyContract = obj({
   city: str,
   inn: or(str, num),
   phone: str,
-  // Делаем необязательными поля, которые могут отсутствовать
   logoUrl: or(str, val(null), val(undefined)),
   certificateUrls: or(arr(str), val(null), val(undefined)),
   documentUrls: or(arr(str), val(null), val(undefined)),
@@ -86,8 +109,7 @@ const companyContract = obj({
   video: or(str, val(null), val(undefined)),
   brands: or(arr(str), val(null), val(undefined)),
   subscriptions: or(arr(companySubscriptionContract), val(null), val(undefined)),
-  vacancies: or(arr(str), val(null), val(undefined)),
-  // Делаем необязательными поля, которые могут отсутствовать в ответе
+  vacancies: or(arr(vacancyContract), val(null), val(undefined)),
   membersCount: or(num, val(null), val(undefined)),
   websiteUrl: or(str, val(null), val(undefined)),
   description: or(str, val(null), val(undefined)),

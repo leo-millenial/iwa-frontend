@@ -46,4 +46,9 @@ sample({
   target: routes.company.search.open,
 });
 
+sample({
+  clock: getMeQuery.finished.failure,
+  fn: (r) => console.log("GetMe query failed", r),
+});
+
 export { $normalizedPhone, phoneChanged };
