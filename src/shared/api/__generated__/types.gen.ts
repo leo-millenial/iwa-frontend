@@ -1675,7 +1675,36 @@ export type JobseekerControllerUploadVideoResponse =
 export type ResumeControllerListData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    /**
+     * Поиск по ключевым словам в названии или описании
+     */
+    query?: string;
+    /**
+     * Фильтр по городу
+     */
+    city?: string;
+    /**
+     * Фильтр по опыту работы
+     */
+    experience?: "Intern" | "Junior" | "Middle" | "Senior" | "Manager" | "Director";
+    /**
+     * Фильтр по типу занятости
+     */
+    employmentTypes?: Array<"FullTime" | "PartTime" | "Remote" | "Office" | "Hybrid">;
+    /**
+     * Минимальная ожидаемая зарплата
+     */
+    salaryMin?: number;
+    /**
+     * Максимальная ожидаемая зарплата
+     */
+    salaryMax?: number;
+    /**
+     * Фильтр по навыкам (через запятую)
+     */
+    skills?: string;
+  };
   url: "/api/resume/list";
 };
 

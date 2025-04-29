@@ -37,8 +37,9 @@ const workExperienceContract = obj({
 });
 
 const resumeContract = obj({
+  _id: or(str, val(null), val(undefined)),
   position: str,
-  income: incomeContract,
+  income: or(incomeContract, val(null), val(undefined)),
   fullName: fullNameContract,
   gender: or(val("Male"), val("Female")),
   birthday: str, // Для даты в формате строки
@@ -49,16 +50,16 @@ const resumeContract = obj({
   education: arr(educationContract),
   skills: arr(skillContract),
   aboutMe: or(str, val(null), val(undefined)),
-  languages: arr(languageContract),
-  certificates: arr(str),
+  languages: or(arr(languageContract), val(null), val(undefined)),
+  certificates: or(arr(str), val(null), val(undefined)),
 });
 
 const jobseekerContract = obj({
   _id: str,
   userId: str,
   resumes: arr(resumeContract),
-  documentFileIds: or(arr(str), val(null), val(undefined)),
-  certificateFileIds: or(arr(str), val(null), val(undefined)),
+  documentFileIds: arr(str),
+  certificateFileIds: arr(str),
 });
 
 const companySubscriptionContract = obj({

@@ -19,6 +19,7 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   const handleLoggedOut = useUnit(viewerLoggedOut);
 
   const companyName = viewer!.company?.name || "";
+  const companyId = viewer!.company?._id || "";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -30,28 +31,28 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
           <nav className="hidden md:flex space-x-6">
             <Link
               to={routes.company.search}
-              params={{ companyId: "123" }}
+              params={{ companyId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Поиск
             </Link>
             <Link
               to={routes.company.vacancies}
-              params={{ companyId: "123" }}
+              params={{ companyId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Вакансии
             </Link>
             <Link
               to={routes.company.subscription}
-              params={{ companyId: "123" }}
+              params={{ companyId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Подписка
             </Link>
             <Link
               to={routes.help}
-              params={{ viewerId: "123" }}
+              params={{ viewerId: viewer?.user._id }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Помощь
