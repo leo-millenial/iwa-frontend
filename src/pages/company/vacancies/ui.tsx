@@ -1,10 +1,11 @@
+import { useUnit } from "effector-react";
 import { PlusCircle } from "lucide-react";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
-import { Badge } from "@/shared/ui/badge.tsx";
+import { EmploymentType, ISalary, IVacancy } from "@/shared/types/vacancy.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import {
   DropdownMenu,
@@ -24,80 +25,20 @@ import {
 } from "@/shared/ui/table.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
-type TabType = "active" | "drafts" | "archive" | "templates";
+import { $error, $pending, $vacancies, viewVacancyClicked } from "./model.ts";
 
-// Интерфейс для данных вакансии
-interface Vacancy {
-  id: string;
-  title: string;
-  city: string;
-  additionalInfo: {
-    responses: number;
-    views: number;
-    publishDate: string;
-  };
-  salary: {
-    from?: number;
-    to?: number;
-    currency: string;
-  };
-}
+type TabType = "active" | "drafts" | "archive" | "templates";
 
 export const CompanyVacanciesPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("active");
 
-  // Моковые данные для вакансий
-  const vacancies = {
-    active: [
-      {
-        id: "1",
-        title: "Frontend-разработчик (React)",
-        city: "Москва",
-        additionalInfo: {
-          responses: 12,
-          views: 145,
-          publishDate: "15.06.2023",
-        },
-        salary: {
-          from: 150000,
-          to: 250000,
-          currency: "₽",
-        },
-      },
-      {
-        id: "2",
-        title: "UX/UI дизайнер",
-        city: "Санкт-Петербург",
-        additionalInfo: {
-          responses: 8,
-          views: 98,
-          publishDate: "20.06.2023",
-        },
-        salary: {
-          from: 120000,
-          to: 180000,
-          currency: "₽",
-        },
-      },
-      {
-        id: "3",
-        title: "Product Manager",
-        city: "Удаленно",
-        additionalInfo: {
-          responses: 5,
-          views: 76,
-          publishDate: "22.06.2023",
-        },
-        salary: {
-          from: 200000,
-          currency: "₽",
-        },
-      },
-    ],
-    drafts: [],
-    archive: [],
-    templates: [],
-  };
+  const { vacancies, error, isPending } = useUnit({
+    vacancies: $vacancies,
+    error: $error,
+    isPending: $pending,
+  });
+
+  const handleViewVacancyClick = useUnit(viewVacancyClicked);
 
   // Компонент для отображения пустого состояния
   const EmptyState = () => (
@@ -114,25 +55,50 @@ export const CompanyVacanciesPage = () => {
   );
 
   // Компонент для отображения таблицы вакансий
-  const VacanciesTable = ({ data }: { data: Vacancy[] }) => {
-    if (data.length === 0) {
-      return (
-        <div className="flex flex-col flex-1">
-          <EmptyState />
-        </div>
-      );
+  const VacanciesTable = () => {
+    if (isPending) {
+      return <div>Загрузка...</div>;
+    }
+
+    if (error) {
+      return <div>Ошибка: {error}</div>;
+    }
+
+    if (!vacancies || vacancies.length === 0) {
+      return <EmptyState />;
     }
 
     // Форматирование зарплаты
-    const formatSalary = (salary: Vacancy["salary"]) => {
-      if (salary.from && salary.to) {
-        return `${salary.from.toLocaleString()} - ${salary.to.toLocaleString()} ${salary.currency}`;
-      } else if (salary.from) {
-        return `от ${salary.from.toLocaleString()} ${salary.currency}`;
-      } else if (salary.to) {
-        return `до ${salary.to.toLocaleString()} ${salary.currency}`;
+    const formatSalary = (salary: ISalary) => {
+      const { amount, currency } = salary;
+      if (amount.min && amount.max) {
+        return `${amount.min.toLocaleString()} - ${amount.max.toLocaleString()} ${currency}`;
+      } else if (amount.min) {
+        return `от ${amount.min.toLocaleString()} ${currency}`;
+      } else if (amount.max) {
+        return `до ${amount.max.toLocaleString()} ${currency}`;
       }
       return "По договоренности";
+    };
+
+    // Форматирование типов занятости
+    const formatEmploymentTypes = (types: EmploymentType[]) => {
+      return types.map((type) => {
+        switch (type) {
+          case EmploymentType.FullTime:
+            return "Полная";
+          case EmploymentType.PartTime:
+            return "Частичная";
+          case EmploymentType.Remote:
+            return "Удаленная";
+          case EmploymentType.Office:
+            return "Офис";
+          case EmploymentType.Hybrid:
+            return "Гибрид";
+          default:
+            return type;
+        }
+      });
     };
 
     return (
@@ -142,29 +108,28 @@ export const CompanyVacanciesPage = () => {
             <TableRow>
               <TableHead className="w-[300px]">Название вакансии</TableHead>
               <TableHead>Город</TableHead>
-              <TableHead>Дополнительная информация</TableHead>
+              <TableHead>Опыт работы</TableHead>
+              <TableHead>Тип занятости</TableHead>
               <TableHead>Заработная плата</TableHead>
               <TableHead className="w-[70px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((vacancy) => (
-              <TableRow key={vacancy.id}>
+            {vacancies.map((vacancy: IVacancy) => (
+              <TableRow key={vacancy._id}>
                 <TableCell className="font-medium">{vacancy.title}</TableCell>
                 <TableCell>{vacancy.city}</TableCell>
+                <TableCell>{vacancy.experience}</TableCell>
                 <TableCell>
-                  <div className="flex flex-col space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="text-xs">
-                        {vacancy.additionalInfo.responses} откликов
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {vacancy.additionalInfo.views} просмотров
-                      </Badge>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      Опубликовано: {vacancy.additionalInfo.publishDate}
-                    </span>
+                  <div className="flex flex-wrap gap-1">
+                    {formatEmploymentTypes(vacancy.employmentTypes).map((type, index) => (
+                      <span
+                        key={index}
+                        className="inline-block bg-muted text-muted-foreground text-xs px-2 py-1 rounded-full"
+                      >
+                        {type}
+                      </span>
+                    ))}
                   </div>
                 </TableCell>
                 <TableCell>{formatSalary(vacancy.salary)}</TableCell>
@@ -178,7 +143,9 @@ export const CompanyVacanciesPage = () => {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Действия</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleViewVacancyClick({ vacancyId: vacancy._id })}
+                      >
                         <Eye className="mr-2 h-4 w-4" />
                         <span>Просмотреть</span>
                       </DropdownMenuItem>
@@ -216,26 +183,26 @@ export const CompanyVacanciesPage = () => {
         >
           <TabsList className="mb-4">
             <TabsTrigger value="active">Активные</TabsTrigger>
-            <TabsTrigger value="drafts">Черновики</TabsTrigger>
-            <TabsTrigger value="archive">Архив</TabsTrigger>
-            <TabsTrigger value="templates">Шаблоны</TabsTrigger>
+            {/*<TabsTrigger value="drafts">Черновики</TabsTrigger>*/}
+            {/*<TabsTrigger value="archive">Архив</TabsTrigger>*/}
+            {/*<TabsTrigger value="templates">Шаблоны</TabsTrigger>*/}
           </TabsList>
 
           <div className="flex-1 overflow-hidden flex flex-col">
             <TabsContent value="active" className="flex flex-col flex-1 overflow-auto mt-0">
-              <VacanciesTable data={vacancies.active} />
+              <VacanciesTable />
             </TabsContent>
 
             <TabsContent value="drafts" className="flex flex-col flex-1 overflow-auto mt-0">
-              <VacanciesTable data={vacancies.drafts} />
+              <VacanciesTable />
             </TabsContent>
 
             <TabsContent value="archive" className="flex flex-col flex-1 overflow-auto mt-0">
-              <VacanciesTable data={vacancies.archive} />
+              <VacanciesTable />
             </TabsContent>
 
             <TabsContent value="templates" className="flex flex-col flex-1 overflow-auto mt-0">
-              <VacanciesTable data={vacancies.templates} />
+              <VacanciesTable />
             </TabsContent>
           </div>
         </Tabs>
