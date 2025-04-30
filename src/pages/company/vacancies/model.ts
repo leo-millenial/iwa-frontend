@@ -1,4 +1,4 @@
-import { createStore, sample } from "effector";
+import { createEvent, createStore, sample } from "effector";
 
 import { getVacanciesByCompanyIdQuery } from "@/shared/api/vacancy";
 import { routes } from "@/shared/routing";
@@ -9,6 +9,8 @@ export const currentRoute = routes.company.vacancies;
 export const authenticatedRoute = chainAuthenticated(currentRoute, {
   otherwise: routes.auth.signIn.open,
 });
+
+export const viewVacancyClicked = createEvent<{ vacancyId: string }>();
 
 export const $error = createStore<string | null>(null);
 export const $pending = getVacanciesByCompanyIdQuery.$pending;
@@ -21,6 +23,13 @@ sample({
   source: authenticatedRoute.$params,
   fn: ({ companyId }) => companyId,
   target: getVacanciesByCompanyIdQuery.start,
+});
+
+sample({
+  clock: viewVacancyClicked,
+  source: authenticatedRoute.$params,
+  fn: ({ companyId }, { vacancyId }) => ({ companyId, vacancyId }),
+  target: routes.company.vacancy.view.open,
 });
 
 sample({

@@ -80,14 +80,23 @@ export const $isAuthenticated = $viewerStatus.map(
 );
 
 // Функция для защиты маршрутов, требующих авторизации
+// Функция для защиты маршрутов, требующих авторизации
 export function chainAuthenticated<Params extends RouteParams>(
   route: RouteInstance<Params>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { otherwise }: { otherwise?: Event<void> | Effect<void, any, any> } = {},
+
+  {
+    otherwise,
+    requiredRole,
+  }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    otherwise?: Event<void> | Effect<void, any, any>;
+    requiredRole?: UserRole;
+  } = {},
 ): RouteInstance<Params> {
   const authenticationCheckStarted = createEvent<RouteParamsAndQuery<Params>>();
   const userAuthenticated = createEvent();
   const userAnonymous = createEvent();
+  const userUnauthorized = createEvent();
   const closeRouteOnStatusChange = createEvent();
 
   // Запрашиваем данные пользователя, если статус Initial
@@ -98,11 +107,15 @@ export function chainAuthenticated<Params extends RouteParams>(
     target: getMeQuery.start,
   });
 
-  // Если пользователь авторизован, открываем маршрут
+  // Если пользователь авторизован, проверяем роль (если требуется) и открываем маршрут
   sample({
     clock: [authenticationCheckStarted, getMeQuery.finished.success],
-    source: $viewerStatus,
-    filter: (status) => status === ViewerStatus.Authenticated,
+    source: { status: $viewerStatus, viewer: $viewer },
+    filter: ({ status, viewer }) => {
+      if (status !== ViewerStatus.Authenticated) return false;
+      if (!requiredRole) return true;
+      return viewer?.user.role === requiredRole;
+    },
     target: userAuthenticated,
   });
 
@@ -114,11 +127,31 @@ export function chainAuthenticated<Params extends RouteParams>(
     target: userAnonymous,
   });
 
+  // Если пользователь авторизован, но не имеет нужной роли
+  sample({
+    clock: [authenticationCheckStarted, getMeQuery.finished.success],
+    source: { status: $viewerStatus, viewer: $viewer },
+    filter: ({ status, viewer }) => {
+      if (status !== ViewerStatus.Authenticated) return false;
+      if (!requiredRole) return false;
+      return viewer?.user.role !== requiredRole;
+    },
+    target: userUnauthorized,
+  });
+
+  // Отслеживаем изменение статуса аутентификации в реальном времени
+  sample({
+    clock: $viewerStatus.updates,
+    source: { isRouteOpen: route.$isOpened },
+    filter: ({ isRouteOpen }, status) => isRouteOpen && status === ViewerStatus.Anonymous,
+    target: closeRouteOnStatusChange,
+  });
+
   // Если указан маршрут для перенаправления, используем его
   if (otherwise) {
     sample({
       // @ts-expect-error
-      clock: userAnonymous,
+      clock: [userAnonymous, userUnauthorized, closeRouteOnStatusChange],
       filter: route.$isOpened,
       target: otherwise as Event<void>,
     });
@@ -128,7 +161,7 @@ export function chainAuthenticated<Params extends RouteParams>(
     route,
     beforeOpen: authenticationCheckStarted,
     openOn: [userAuthenticated],
-    cancelOn: [userAnonymous, closeRouteOnStatusChange],
+    cancelOn: [userAnonymous, userUnauthorized, closeRouteOnStatusChange],
   });
 }
 

@@ -3,8 +3,6 @@ import { PlusCircle } from "lucide-react";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { $error, $pending, $vacancies } from "@/pages/company/vacancies/model.ts";
-
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
 import { EmploymentType, ISalary, IVacancy } from "@/shared/types/vacancy.interface.ts";
@@ -27,6 +25,8 @@ import {
 } from "@/shared/ui/table.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
+import { $error, $pending, $vacancies, viewVacancyClicked } from "./model.ts";
+
 type TabType = "active" | "drafts" | "archive" | "templates";
 
 export const CompanyVacanciesPage = () => {
@@ -37,6 +37,8 @@ export const CompanyVacanciesPage = () => {
     error: $error,
     isPending: $pending,
   });
+
+  const handleViewVacancyClick = useUnit(viewVacancyClicked);
 
   // Компонент для отображения пустого состояния
   const EmptyState = () => (
@@ -141,7 +143,9 @@ export const CompanyVacanciesPage = () => {
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Действия</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleViewVacancyClick({ vacancyId: vacancy._id })}
+                      >
                         <Eye className="mr-2 h-4 w-4" />
                         <span>Просмотреть</span>
                       </DropdownMenuItem>

@@ -25,7 +25,7 @@ export enum Experience {
 }
 
 export interface IVacancy {
-  _id?: string;
+  _id: string;
   companyId: string;
   title: string;
   description: string;
@@ -34,4 +34,6 @@ export interface IVacancy {
   experience: Experience;
   employmentTypes: EmploymentType[];
   brands?: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }

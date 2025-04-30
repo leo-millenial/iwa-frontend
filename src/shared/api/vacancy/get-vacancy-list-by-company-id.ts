@@ -20,7 +20,7 @@ const getVacanciesByCompanyIdFx = createEffect<
   }
 
   const data = await response.json();
-  return data as IVacancy[];
+  return data;
 });
 
 export const getVacanciesByCompanyIdQuery = createQuery({

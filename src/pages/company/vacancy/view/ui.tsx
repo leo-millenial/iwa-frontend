@@ -1,51 +1,21 @@
-import { Edit, Trash2, Users } from "lucide-react";
+import { useUnit } from "effector-react";
+import { Edit, MoreVertical, Trash2 } from "lucide-react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
+import { EmploymentType, Experience, ISalary } from "@/shared/types/vacancy.interface.ts";
 import { Badge } from "@/shared/ui/badge.tsx";
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/ui/dropdown-menu.tsx";
+import { Skeleton } from "@/shared/ui/skeleton.tsx";
 
-// Перечисления для типов занятости и опыта
-enum EmploymentType {
-  FullTime = "FullTime",
-  PartTime = "PartTime",
-  Remote = "Remote",
-  Office = "Office",
-  Hybrid = "Hybrid",
-}
-
-enum Experience {
-  Intern = "Intern",
-  Junior = "Junior",
-  Middle = "Middle",
-  Senior = "Senior",
-  Manager = "Manager",
-  Director = "Director",
-}
-
-// Интерфейсы для данных вакансии
-interface ISalary {
-  amount: {
-    min: number;
-    max: number;
-  };
-  currency: string | number;
-}
-
-interface IVacancy {
-  id: string;
-  title: string;
-  description: string;
-  salary: ISalary;
-  city: string;
-  experience: Experience;
-  employmentTypes: EmploymentType[];
-  createdAt: string;
-  updatedAt: string;
-  responses: number;
-  views: number;
-}
+import { $vacancy } from "./model";
 
 // Лейблы для отображения
 const employmentTypeLabels: Record<EmploymentType, string> = {
@@ -72,47 +42,7 @@ const currencySymbols: Record<string, string> = {
 };
 
 export const CompanyVacancyViewPage = () => {
-  // Моковые данные для примера
-  const vacancy: IVacancy = {
-    id: "1",
-    title: "Frontend-разработчик (React)",
-    description: `Мы ищем опытного Frontend-разработчика для работы над нашими продуктами.
-
-**Обязанности:**
-- Разработка пользовательских интерфейсов с использованием React
-- Работа с API и интеграция с бэкендом
-- Оптимизация производительности приложений
-- Участие в код-ревью и улучшении кодовой базы
-
-**Требования:**
-- Опыт коммерческой разработки от 2 лет
-- Глубокое знание JavaScript, TypeScript, React
-- Понимание принципов отзывчивого дизайна
-- Опыт работы с системами контроля версий (Git)
-
-**Условия:**
-- Гибкий график работы
-- Возможность удаленной работы
-- Конкурентная заработная плата
-- Дружный коллектив профессионалов
-
-**Навыки:**
-React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
-    salary: {
-      amount: {
-        min: 150000,
-        max: 250000,
-      },
-      currency: "RUB",
-    },
-    city: "Москва",
-    experience: Experience.Middle,
-    employmentTypes: [EmploymentType.FullTime, EmploymentType.Remote],
-    createdAt: "2023-07-15T10:00:00Z",
-    updatedAt: "2023-07-15T10:00:00Z",
-    responses: 12,
-    views: 145,
-  };
+  const vacancy = useUnit($vacancy);
 
   // Форматирование зарплаты
   const formatSalary = (salary: ISalary) => {
@@ -156,7 +86,9 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
   };
 
   // Форматирование даты
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: Date) => {
+    if (!dateString) return "Не указано";
+
     const date = new Date(dateString);
     return date.toLocaleDateString("ru-RU", {
       day: "numeric",
@@ -164,6 +96,38 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
       year: "numeric",
     });
   };
+
+  // Если данные еще не загружены, показываем скелетон
+  if (!vacancy) {
+    return (
+      <LayoutCompany>
+        <div className="flex justify-center items-start py-8 px-4">
+          <div className="w-full max-w-3xl">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <Skeleton className="h-8 w-64 mb-2" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <Skeleton className="h-9 w-32" />
+            </div>
+            <Card className="mb-6">
+              <CardContent className="p-4">
+                <Skeleton className="h-16 w-full" />
+              </CardContent>
+            </Card>
+            <Card className="mb-6">
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-24 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </LayoutCompany>
+    );
+  }
 
   return (
     <LayoutCompany>
@@ -173,36 +137,32 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-2xl font-bold">{vacancy.title}</h1>
-              <p className="text-muted-foreground mt-1">
-                Опубликовано: {formatDate(vacancy.createdAt)}
-              </p>
+              {vacancy.createdAt && (
+                <p className="text-muted-foreground mt-1">
+                  Опубликовано: {formatDate(vacancy.createdAt)}
+                </p>
+              )}
             </div>
             <div className="flex space-x-2">
               <Button variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
                 Редактировать
               </Button>
-              <Button variant="destructive" size="sm">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Удалить
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem variant="destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Удалить
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
-
-          {/* Статистика */}
-          <Card className="mb-6">
-            <CardContent className="p-4 flex justify-between items-center">
-              <div className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-muted-foreground" />
-                <span className="text-sm">
-                  <strong>{vacancy.responses}</strong> откликов
-                </span>
-              </div>
-              <div className="text-sm">
-                <strong>{vacancy.views}</strong> просмотров
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Основная информация */}
           <Card className="mb-6">
@@ -232,6 +192,19 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
                 <h3 className="text-sm font-medium text-muted-foreground mb-1">Оплата</h3>
                 <p className="font-medium">{formatSalary(vacancy.salary)}</p>
               </div>
+
+              {vacancy.brands && vacancy.brands.length > 0 && (
+                <div className="col-span-1 md:col-span-2">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-1">Технологии</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {vacancy.brands.map((brand) => (
+                      <Badge key={brand} variant="secondary">
+                        {brand}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -244,27 +217,6 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
               <div className="prose prose-sm max-w-none">
                 {formatDescription(vacancy.description)}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Отклики на вакансию */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Отклики ({vacancy.responses})</CardTitle>
-              <Button variant="outline" size="sm">
-                Смотреть все
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {vacancy.responses > 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Здесь будет список откликов на вакансию</p>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">Пока нет откликов на эту вакансию</p>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
