@@ -1,0 +1,26 @@
+{
+  "presets": [
+    "patronum/babel-preset",
+    "atomic-router/babel-preset"
+  ],
+  "plugins": [
+    ["effector/babel-plugin",
+      {
+        "factories": ["patronum"],
+        "hmr": "es"
+      }
+    ]
+  ],
+  "env": {
+    "production": {
+      "plugins": [
+        ["effector/babel-plugin",
+          {
+            "factories": ["patronum"],
+            "hmr": "none"
+          }
+        ]
+      ]
+    }
+  }
+}

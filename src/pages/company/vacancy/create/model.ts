@@ -3,7 +3,7 @@ import { combine, createEvent, createStore, sample } from "effector";
 import { createVacancyMutation } from "@/shared/api/vacancy";
 import { routes } from "@/shared/routing";
 import { EmploymentType, Experience } from "@/shared/types/vacancy.interface.ts";
-import { chainAuthenticated } from "@/shared/viewer";
+import { $companyId, chainAuthenticated } from "@/shared/viewer";
 
 export const currentRoute = routes.company.vacancy.create;
 
@@ -25,7 +25,6 @@ export const employmentTypeToggled = createEvent<EmploymentType>();
 export const skillsTextChanged = createEvent<string>();
 export const brandsChanged = createEvent<string>();
 
-export const $companyId = createStore("");
 export const $title = createStore("");
 export const $description = createStore("");
 export const $salaryMin = createStore("");
@@ -57,13 +56,6 @@ $employmentTypes
     }
   });
 $brandsInput.on(brandsChanged, (_, brandsString) => brandsString);
-
-sample({
-  clock: currentRoute.opened,
-  source: currentRoute.$params,
-  fn: ({ companyId }) => companyId,
-  target: $companyId,
-});
 
 sample({
   source: $brandsInput,

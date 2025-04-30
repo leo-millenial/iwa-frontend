@@ -26,6 +26,7 @@ export const viewerLoggedIn = createEvent();
 export const viewerLoggedOut = createEvent();
 
 export const $viewer = createStore<Viewer | null>(null);
+export const $companyId = $viewer.map((viewer) => viewer?.company?._id ?? "");
 
 sample({
   clock: viewerLoggedOut,
@@ -52,7 +53,6 @@ $viewer.on(getMeQuery.finished.success, (_, { result }) => {
   } as Viewer;
 });
 $viewerStatus.on(getMeQuery.finished.success, () => ViewerStatus.Authenticated);
-
 $viewerStatus.on(getMeQuery.finished.failure, (status, { error }) => {
   if (error && typeof error === "object" && "status" in error) {
     const statusCode = (error as { status: number }).status;
@@ -88,6 +88,7 @@ export function chainAuthenticated<Params extends RouteParams>(
   const authenticationCheckStarted = createEvent<RouteParamsAndQuery<Params>>();
   const userAuthenticated = createEvent();
   const userAnonymous = createEvent();
+  const closeRouteOnStatusChange = createEvent();
 
   // Запрашиваем данные пользователя, если статус Initial
   sample({
@@ -127,7 +128,7 @@ export function chainAuthenticated<Params extends RouteParams>(
     route,
     beforeOpen: authenticationCheckStarted,
     openOn: [userAuthenticated],
-    cancelOn: [userAnonymous],
+    cancelOn: [userAnonymous, closeRouteOnStatusChange],
   });
 }
 

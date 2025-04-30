@@ -10,15 +10,7 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        presets: ["patronum/babel-preset", "atomic-router/babel-preset"],
-        plugins: [
-          [
-            "effector/babel-plugin",
-            {
-              factories: ["patronum"],
-            },
-          ],
-        ],
+        babelrc: true,
       },
     }),
     tailwindcss(),
