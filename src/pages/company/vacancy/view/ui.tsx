@@ -3,6 +3,8 @@ import { Edit, MoreVertical, Trash2 } from "lucide-react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
+import { DeleteVacancyDialog, deleteVacancyClicked } from "@/features/vacancy-delete";
+
 import { EmploymentType, Experience, ISalary } from "@/shared/types/vacancy.interface.ts";
 import { Badge } from "@/shared/ui/badge.tsx";
 import { Button } from "@/shared/ui/button.tsx";
@@ -43,6 +45,7 @@ const currencySymbols: Record<string, string> = {
 
 export const CompanyVacancyViewPage = () => {
   const vacancy = useUnit($vacancy);
+  const handleVacancyDelete = useUnit(deleteVacancyClicked);
 
   // Форматирование зарплаты
   const formatSalary = (salary: ISalary) => {
@@ -155,7 +158,12 @@ export const CompanyVacancyViewPage = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem variant="destructive">
+                  <DropdownMenuItem
+                    onClick={() =>
+                      handleVacancyDelete({ companyId: vacancy?.companyId, id: vacancy._id })
+                    }
+                    variant="destructive"
+                  >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Удалить
                   </DropdownMenuItem>
@@ -221,6 +229,8 @@ export const CompanyVacancyViewPage = () => {
           </Card>
         </div>
       </div>
+
+      <DeleteVacancyDialog />
     </LayoutCompany>
   );
 };

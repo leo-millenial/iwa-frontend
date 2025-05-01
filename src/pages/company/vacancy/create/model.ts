@@ -1,4 +1,5 @@
 import { combine, createEvent, createStore, sample } from "effector";
+import { reset } from "patronum";
 
 import { createVacancyMutation } from "@/shared/api/vacancy";
 import { routes } from "@/shared/routing";
@@ -100,4 +101,21 @@ sample({
 sample({
   clock: createVacancyMutation.finished.failure,
   fn: (response) => console.log("Vacancy created failure", response),
+});
+
+reset({
+  clock: currentRoute.closed,
+  target: [
+    $title,
+    $description,
+    $salaryMin,
+    $salaryMax,
+    $currency,
+    $city,
+    $skillsText,
+    $experience,
+    $employmentTypes,
+    $brandsInput,
+    $brands,
+  ],
 });

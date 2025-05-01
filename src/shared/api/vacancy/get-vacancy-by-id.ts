@@ -1,5 +1,5 @@
 import { createQuery } from "@farfetched/core";
-import { attach, createEffect } from "effector";
+import { attach, createEffect, sample } from "effector";
 
 import { $headers } from "@/shared/tokens";
 import { IVacancy } from "@/shared/types/vacancy.interface.ts";
@@ -9,6 +9,10 @@ const getVacancyByIdFx = createEffect<
   IVacancy
 >(async ({ headers, vacancyId }) => {
   const url = `/api/vacancy/${vacancyId}`;
+
+  if (!vacancyId) {
+    throw new Error("ID вакансии не указан");
+  }
 
   const response = await fetch(url, {
     method: "GET",
@@ -32,4 +36,9 @@ export const getVacancyByIdQuery = createQuery({
     }),
     effect: getVacancyByIdFx,
   }),
+});
+
+sample({
+  clock: getVacancyByIdQuery.finished.failure,
+  fn: (response) => console.log("Vacancy created failure", response),
 });

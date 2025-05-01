@@ -1,6 +1,7 @@
 import { createStore, sample } from "effector";
+import { debug } from "patronum";
 
-import { getVacancyByIdQuery } from "@/shared/api/vacancy";
+import { deleteVacancyMutation, getVacancyByIdQuery } from "@/shared/api/vacancy";
 import { routes } from "@/shared/routing";
 import { IVacancy } from "@/shared/types/vacancy.interface.ts";
 import { chainAuthenticated } from "@/shared/viewer";
@@ -19,4 +20,12 @@ sample({
   source: authenticatedRoute.$params,
   fn: ({ vacancyId }) => vacancyId,
   target: getVacancyByIdQuery.start,
+});
+
+debug({ VIEW_OPEN: currentRoute.opened });
+
+sample({
+  clock: deleteVacancyMutation.$succeeded,
+  source: authenticatedRoute.$params,
+  target: routes.company.vacancies.open,
 });

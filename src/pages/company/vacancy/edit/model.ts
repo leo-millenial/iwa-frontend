@@ -36,7 +36,7 @@ export const $experience = createStore<Experience>(Experience.Middle);
 export const $employmentTypes = createStore<EmploymentType[]>([EmploymentType.FullTime]);
 export const $brandsInput = createStore("");
 export const $brands = createStore<string[]>([]);
-export const $vacancyId = currentRoute.$params.map((params) => params.vacancyId);
+export const $vacancyId = currentRoute.$params.map((params) => params.vacancyId || "");
 export const $pending = updateVacancyMutation.$pending;
 
 $title.on(titleChanged, (_, title) => title);
