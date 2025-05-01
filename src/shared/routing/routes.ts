@@ -102,7 +102,7 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     route: routes.company.subscription as RouteInstance<object>,
   },
   {
-    path: "/company/:companyId/vacancy/create",
+    path: "/company/:companyId/vacancy-create",
     route: routes.company.vacancy.create as RouteInstance<object>,
   },
   {

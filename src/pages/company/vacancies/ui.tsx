@@ -5,6 +5,8 @@ import { useState } from "react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
+import { DeleteVacancyDialog, deleteVacancyClicked } from "@/features/vacancy-delete";
+
 import { EmploymentType, ISalary, IVacancy } from "@/shared/types/vacancy.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import {
@@ -25,7 +27,14 @@ import {
 } from "@/shared/ui/table.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
-import { $error, $pending, $vacancies, editVacancyClicked, viewVacancyClicked } from "./model.ts";
+import {
+  $error,
+  $pending,
+  $vacancies,
+  createVacancyClicked,
+  editVacancyClicked,
+  viewVacancyClicked,
+} from "./model.ts";
 
 type TabType = "active" | "drafts" | "archive" | "templates";
 
@@ -38,10 +47,8 @@ export const CompanyVacanciesPage = () => {
     isPending: $pending,
   });
 
-  const [handleViewVacancyClick, handleEditVacancyClick] = useUnit([
-    viewVacancyClicked,
-    editVacancyClicked,
-  ]);
+  const [handleViewVacancyClick, handleEditVacancyClick, handleDeleteClick, handleCreateClick] =
+    useUnit([viewVacancyClicked, editVacancyClicked, deleteVacancyClicked, createVacancyClicked]);
 
   // Компонент для отображения пустого состояния
   const EmptyState = () => (
@@ -49,7 +56,8 @@ export const CompanyVacanciesPage = () => {
       <div className="text-center max-w-md space-y-4">
         <h3 className="text-xl font-semibold">Найдите идеального сотрудника</h3>
         <p className="text-muted-foreground">создайте вакансию – не упустите хороших кандидатов</p>
-        <Button className="mt-4" size="lg">
+
+        <Button onClick={() => handleCreateClick()} className="mt-4" size="lg">
           <PlusCircle className="mr-2 h-4 w-4" />
           Добавить вакансию
         </Button>
@@ -158,7 +166,12 @@ export const CompanyVacanciesPage = () => {
                         <Edit className="mr-2 h-4 w-4" />
                         <span>Редактировать</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleDeleteClick({ id: vacancy._id, companyId: vacancy.companyId })
+                        }
+                        className="text-destructive"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         <span>Удалить</span>
                       </DropdownMenuItem>
@@ -212,6 +225,8 @@ export const CompanyVacanciesPage = () => {
           </div>
         </Tabs>
       </div>
+
+      <DeleteVacancyDialog />
     </LayoutCompany>
   );
 };

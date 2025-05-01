@@ -1,3 +1,5 @@
+export { deleteVacancyMutation } from "@/shared/api/vacancy/delete-company-vacancy-by-id.ts";
+
 export { updateVacancyMutation } from "@/shared/api/vacancy/update-vacancy-by-company-id.ts";
 
 export { getVacancyByIdQuery } from "./get-vacancy-by-id.ts";
