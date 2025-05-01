@@ -1,8 +1,30 @@
-import { ArrowLeft, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useUnit } from "effector-react";
+import { Loader2 } from "lucide-react";
+
+import {
+  $city,
+  $currency,
+  $description,
+  $employmentTypes,
+  $experience,
+  $pending,
+  $salaryMax,
+  $salaryMin,
+  $title,
+  cityChanged,
+  currencyChanged,
+  descriptionChanged,
+  employmentTypeToggled,
+  experienceChanged,
+  formSubmitted,
+  salaryMaxChanged,
+  salaryMinChanged,
+  titleChanged,
+} from "@/pages/company/vacancy/edit/model";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
+import { EmploymentType, Experience } from "@/shared/types/vacancy.interface";
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent } from "@/shared/ui/card.tsx";
 import { Checkbox } from "@/shared/ui/checkbox.tsx";
@@ -16,47 +38,6 @@ import {
   SelectValue,
 } from "@/shared/ui/select.tsx";
 import { Textarea } from "@/shared/ui/textarea.tsx";
-
-// Перечисления для типов занятости и опыта
-enum EmploymentType {
-  FullTime = "FullTime",
-  PartTime = "PartTime",
-  Remote = "Remote",
-  Office = "Office",
-  Hybrid = "Hybrid",
-}
-
-enum Experience {
-  Intern = "Intern",
-  Junior = "Junior",
-  Middle = "Middle",
-  Senior = "Senior",
-  Manager = "Manager",
-  Director = "Director",
-}
-
-// Интерфейсы для данных вакансии
-interface ISalary {
-  amount: {
-    min: number;
-    max: number;
-  };
-  currency: string | number;
-}
-
-interface IVacancy {
-  id: string;
-  title: string;
-  description: string;
-  salary: ISalary;
-  city: string;
-  experience: Experience;
-  employmentTypes: EmploymentType[];
-  createdAt: string;
-  updatedAt: string;
-  responses: number;
-  views: number;
-}
 
 // Лейблы для отображения
 const employmentTypeLabels: Record<EmploymentType, string> = {
@@ -83,187 +64,57 @@ const currencies = [
 ];
 
 export const CompanyVacancyEditPage = () => {
-  // Состояния для формы
-  const [formData, setFormData] = useState<Partial<IVacancy>>({});
-  const [description, setDescription] = useState("");
-  const [skills, setSkills] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Эффект для загрузки данных вакансии
-  useEffect(() => {
-    const fetchVacancy = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // В реальном приложении здесь будет запрос к API
-        // Для примера используем моковые данные
-        const mockVacancy: IVacancy = {
-          id: "1",
-          title: "Frontend-разработчик (React)",
-          description: `Мы ищем опытного Frontend-разработчика для работы над нашими продуктами.
-
-**Обязанности:**
-- Разработка пользовательских интерфейсов с использованием React
-- Работа с API и интеграция с бэкендом
-- Оптимизация производительности приложений
-- Участие в код-ревью и улучшении кодовой базы
-
-**Требования:**
-- Опыт коммерческой разработки от 2 лет
-- Глубокое знание JavaScript, TypeScript, React
-- Понимание принципов отзывчивого дизайна
-- Опыт работы с системами контроля версий (Git)
-
-**Условия:**
-- Гибкий график работы
-- Возможность удаленной работы
-- Конкурентная заработная плата
-- Дружный коллектив профессионалов
-
-**Навыки:**
-React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
-          salary: {
-            amount: {
-              min: 150000,
-              max: 250000,
-            },
-            currency: "RUB",
-          },
-          city: "Москва",
-          experience: Experience.Middle,
-          employmentTypes: [EmploymentType.FullTime, EmploymentType.Remote],
-          createdAt: "2023-07-15T10:00:00Z",
-          updatedAt: "2023-07-15T10:00:00Z",
-          responses: 12,
-          views: 145,
-        };
-
-        // Разделяем описание и навыки
-        const descriptionParts = mockVacancy.description.split("**Навыки:**");
-        const mainDescription = descriptionParts[0].trim();
-        const skillsText = descriptionParts.length > 1 ? descriptionParts[1].trim() : "";
-
-        setFormData(mockVacancy);
-        setDescription(mainDescription);
-        setSkills(skillsText);
-
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (err: unknown) {
-        setError("Не удалось загрузить данные вакансии");
-        setIsLoading(false);
-      }
-    };
-
-    fetchVacancy();
-  }, []);
+  const title = useUnit($title);
+  const description = useUnit($description);
+  const city = useUnit($city);
+  const experience = useUnit($experience);
+  const employmentTypes = useUnit($employmentTypes);
+  const salaryMin = useUnit($salaryMin);
+  const salaryMax = useUnit($salaryMax);
+  const currency = useUnit($currency);
+  const pending = useUnit($pending);
 
   // Обработчики изменения полей формы
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    titleChanged(e.target.value);
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    cityChanged(e.target.value);
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    descriptionChanged(e.target.value);
   };
 
   const handleExperienceChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      experience: value as Experience,
-    }));
+    experienceChanged(value as Experience);
   };
 
   const handleEmploymentTypeToggle = (type: EmploymentType) => {
-    setFormData((prev) => {
-      const currentTypes = prev.employmentTypes || [];
-      const updatedTypes = currentTypes.includes(type)
-        ? currentTypes.filter((t) => t !== type)
-        : [...currentTypes, type];
-
-      return {
-        ...prev,
-        employmentTypes: updatedTypes,
-      };
-    });
+    employmentTypeToggled(type);
   };
 
-  const handleSalaryChange = (field: "min" | "max", value: string) => {
-    const numValue = value === "" ? 0 : parseInt(value, 10);
+  const handleSalaryMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    salaryMinChanged(e.target.value);
+  };
 
-    setFormData((prev) => ({
-      ...prev,
-      salary: {
-        ...prev.salary!,
-        amount: {
-          ...prev.salary!.amount,
-          [field]: numValue,
-        },
-      },
-    }));
+  const handleSalaryMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    salaryMaxChanged(e.target.value);
   };
 
   const handleCurrencyChange = (value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      salary: {
-        ...prev.salary!,
-        currency: value,
-      },
-    }));
-  };
-
-  // Обновление полного описания при отправке формы
-  const updateDescription = () => {
-    const fullDescription = [description, skills && `**Навыки:**\n${skills}`]
-      .filter(Boolean)
-      .join("\n\n");
-
-    setFormData((prev) => ({
-      ...prev,
-      description: fullDescription,
-    }));
-
-    return fullDescription;
+    currencyChanged(value);
   };
 
   // Обработчик отправки формы
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const fullDescription = updateDescription();
-
-    setIsSaving(true);
-    setError(null);
-
-    try {
-      // В реальном приложении здесь будет запрос к API для сохранения данных
-      const updatedVacancy = {
-        ...formData,
-        description: fullDescription,
-        updatedAt: new Date().toISOString(),
-      };
-
-      console.log("Сохранение данных:", updatedVacancy);
-
-      // Имитация задержки сохранения
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setIsSaving(false);
-      // В реальном приложении здесь будет редирект на страницу просмотра вакансии
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      setError("Не удалось сохранить изменения");
-      setIsSaving(false);
-    }
+    formSubmitted();
   };
 
   // Если данные загружаются, показываем индикатор загрузки
-  if (isLoading) {
+  if (pending && !title) {
     return (
       <LayoutCompany>
         <div className="flex justify-center items-center h-full py-20">
@@ -281,18 +132,14 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
       <div className="flex justify-center items-start py-8 px-4">
         <div className="w-full max-w-3xl bg-white/50 backdrop-blur-sm rounded-lg p-6 shadow-sm">
           <div className="flex items-center mb-6">
-            <Button variant="ghost" size="sm" className="mr-2">
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Назад
-            </Button>
             <h1 className="text-2xl font-bold">Редактирование вакансии</h1>
           </div>
 
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-              {error}
-            </div>
-          )}
+          {/*{error && (*/}
+          {/*  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">*/}
+          {/*    {error}*/}
+          {/*  </div>*/}
+          {/*)}*/}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Основная информация */}
@@ -304,8 +151,8 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
                     <Input
                       id="title"
                       name="title"
-                      value={formData.title || ""}
-                      onChange={handleInputChange}
+                      value={title}
+                      onChange={handleTitleChange}
                       placeholder="Например: Frontend-разработчик (React)"
                       required
                     />
@@ -316,8 +163,8 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
                     <Input
                       id="city"
                       name="city"
-                      value={formData.city || ""}
-                      onChange={handleInputChange}
+                      value={city}
+                      onChange={handleCityChange}
                       placeholder="Например: Москва"
                       required
                     />
@@ -325,10 +172,7 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
 
                   <div className="space-y-2">
                     <Label htmlFor="experience">Требуемый опыт</Label>
-                    <Select
-                      value={formData.experience || ""}
-                      onValueChange={handleExperienceChange}
-                    >
+                    <Select value={experience} onValueChange={handleExperienceChange}>
                       <SelectTrigger id="experience">
                         <SelectValue placeholder="Выберите требуемый опыт" />
                       </SelectTrigger>
@@ -343,20 +187,18 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Формат работы</Label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                      {Object.entries(employmentTypeLabels).map(([type, label]) => (
-                        <div key={type} className="flex items-center space-x-2">
+                    <Label>Тип занятости</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {Object.entries(employmentTypeLabels).map(([value, label]) => (
+                        <div key={value} className="flex items-center space-x-2">
                           <Checkbox
-                            id={`employment-${type}`}
-                            checked={
-                              formData.employmentTypes?.includes(type as EmploymentType) || false
-                            }
+                            id={`employment-${value}`}
+                            checked={employmentTypes.includes(value as EmploymentType)}
                             onCheckedChange={() =>
-                              handleEmploymentTypeToggle(type as EmploymentType)
+                              handleEmploymentTypeToggle(value as EmploymentType)
                             }
                           />
-                          <Label htmlFor={`employment-${type}`} className="cursor-pointer">
+                          <Label htmlFor={`employment-${value}`} className="font-normal">
                             {label}
                           </Label>
                         </div>
@@ -365,47 +207,33 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Заработная плата</Label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                      <div>
-                        <Label htmlFor="salary-min" className="text-xs">
-                          От
-                        </Label>
+                    <Label>Зарплата</Label>
+                    <div className="grid grid-cols-12 gap-2">
+                      <div className="col-span-5">
                         <Input
-                          id="salary-min"
                           type="number"
-                          value={formData.salary?.amount.min || ""}
-                          onChange={(e) => handleSalaryChange("min", e.target.value)}
-                          placeholder="Минимальная сумма"
+                          placeholder="От"
+                          value={salaryMin}
+                          onChange={handleSalaryMinChange}
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="salary-max" className="text-xs">
-                          До
-                        </Label>
+                      <div className="col-span-5">
                         <Input
-                          id="salary-max"
                           type="number"
-                          value={formData.salary?.amount.max || ""}
-                          onChange={(e) => handleSalaryChange("max", e.target.value)}
-                          placeholder="Максимальная сумма"
+                          placeholder="До"
+                          value={salaryMax}
+                          onChange={handleSalaryMaxChange}
                         />
                       </div>
-                      <div>
-                        <Label htmlFor="salary-currency" className="text-xs">
-                          Валюта
-                        </Label>
-                        <Select
-                          value={(formData.salary?.currency as string) || "RUB"}
-                          onValueChange={handleCurrencyChange}
-                        >
-                          <SelectTrigger id="salary-currency">
-                            <SelectValue placeholder="Выберите валюту" />
+                      <div className="col-span-2">
+                        <Select value={currency} onValueChange={handleCurrencyChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="₽" />
                           </SelectTrigger>
                           <SelectContent>
-                            {currencies.map((currency) => (
-                              <SelectItem key={currency.value} value={currency.value}>
-                                {currency.label}
+                            {currencies.map((curr) => (
+                              <SelectItem key={curr.value} value={curr.value}>
+                                {curr.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -413,71 +241,47 @@ React, TypeScript, JavaScript, HTML, CSS, Redux, REST API, Git`,
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Описание вакансии */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="description">Описание вакансии</Label>
                     <Textarea
                       id="description"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Опишите обязанности, требования и условия работы"
+                      onChange={handleDescriptionChange}
+                      placeholder="Опишите требования, обязанности и условия работы"
                       className="min-h-[200px]"
-                      required
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Используйте **текст** для выделения заголовков разделов
-                    </p>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="skills">Требуемые навыки</Label>
-                    <Textarea
-                      id="skills"
-                      value={skills}
-                      onChange={(e) => setSkills(e.target.value)}
-                      placeholder="Например: React, TypeScript, JavaScript, HTML, CSS"
-                      className="min-h-[100px]"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Перечислите навыки через запятую
-                    </p>
-                  </div>
+                  {/*<div className="space-y-2">*/}
+                  {/*  <Label htmlFor="skills">Требуемые навыки</Label>*/}
+                  {/*  <Textarea*/}
+                  {/*    id="skills"*/}
+                  {/*    value={skills}*/}
+                  {/*    onChange={handleSkillsChange}*/}
+                  {/*    placeholder="Перечислите необходимые навыки и технологии"*/}
+                  {/*    className="min-h-[100px]"*/}
+                  {/*  />*/}
+                  {/*  <p className="text-xs text-muted-foreground">*/}
+                  {/*    Укажите ключевые навыки и технологии, необходимые для этой позиции. Каждый*/}
+                  {/*    навык с новой строки.*/}
+                  {/*  </p>*/}
+                  {/*</div>*/}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Кнопки действий */}
-            <div className="flex justify-between">
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => {
-                  if (window.confirm("Вы уверены, что хотите удалить эту вакансию?")) {
-                    // В реальном приложении здесь будет запрос к API для удаления
-                    console.log("Удаление вакансии с ID:", formData.id);
-                    // После успешного удаления - редирект на страницу со списком вакансий
-                  }
-                }}
-              >
-                Удалить вакансию
+            <div className="flex justify-end space-x-4">
+              <Button type="submit" disabled={pending}>
+                {pending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Сохранение...
+                  </>
+                ) : (
+                  "Сохранить изменения"
+                )}
               </Button>
-
-              <div className="flex space-x-4">
-                <Button type="button" variant="outline">
-                  Отмена
-                </Button>
-                <Button type="submit" disabled={isSaving}>
-                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Сохранить изменения
-                </Button>
-              </div>
             </div>
           </form>
         </div>

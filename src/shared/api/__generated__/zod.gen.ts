@@ -325,6 +325,8 @@ export const zUserControllerListResponse = z.object({
 
 export const zVacancyControllerListResponse = z.array(zVacancyResponseDto);
 
+export const zVacancyControllerGetByIdResponse = zVacancyResponseDto;
+
 export const zVacancyControllerCreateResponse = zVacancyResponseDto;
 
 export const zVacancyControllerUpdateResponse = zVacancyResponseDto;

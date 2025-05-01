@@ -84,6 +84,8 @@ import type {
   VacancyControllerDeleteMultipleResponse,
   VacancyControllerGetByCompanyIdData,
   VacancyControllerGetByCompanyIdResponse,
+  VacancyControllerGetByIdData,
+  VacancyControllerGetByIdResponse,
   VacancyControllerListData,
   VacancyControllerListResponse,
   VacancyControllerUpdateByCompanyIdData,
@@ -125,6 +127,7 @@ import {
   zVacancyControllerCreateResponse,
   zVacancyControllerDeleteMultipleResponse,
   zVacancyControllerGetByCompanyIdResponse,
+  zVacancyControllerGetByIdResponse,
   zVacancyControllerListResponse,
   zVacancyControllerUpdateByCompanyIdResponse,
   zVacancyControllerUpdateResponse,
@@ -444,6 +447,31 @@ export const vacancyControllerList = <ThrowOnError extends boolean = false>(
       return await zVacancyControllerListResponse.parseAsync(data);
     },
     url: "/api/vacancy/list",
+    ...options,
+  });
+};
+
+/**
+ * Получить вакансию по ID 🆔
+ */
+export const vacancyControllerGetById = <ThrowOnError extends boolean = false>(
+  options: Options<VacancyControllerGetByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    VacancyControllerGetByIdResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zVacancyControllerGetByIdResponse.parseAsync(data);
+    },
+    url: "/api/vacancy/{id}",
     ...options,
   });
 };
