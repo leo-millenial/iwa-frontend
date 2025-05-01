@@ -4,6 +4,7 @@ import { createEvent, createStore, sample } from "effector";
 import { loginByPhoneMutation } from "@/shared/api/auth";
 import { getMeQuery } from "@/shared/api/user";
 import { createPhoneValidation } from "@/shared/lib/phone";
+import { showErrorToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import { UserRole } from "@/shared/types/user.interface.ts";
 
@@ -14,10 +15,13 @@ export const passwordChanged = createEvent<string>();
 
 export const $password = createStore("");
 export const $pending = getMeQuery.$pending;
+export const $error = createStore<string | null>(null);
 
 const { phoneChanged, $normalizedPhone } = invoke(createPhoneValidation);
 
 $password.on(passwordChanged, (_, value) => value);
+
+$error.reset(phoneChanged, passwordChanged);
 
 sample({
   clock: formSubmitted,
@@ -28,6 +32,35 @@ sample({
 sample({
   clock: loginByPhoneMutation.finished.success,
   target: getMeQuery.start,
+});
+
+sample({
+  clock: loginByPhoneMutation.finished.failure,
+  fn: ({ error }) => {
+    if (typeof error === "object" && error !== null && "message" in error) {
+      try {
+        if (typeof error.message === "string" && error.message.includes('{"message":')) {
+          const errorData = JSON.parse(error.message.substring(error.message.indexOf("{")));
+          return errorData.message || "Неверный номер телефона или пароль";
+        }
+      } catch (e) {
+        console.error("Failed to parse error message", e);
+      }
+      return error.message as string;
+    }
+    return "Ошибка проверки авторизации";
+  },
+  target: $error,
+});
+
+sample({
+  clock: loginByPhoneMutation.$failed,
+  source: $error,
+  fn: (message) => ({
+    message: "Ошибка!",
+    description: message,
+  }),
+  target: showErrorToast,
 });
 
 sample({

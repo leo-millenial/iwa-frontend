@@ -27,7 +27,6 @@ const loginByPhoneFx = createEffect(async (params: LoginByPhoneParams) => {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Login error:", response.status, errorText);
     throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorText}`);
   }
 
