@@ -11,6 +11,7 @@ export const authenticatedRoute = chainAuthenticated(currentRoute, {
 });
 
 export const viewVacancyClicked = createEvent<{ vacancyId: string }>();
+export const editVacancyClicked = createEvent<{ vacancyId: string }>();
 
 export const $error = createStore<string | null>(null);
 export const $pending = getVacanciesByCompanyIdQuery.$pending;
@@ -30,6 +31,13 @@ sample({
   source: authenticatedRoute.$params,
   fn: ({ companyId }, { vacancyId }) => ({ companyId, vacancyId }),
   target: routes.company.vacancy.view.open,
+});
+
+sample({
+  clock: editVacancyClicked,
+  source: authenticatedRoute.$params,
+  fn: ({ companyId }, { vacancyId }) => ({ companyId, vacancyId }),
+  target: routes.company.vacancy.edit.open,
 });
 
 sample({

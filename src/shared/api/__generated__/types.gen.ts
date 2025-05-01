@@ -1035,6 +1035,36 @@ export type VacancyControllerListResponses = {
 export type VacancyControllerListResponse =
   VacancyControllerListResponses[keyof VacancyControllerListResponses];
 
+export type VacancyControllerGetByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/vacancy/{id}";
+};
+
+export type VacancyControllerGetByIdErrors = {
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Вакансия не найдена
+   */
+  404: unknown;
+};
+
+export type VacancyControllerGetByIdResponses = {
+  /**
+   * Вакансия успешно получена
+   */
+  200: VacancyResponseDto;
+};
+
+export type VacancyControllerGetByIdResponse =
+  VacancyControllerGetByIdResponses[keyof VacancyControllerGetByIdResponses];
+
 export type VacancyControllerCreateData = {
   body: VacancyCreateDto;
   path?: never;

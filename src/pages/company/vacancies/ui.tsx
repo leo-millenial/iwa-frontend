@@ -25,7 +25,7 @@ import {
 } from "@/shared/ui/table.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
-import { $error, $pending, $vacancies, viewVacancyClicked } from "./model.ts";
+import { $error, $pending, $vacancies, editVacancyClicked, viewVacancyClicked } from "./model.ts";
 
 type TabType = "active" | "drafts" | "archive" | "templates";
 
@@ -38,7 +38,10 @@ export const CompanyVacanciesPage = () => {
     isPending: $pending,
   });
 
-  const handleViewVacancyClick = useUnit(viewVacancyClicked);
+  const [handleViewVacancyClick, handleEditVacancyClick] = useUnit([
+    viewVacancyClicked,
+    editVacancyClicked,
+  ]);
 
   // Компонент для отображения пустого состояния
   const EmptyState = () => (
@@ -149,7 +152,9 @@ export const CompanyVacanciesPage = () => {
                         <Eye className="mr-2 h-4 w-4" />
                         <span>Просмотреть</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleEditVacancyClick({ vacancyId: vacancy._id })}
+                      >
                         <Edit className="mr-2 h-4 w-4" />
                         <span>Редактировать</span>
                       </DropdownMenuItem>
