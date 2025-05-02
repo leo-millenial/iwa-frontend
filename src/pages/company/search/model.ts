@@ -4,12 +4,15 @@ import { debounce } from "patronum";
 import { getResumeListQuery } from "@/shared/api/resume";
 import { routes } from "@/shared/routing";
 import { IResume, ResumeSearchParams } from "@/shared/types/resume.interface.ts";
+import { UserRole } from "@/shared/types/user.interface.ts";
 import { EmploymentType, Experience } from "@/shared/types/vacancy.interface.ts";
 import { chainAuthenticated } from "@/shared/viewer";
 
 export const currentRoute = routes.company.search;
 
-export const authenticatedRoute = chainAuthenticated(currentRoute);
+export const authenticatedRoute = chainAuthenticated(currentRoute, {
+  requiredRole: UserRole.Company,
+});
 
 /*
    todo

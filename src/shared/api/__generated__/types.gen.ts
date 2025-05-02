@@ -638,33 +638,6 @@ export type SubscriptionResponseDto = {
   status: "STARTED" | "WAITING_FOR_PAYMENT" | "ACTIVE" | "EXPIRED" | "CANCELED";
 };
 
-export type UpdateSubscriptionDto = {
-  /**
-   * План подписки
-   */
-  plan?: string;
-  /**
-   * Длительность подписки в днях
-   */
-  duration?: number;
-  /**
-   * Стоимость подписки
-   */
-  price?: SubscriptionPriceDto;
-  /**
-   * Дата начала подписки
-   */
-  startDate?: string;
-  /**
-   * Дата окончания подписки
-   */
-  endDate?: string;
-  /**
-   * Статус подписки
-   */
-  status?: "STARTED" | "WAITING_FOR_PAYMENT" | "ACTIVE" | "EXPIRED" | "CANCELED";
-};
-
 export type AuthControllerRegisterData = {
   body: RegisterDto;
   path?: never;
@@ -1920,35 +1893,6 @@ export type SubscriptionAdminControllerGetAllSubscriptionsResponses = {
 export type SubscriptionAdminControllerGetAllSubscriptionsResponse =
   SubscriptionAdminControllerGetAllSubscriptionsResponses[keyof SubscriptionAdminControllerGetAllSubscriptionsResponses];
 
-export type SubscriptionAdminControllerDeleteSubscriptionData = {
-  body?: never;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/adm/subscriptions/company/{id}";
-};
-
-export type SubscriptionAdminControllerDeleteSubscriptionErrors = {
-  /**
-   * Подписка не найдена
-   */
-  404: unknown;
-};
-
-export type SubscriptionAdminControllerDeleteSubscriptionResponses = {
-  /**
-   * Подписка успешно удалена
-   */
-  200: {
-    success?: boolean;
-    message?: string;
-  };
-};
-
-export type SubscriptionAdminControllerDeleteSubscriptionResponse =
-  SubscriptionAdminControllerDeleteSubscriptionResponses[keyof SubscriptionAdminControllerDeleteSubscriptionResponses];
-
 export type SubscriptionAdminControllerGetSubscriptionByIdData = {
   body?: never;
   path: {
@@ -1974,32 +1918,6 @@ export type SubscriptionAdminControllerGetSubscriptionByIdResponses = {
 
 export type SubscriptionAdminControllerGetSubscriptionByIdResponse =
   SubscriptionAdminControllerGetSubscriptionByIdResponses[keyof SubscriptionAdminControllerGetSubscriptionByIdResponses];
-
-export type SubscriptionAdminControllerUpdateSubscriptionData = {
-  body: UpdateSubscriptionDto;
-  path: {
-    id: string;
-  };
-  query?: never;
-  url: "/api/adm/subscriptions/company/{id}";
-};
-
-export type SubscriptionAdminControllerUpdateSubscriptionErrors = {
-  /**
-   * Подписка не найдена
-   */
-  404: unknown;
-};
-
-export type SubscriptionAdminControllerUpdateSubscriptionResponses = {
-  /**
-   * Подписка успешно обновлена
-   */
-  200: SubscriptionResponseDto;
-};
-
-export type SubscriptionAdminControllerUpdateSubscriptionResponse =
-  SubscriptionAdminControllerUpdateSubscriptionResponses[keyof SubscriptionAdminControllerUpdateSubscriptionResponses];
 
 export type FilesControllerUploadFileData = {
   body: {

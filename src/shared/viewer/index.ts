@@ -1,7 +1,9 @@
 import { RouteInstance, RouteParams, RouteParamsAndQuery, chainRoute } from "atomic-router";
 import { Effect, Event, createEvent, createStore, sample } from "effector";
+import { persist } from "effector-storage/session";
 
 import { getMeQuery } from "@/shared/api/user";
+import { appStarted } from "@/shared/init";
 import { routes } from "@/shared/routing";
 import { clearToken } from "@/shared/tokens";
 import { ICompany } from "@/shared/types/company.interface.ts";
@@ -28,9 +30,11 @@ export const viewerLoggedOut = createEvent();
 export const $viewer = createStore<Viewer | null>(null);
 export const $companyId = $viewer.map((viewer) => viewer?.company?._id ?? "");
 
+persist({ store: $viewer, key: "viewer", pickup: appStarted });
+
 sample({
   clock: viewerLoggedOut,
-  target: [clearToken, routes.home.open],
+  target: [clearToken, routes.home.open, $viewer.reinit],
 });
 
 // Создаем стор для хранения статуса авторизации

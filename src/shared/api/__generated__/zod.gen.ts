@@ -278,15 +278,6 @@ export const zSubscriptionResponseDto = z.object({
   status: z.enum(["STARTED", "WAITING_FOR_PAYMENT", "ACTIVE", "EXPIRED", "CANCELED"]),
 });
 
-export const zUpdateSubscriptionDto = z.object({
-  plan: z.string().optional(),
-  duration: z.number().optional(),
-  price: zSubscriptionPriceDto.optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-  status: z.enum(["STARTED", "WAITING_FOR_PAYMENT", "ACTIVE", "EXPIRED", "CANCELED"]).optional(),
-});
-
 export const zAuthControllerRegisterResponse = zResponse;
 
 export const zAuthControllerLoginResponse = zResponse;
@@ -461,11 +452,4 @@ export const zSubscriptionAdminControllerCreateCompanySubscriptionResponse =
 export const zSubscriptionAdminControllerGetAllSubscriptionsResponse =
   z.array(zSubscriptionResponseDto);
 
-export const zSubscriptionAdminControllerDeleteSubscriptionResponse = z.object({
-  success: z.boolean().optional(),
-  message: z.string().optional(),
-});
-
 export const zSubscriptionAdminControllerGetSubscriptionByIdResponse = zSubscriptionResponseDto;
-
-export const zSubscriptionAdminControllerUpdateSubscriptionResponse = zSubscriptionResponseDto;

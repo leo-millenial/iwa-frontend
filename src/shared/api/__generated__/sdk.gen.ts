@@ -60,14 +60,10 @@ import type {
   ResumeControllerUpdateResponse,
   SubscriptionAdminControllerCreateCompanySubscriptionData,
   SubscriptionAdminControllerCreateCompanySubscriptionResponse,
-  SubscriptionAdminControllerDeleteSubscriptionData,
-  SubscriptionAdminControllerDeleteSubscriptionResponse,
   SubscriptionAdminControllerGetAllSubscriptionsData,
   SubscriptionAdminControllerGetAllSubscriptionsResponse,
   SubscriptionAdminControllerGetSubscriptionByIdData,
   SubscriptionAdminControllerGetSubscriptionByIdResponse,
-  SubscriptionAdminControllerUpdateSubscriptionData,
-  SubscriptionAdminControllerUpdateSubscriptionResponse,
   SubscriptionControllerCreateData,
   SubscriptionControllerCreateResponse,
   SubscriptionControllerGetCurrentData,
@@ -116,10 +112,8 @@ import {
   zResumeControllerListResponse,
   zResumeControllerUpdateResponse,
   zSubscriptionAdminControllerCreateCompanySubscriptionResponse,
-  zSubscriptionAdminControllerDeleteSubscriptionResponse,
   zSubscriptionAdminControllerGetAllSubscriptionsResponse,
   zSubscriptionAdminControllerGetSubscriptionByIdResponse,
-  zSubscriptionAdminControllerUpdateSubscriptionResponse,
   zSubscriptionControllerCreateResponse,
   zUserControllerListResponse,
   zUserControllerMeResponse,
@@ -1131,26 +1125,6 @@ export const subscriptionAdminControllerGetAllSubscriptions = <
 };
 
 /**
- * Удаление подписки
- * Удаляет подписку по указанному ID
- */
-export const subscriptionAdminControllerDeleteSubscription = <ThrowOnError extends boolean = false>(
-  options: Options<SubscriptionAdminControllerDeleteSubscriptionData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    SubscriptionAdminControllerDeleteSubscriptionResponse,
-    unknown,
-    ThrowOnError
-  >({
-    responseValidator: async (data) => {
-      return await zSubscriptionAdminControllerDeleteSubscriptionResponse.parseAsync(data);
-    },
-    url: "/api/adm/subscriptions/company/{id}",
-    ...options,
-  });
-};
-
-/**
  * Получение подписки по ID
  * Возвращает подписку по указанному ID
  */
@@ -1169,30 +1143,6 @@ export const subscriptionAdminControllerGetSubscriptionById = <
     },
     url: "/api/adm/subscriptions/company/{id}",
     ...options,
-  });
-};
-
-/**
- * Обновление подписки
- * Обновляет существующую подписку по указанному ID
- */
-export const subscriptionAdminControllerUpdateSubscription = <ThrowOnError extends boolean = false>(
-  options: Options<SubscriptionAdminControllerUpdateSubscriptionData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    SubscriptionAdminControllerUpdateSubscriptionResponse,
-    unknown,
-    ThrowOnError
-  >({
-    responseValidator: async (data) => {
-      return await zSubscriptionAdminControllerUpdateSubscriptionResponse.parseAsync(data);
-    },
-    url: "/api/adm/subscriptions/company/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
   });
 };
 
