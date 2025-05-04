@@ -250,7 +250,7 @@ export const zResumeUpdateDto = z.object({
 
 export const zCreateSubscriptionRequestDto = z.object({
   companyId: z.string(),
-  subscriptionId: z.string(),
+  planId: z.string(),
 });
 
 export const zCreateSubscriptionResponseDto = z.object({
@@ -435,6 +435,8 @@ export const zJobseekerControllerUploadVideoResponse = z.object({
 });
 
 export const zResumeControllerListResponse = z.array(zResumeCreateDto);
+
+export const zResumeControllerGetByIdResponse = zResumeCreateDto;
 
 export const zResumeControllerCreateResponse = zResumeCreateDto;
 

@@ -569,9 +569,9 @@ export type CreateSubscriptionRequestDto = {
    */
   companyId: string;
   /**
-   * Идентификатор подписки
+   * Идентификатор плана подписки
    */
-  subscriptionId: string;
+  planId: string;
 };
 
 export type CreateSubscriptionResponseDto = {
@@ -1733,6 +1733,36 @@ export type ResumeControllerListResponses = {
 
 export type ResumeControllerListResponse =
   ResumeControllerListResponses[keyof ResumeControllerListResponses];
+
+export type ResumeControllerGetByIdData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: "/api/resume/{id}";
+};
+
+export type ResumeControllerGetByIdErrors = {
+  /**
+   * Неавторизованный доступ
+   */
+  401: unknown;
+  /**
+   * Резюме не найдено
+   */
+  404: unknown;
+};
+
+export type ResumeControllerGetByIdResponses = {
+  /**
+   * Возвращает данные резюме
+   */
+  200: ResumeCreateDto;
+};
+
+export type ResumeControllerGetByIdResponse =
+  ResumeControllerGetByIdResponses[keyof ResumeControllerGetByIdResponses];
 
 export type ResumeControllerCreateData = {
   body: ResumeCreateDto;

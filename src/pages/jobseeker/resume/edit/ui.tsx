@@ -97,7 +97,7 @@ interface IResume {
   skills?: ISkill[];
   aboutMe?: string;
   languages?: ILanguage[];
-  sertificates?: string[];
+  certificates?: string[];
 }
 
 // Вспомогательные компоненты
@@ -183,7 +183,7 @@ const mockResume: IResume = {
     { name: "Английский", level: LanguageLevel.Advanced },
     { name: "Немецкий", level: LanguageLevel.Beginner },
   ],
-  sertificates: ["https://example.com/cert1", "https://example.com/cert2"],
+  certificates: ["https://example.com/cert1", "https://example.com/cert2"],
 };
 
 export const JobseekerResumeEditPage = () => {
@@ -336,22 +336,22 @@ export const JobseekerResumeEditPage = () => {
   const addCertificate = () => {
     setResume((prev) => ({
       ...prev,
-      sertificates: [...(prev.sertificates || []), ""],
+      certificates: [...(prev.certificates || []), ""],
     }));
   };
 
   const updateCertificate = (index: number, value: string) => {
     setResume((prev) => {
-      const updatedCertificates = [...(prev.sertificates || [])];
+      const updatedCertificates = [...(prev.certificates || [])];
       updatedCertificates[index] = value;
-      return { ...prev, sertificates: updatedCertificates };
+      return { ...prev, certificates: updatedCertificates };
     });
   };
 
   const removeCertificate = (index: number) => {
     setResume((prev) => ({
       ...prev,
-      sertificates: prev.sertificates?.filter((_, i) => i !== index),
+      certificates: prev.certificates?.filter((_, i) => i !== index),
     }));
   };
 
@@ -1048,8 +1048,8 @@ export const JobseekerResumeEditPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {resume.sertificates && resume.sertificates.length > 0 ? (
-                      resume.sertificates.map((certificate, index) => (
+                    {resume.certificates && resume.certificates.length > 0 ? (
+                      resume.certificates.map((certificate, index) => (
                         <div key={index} className="flex items-center gap-4">
                           <div className="flex-1">
                             <Input

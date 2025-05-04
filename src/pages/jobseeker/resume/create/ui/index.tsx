@@ -47,7 +47,7 @@ export const JobseekerResumeCreatePage = () => {
     education: [],
     skills: [],
     languages: [],
-    sertificates: [],
+    certificates: [],
   });
 
   // Обработчик отправки формы
