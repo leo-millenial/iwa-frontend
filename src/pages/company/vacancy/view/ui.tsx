@@ -17,7 +17,7 @@ import {
 } from "@/shared/ui/dropdown-menu.tsx";
 import { Skeleton } from "@/shared/ui/skeleton.tsx";
 
-import { $vacancy } from "./model";
+import { $vacancy, editClicked } from "./model";
 
 // Лейблы для отображения
 const employmentTypeLabels: Record<EmploymentType, string> = {
@@ -45,7 +45,7 @@ const currencySymbols: Record<string, string> = {
 
 export const CompanyVacancyViewPage = () => {
   const vacancy = useUnit($vacancy);
-  const handleVacancyDelete = useUnit(deleteVacancyClicked);
+  const [handleEditClick, handleVacancyDelete] = useUnit([editClicked, deleteVacancyClicked]);
 
   // Форматирование зарплаты
   const formatSalary = (salary: ISalary) => {
@@ -147,7 +147,7 @@ export const CompanyVacancyViewPage = () => {
               )}
             </div>
             <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
+              <Button onClick={() => handleEditClick()} variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
                 Редактировать
               </Button>

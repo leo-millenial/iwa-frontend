@@ -1,5 +1,5 @@
 import { useUnit } from "effector-react";
-import { ChevronUp, Filter, MoreVertical, Search, Send, User, X } from "lucide-react";
+import { ChevronUp, Filter, MoreVertical, Search, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
@@ -13,6 +13,7 @@ import {
   $searchQuery,
   $skills,
   cityChanged,
+  openResumeClicked,
   resetFilters,
   searchChanged,
   skillsChanged,
@@ -36,6 +37,8 @@ import { Skeleton } from "@/shared/ui/skeleton";
 
 // Компонент карточки соискателя
 const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number) => void }) => {
+  const handleOpenResumeClick = useUnit(openResumeClicked);
+
   return (
     <Card key={resume._id} className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
@@ -137,9 +140,9 @@ const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleOpenResumeClick({ resumeId: resume._id })}>
                 <User className="mr-2 h-4 w-4" />
-                <span>Перейти в профиль</span>
+                <span>Отрыкть резюме</span>
               </DropdownMenuItem>
               {/*<DropdownMenuItem onClick={() => onToggleFavorite(resume._id)}>*/}
               {/*  {resume.isFavorite ? (*/}
@@ -154,10 +157,10 @@ const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number
               {/*    </>*/}
               {/*  )}*/}
               {/*</DropdownMenuItem>*/}
-              <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" />
-                <span>Отправить вакансию</span>
-              </DropdownMenuItem>
+              {/*<DropdownMenuItem>*/}
+              {/*  <Send className="mr-2 h-4 w-4" />*/}
+              {/*  <span>Отправить вакансию</span>*/}
+              {/*</DropdownMenuItem>*/}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

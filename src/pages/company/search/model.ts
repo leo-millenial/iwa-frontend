@@ -22,7 +22,7 @@ export const authenticatedRoute = chainAuthenticated(currentRoute, {
     - resume.status: Активный поиск | Готов к предложениям
  */
 
-// События для изменения параметров поиска
+export const openResumeClicked = createEvent<{ resumeId: string }>();
 export const searchChanged = createEvent<string>();
 export const cityChanged = createEvent<string>();
 export const experienceChanged = createEvent<string | null>();
@@ -35,7 +35,6 @@ export const postingPeriodChanged = createEvent<string>();
 export const jobseekerStatusChanged = createEvent<string | null>();
 export const resetFilters = createEvent();
 
-// Сторы для параметров поиска
 export const $searchQuery = createStore<string>("");
 export const $city = createStore<string>("");
 export const $experience = createStore<string | null>(null);
@@ -47,7 +46,6 @@ export const $onlyFavorites = createStore<boolean>(false);
 export const $postingPeriod = createStore<string>("За все время");
 export const $jobseekerStatus = createStore<string | null>(null);
 
-// Обновление сторов при изменении параметров
 $searchQuery.on(searchChanged, (_, query) => query);
 $city.on(cityChanged, (_, city) => city);
 $experience.on(experienceChanged, (_, experience) => experience);
@@ -146,4 +144,9 @@ sample({
   ],
   source: $searchParams,
   target: getResumeListQuery.start,
+});
+
+sample({
+  clock: openResumeClicked,
+  target: routes.resume.open,
 });

@@ -3,6 +3,7 @@ import { RouteInstance, UnmappedRouteObject, createRoute } from "atomic-router";
 export const routes = {
   home: createRoute(),
   help: createRoute(),
+  resume: createRoute<{ resumeId: string }>(),
 
   auth: {
     signIn: createRoute(),
@@ -51,6 +52,7 @@ export const routes = {
 export const notFoundRoute = createRoute();
 
 export const routesMap: UnmappedRouteObject<object>[] = [
+  /* Not Auth routes */
   { path: "/", route: routes.home },
   {
     path: "/help",
@@ -88,6 +90,11 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     path: "/auth/registration/company/about",
     route: routes.auth.registrationFlow.company.about,
   },
+  {
+    path: "/resume/:resumeId",
+    route: routes.resume as RouteInstance<object>,
+  },
+  /* Auth routes */
   /* Company routes */
   {
     path: "/company/:companyId",

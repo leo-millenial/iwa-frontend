@@ -1,180 +1,16 @@
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import {
-  Calendar,
-  Download,
-  Edit,
-  FileText,
-  Globe,
-  GraduationCap,
-  Mail,
-  MapPin,
-  Phone,
-  Share2,
-} from "lucide-react";
+import { Calendar, FileText, Globe, GraduationCap, Mail, MapPin, Phone } from "lucide-react";
 
 import { LayoutJobseeker } from "@/layouts/jobseeker-layout";
 
+import { IFullName, IResume, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
+import { EmploymentType } from "@/shared/types/vacancy.interface.ts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Progress } from "@/shared/ui/progress";
 import { Separator } from "@/shared/ui/separator";
-
-// Вспомогательные функции и константы
-enum Gender {
-  Male = "Male",
-  Female = "Female",
-}
-
-enum EmploymentType {
-  FullTime = "FullTime",
-  PartTime = "PartTime",
-  Remote = "Remote",
-  Office = "Office",
-  Hybrid = "Hybrid",
-}
-
-enum SkillLevel {
-  Beginner = "Beginner",
-  Intermediate = "Intermediate",
-  Advanced = "Advanced",
-}
-
-enum LanguageLevel {
-  Beginner = "Beginner",
-  Intermediate = "Intermediate",
-  Advanced = "Advanced",
-  Native = "Native",
-}
-
-interface Income {
-  amount: number;
-  currency: string | number;
-}
-
-interface IFullName {
-  firstName: string;
-  lastName?: string;
-  patronymic?: string;
-}
-
-interface IEducation {
-  university: string;
-  faculty: string;
-  degree: string;
-  graduationDate: Date;
-}
-
-interface ISkill {
-  name: string;
-  level: SkillLevel;
-}
-
-interface ILanguage {
-  name: string;
-  level: LanguageLevel;
-}
-
-type WorkExperienceEndDate = Date | null;
-
-interface IWorkExperience {
-  position?: string;
-  company?: string;
-  employmentType?: EmploymentType;
-  startDate?: Date;
-  endDate?: WorkExperienceEndDate;
-  website?: string;
-  responsibilitiesDescription?: string;
-}
-
-interface IResume {
-  photo: string;
-  video: string;
-  jobseekerId?: string;
-  position?: string;
-  income?: Income;
-  fullName?: IFullName;
-  gender?: Gender;
-  birthday?: Date;
-  email?: string;
-  phone?: string;
-  city?: string;
-  workExperience?: IWorkExperience[];
-  education?: IEducation[];
-  skills?: ISkill[];
-  aboutMe?: string;
-  languages?: ILanguage[];
-  certificates?: string[];
-}
-
-// Моковые данные для демонстрации
-const mockResume: IResume = {
-  photo: "https://i.pravatar.cc/300",
-  video: "https://example.com/video",
-  position: "Frontend-разработчик",
-  income: {
-    amount: 150000,
-    currency: "RUB",
-  },
-  fullName: {
-    firstName: "Иван",
-    lastName: "Иванов",
-    patronymic: "Иванович",
-  },
-  gender: Gender.Male,
-  birthday: new Date(1990, 5, 15),
-  email: "ivan.ivanov@example.com",
-  phone: "+7 (999) 123-45-67",
-  city: "Москва",
-  workExperience: [
-    {
-      position: "Senior Frontend Developer",
-      company: "ООО Технологии будущего",
-      employmentType: EmploymentType.Remote,
-      startDate: new Date(2020, 2, 1),
-      endDate: null,
-      website: "https://future-tech.ru",
-      responsibilitiesDescription:
-        "Разработка и поддержка высоконагруженных веб-приложений. Внедрение современных технологий и методологий разработки. Менторство и код-ревью.",
-    },
-    {
-      position: "Middle Frontend Developer",
-      company: "Инновационные решения",
-      employmentType: EmploymentType.Hybrid,
-      startDate: new Date(2018, 6, 1),
-      endDate: new Date(2020, 1, 28),
-      website: "https://inno-solutions.ru",
-      responsibilitiesDescription:
-        "Разработка пользовательских интерфейсов. Оптимизация производительности. Интеграция с REST API.",
-    },
-  ],
-  education: [
-    {
-      university: "Московский Государственный Университет",
-      faculty: "Факультет вычислительной математики и кибернетики",
-      degree: "Магистр",
-      graduationDate: new Date(2016, 5, 30),
-    },
-  ],
-  skills: [
-    { name: "React", level: SkillLevel.Advanced },
-    { name: "TypeScript", level: SkillLevel.Advanced },
-    { name: "JavaScript", level: SkillLevel.Advanced },
-    { name: "HTML/CSS", level: SkillLevel.Advanced },
-    { name: "Redux", level: SkillLevel.Intermediate },
-    { name: "Node.js", level: SkillLevel.Intermediate },
-  ],
-  aboutMe:
-    "Опытный frontend-разработчик с более чем 5-летним стажем работы. Специализируюсь на создании современных, производительных и удобных веб-приложений. Имею глубокие знания JavaScript, TypeScript и React. Постоянно изучаю новые технологии и подходы к разработке.",
-  languages: [
-    { name: "Русский", level: LanguageLevel.Native },
-    { name: "Английский", level: LanguageLevel.Advanced },
-    { name: "Немецкий", level: LanguageLevel.Beginner },
-  ],
-  certificates: ["https://example.com/cert1", "https://example.com/cert2"],
-};
 
 // Вспомогательные компоненты
 const employmentTypeLabels: Record<EmploymentType, string> = {
@@ -236,30 +72,10 @@ const getLanguageLevelProgress = (level: LanguageLevel) => {
   }
 };
 
-export const JobseekerResumeViewPage = () => {
-  const resume = mockResume;
-
+export const ResumeView = ({ resume }: { resume: IResume }) => {
   return (
     <LayoutJobseeker>
       <div className="container mx-auto py-6 max-w-5xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Мое резюме</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Скачать PDF
-            </Button>
-            <Button variant="outline" size="sm">
-              <Share2 className="h-4 w-4 mr-2" />
-              Поделиться
-            </Button>
-            <Button size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Редактировать
-            </Button>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Левая колонка - основная информация */}
           <div className="lg:col-span-1 space-y-6">

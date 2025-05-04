@@ -1,5 +1,4 @@
-import { createStore, sample } from "effector";
-import { debug } from "patronum";
+import { createEvent, createStore, sample } from "effector";
 
 import { deleteVacancyMutation, getVacancyByIdQuery } from "@/shared/api/vacancy";
 import { routes } from "@/shared/routing";
@@ -8,6 +7,7 @@ import { chainAuthenticated } from "@/shared/viewer";
 
 export const currentRoute = routes.company.vacancy.view;
 
+export const editClicked = createEvent();
 export const authenticatedRoute = chainAuthenticated(currentRoute, {
   otherwise: routes.auth.signIn.open,
 });
@@ -22,10 +22,14 @@ sample({
   target: getVacancyByIdQuery.start,
 });
 
-debug({ VIEW_OPEN: currentRoute.opened });
-
 sample({
   clock: deleteVacancyMutation.$succeeded,
   source: authenticatedRoute.$params,
   target: routes.company.vacancies.open,
+});
+
+sample({
+  clock: editClicked,
+  source: authenticatedRoute.$params,
+  target: routes.company.vacancy.edit.open,
 });

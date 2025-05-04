@@ -54,6 +54,8 @@ import type {
   ResumeControllerCreateResponse,
   ResumeControllerDeleteData,
   ResumeControllerDeleteResponse,
+  ResumeControllerGetByIdData,
+  ResumeControllerGetByIdResponse,
   ResumeControllerListData,
   ResumeControllerListResponse,
   ResumeControllerUpdateData,
@@ -109,6 +111,7 @@ import {
   zRegistrationControllerStartRegistrationResponse,
   zResumeControllerCreateResponse,
   zResumeControllerDeleteResponse,
+  zResumeControllerGetByIdResponse,
   zResumeControllerListResponse,
   zResumeControllerUpdateResponse,
   zSubscriptionAdminControllerCreateCompanySubscriptionResponse,
@@ -952,6 +955,32 @@ export const resumeControllerList = <ThrowOnError extends boolean = false>(
       return await zResumeControllerListResponse.parseAsync(data);
     },
     url: "/api/resume/list",
+    ...options,
+  });
+};
+
+/**
+ * Получить резюме по ID 🔍
+ * Возвращает детальную информацию о резюме по указанному ID
+ */
+export const resumeControllerGetById = <ThrowOnError extends boolean = false>(
+  options: Options<ResumeControllerGetByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ResumeControllerGetByIdResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    responseValidator: async (data) => {
+      return await zResumeControllerGetByIdResponse.parseAsync(data);
+    },
+    url: "/api/resume/{id}",
     ...options,
   });
 };
