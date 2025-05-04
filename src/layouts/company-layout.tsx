@@ -101,6 +101,16 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5 text-sm font-medium">{companyName}</div>
               <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer  ">
+                <Link
+                  className="flex items-center gap-2 w-full"
+                  to={routes.company.profile}
+                  params={{ companyId }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Профиль</span>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer flex items-center gap-2 text-destructive"
                 onClick={() => handleLoggedOut()}

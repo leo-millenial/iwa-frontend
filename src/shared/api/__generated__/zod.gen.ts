@@ -4,8 +4,11 @@ import { z } from "zod";
 export const zCompanyCreateDto = z.object({
   name: z.string(),
   city: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  description: z.string().optional(),
   region: z.string(),
   inn: z.number(),
+  employeesCount: z.number(),
   brands: z.array(z.string()).optional(),
 });
 
@@ -132,6 +135,8 @@ export const zCompanyDto = z.object({
   name: z.string(),
   phone: z.string(),
   city: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  description: z.string().optional(),
   region: z.string(),
   inn: z.number(),
   brands: z.array(z.string()).optional(),

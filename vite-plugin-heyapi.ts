@@ -4,7 +4,7 @@ import { Plugin } from "vite";
 
 export function HeyApiPlugin(): Plugin {
   return {
-    name: "vite-plugin-heyapi",
+    plan: "vite-plugin-heyapi",
     apply: "serve", // только в dev режиме
     async configResolved() {
       console.log("🛠️ [heyapi] Генерация OpenAPI клиента при старте dev...");
@@ -16,7 +16,7 @@ export function HeyApiPlugin(): Plugin {
             "@hey-api/client-fetch",
             "zod",
             {
-              name: "@hey-api/sdk",
+              plan: "@hey-api/sdk",
               validator: true,
             },
           ],

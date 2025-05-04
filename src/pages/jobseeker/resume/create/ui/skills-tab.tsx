@@ -99,7 +99,7 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
   const handleNameChange = (value: string) => {
     setCurrentSkill((prev) => ({
       ...prev,
-      name: value,
+      plan: value,
     }));
 
     // Очистка ошибки при изменении поля

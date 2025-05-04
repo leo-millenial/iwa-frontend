@@ -10,6 +10,14 @@ export type CompanyCreateDto = {
    */
   city?: string;
   /**
+   * Сайт компании
+   */
+  websiteUrl?: string;
+  /**
+   * Описание компании
+   */
+  description?: string;
+  /**
    * Регион компании
    */
   region: string;
@@ -17,6 +25,10 @@ export type CompanyCreateDto = {
    * ИНН компании
    */
   inn: number;
+  /**
+   * Количество сотрудников
+   */
+  employeesCount: number;
   /**
    * Бренды компании
    */
@@ -322,6 +334,14 @@ export type CompanyDto = {
    * Город компании
    */
   city?: string;
+  /**
+   * Сайт компании
+   */
+  websiteUrl?: string;
+  /**
+   * Описаниек компании
+   */
+  description?: string;
   /**
    * Регион компании
    */
