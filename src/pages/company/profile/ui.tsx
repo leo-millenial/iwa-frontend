@@ -1,27 +1,26 @@
 import { useUnit } from "effector-react";
-import { Edit, PlusCircle, Save, Trash2, Upload, X } from "lucide-react";
+import { PlusCircle, Save, Trash2, X } from "lucide-react";
 
-import { LayoutCompany } from "@/layouts/company-layout.tsx";
+import { UploadPhoto } from "@/features/upload/";
 
-import { CompanyProfileView } from "@/entities/company/profile";
-
+import { FileType } from "@/shared/types/file.interface";
+import { UserRole } from "@/shared/types/user.interface";
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
 import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 import { Textarea } from "@/shared/ui/textarea.tsx";
+import { $viewer } from "@/shared/viewer";
 
 import {
   $brands,
   $certificateUrls,
   $city,
-  $company,
   $description,
   $documentUrls,
   $employeesCount,
   $inn,
-  $isEditing,
   $logoUrl,
   $name,
   $phone,
@@ -38,7 +37,6 @@ import {
   documentRemoved,
   documentUpdated,
   editingCancelled,
-  editingStarted,
   formSubmitted,
 } from "./model.ts";
 
@@ -66,7 +64,6 @@ const CompanyProfileEdit = () => {
     handlePhoneChange,
     handleEmployeesCountChange,
     handleWebsiteUrlChange,
-    handleLogoUrlChange,
     handleDescriptionChange,
     handleBrandAdd,
     handleBrandRemove,
@@ -77,6 +74,9 @@ const CompanyProfileEdit = () => {
     handleDocumentAdd,
     handleDocumentRemove,
     handleDocumentUpdate,
+    handleLogoFileUploaded,
+    handleCertificateFileUploaded,
+    handleDocumentFileUploaded,
   ] = useUnit([
     $name,
     $region,
@@ -99,7 +99,6 @@ const CompanyProfileEdit = () => {
     companyFieldChanged.phone,
     companyFieldChanged.employeesCount,
     companyFieldChanged.websiteUrl,
-    companyFieldChanged.logoUrl,
     companyFieldChanged.description,
     brandAdded,
     brandRemoved,
@@ -110,7 +109,12 @@ const CompanyProfileEdit = () => {
     documentAdded,
     documentRemoved,
     documentUpdated,
+    companyFieldChanged.logoFile,
+    companyFieldChanged.certificateFile,
+    companyFieldChanged.documentFile,
   ]);
+
+  const viewer = useUnit($viewer);
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-6xl">
@@ -156,18 +160,17 @@ const CompanyProfileEdit = () => {
                 </div>
 
                 <div className="w-full">
-                  <Label htmlFor="logo-url">URL логотипа</Label>
-                  <Input
-                    id="logo-url"
-                    value={logoUrl || ""}
-                    onChange={(e) => handleLogoUrlChange(e.target.value)}
-                    placeholder="https://example.com/logo.png"
-                    className="mb-2"
+                  <UploadPhoto
+                    entityId={viewer?.company?._id}
+                    entityType={UserRole.Company}
+                    fileType={FileType.Logo}
+                    onSuccess={handleLogoFileUploaded}
+                    className="mb-4"
                   />
-                  <Button variant="outline" className="w-full">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Загрузить логотип
-                  </Button>
+
+                  <div className="text-xs text-muted-foreground mt-2 text-center">
+                    Рекомендуемый размер: 400x400 пикселей
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -356,16 +359,27 @@ const CompanyProfileEdit = () => {
                     </Button>
                   </div>
                 ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCertificateAdd}
-                  className="w-full"
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Добавить сертификат
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCertificateAdd}
+                    className="w-full"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Добавить URL сертификата
+                  </Button>
+
+                  <div className="text-sm text-muted-foreground mb-2">или загрузите файл:</div>
+
+                  <UploadPhoto
+                    entityType={UserRole.Company}
+                    fileType={FileType.Certificate}
+                    onSuccess={handleCertificateFileUploaded}
+                    className="w-full"
+                  />
+                </div>
               </CardContent>
             </Card>
 
@@ -400,16 +414,27 @@ const CompanyProfileEdit = () => {
                     </Button>
                   </div>
                 ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDocumentAdd}
-                  className="w-full"
-                >
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Добавить документ
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDocumentAdd}
+                    className="w-full"
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Добавить URL документа
+                  </Button>
+
+                  <div className="text-sm text-muted-foreground mb-2">или загрузите файл:</div>
+
+                  <UploadPhoto
+                    entityType={UserRole.Company}
+                    fileType={FileType.Document}
+                    onSuccess={handleDocumentFileUploaded}
+                    className="w-full"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -421,42 +446,6 @@ const CompanyProfileEdit = () => {
 
 // Основной компонент страницы профиля компании
 export const CompanyProfilePage = () => {
-  const [company, isEditing, handleEditClick] = useUnit([$company, $isEditing, editingStarted]);
-
-  if (!company) {
-    return (
-      <LayoutCompany>
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-center">
-            <div className="w-full max-w-3xl">
-              <div className="text-center py-12">
-                <h2 className="text-xl font-medium mb-2">Загрузка профиля компании...</h2>
-                <p className="text-muted-foreground">Пожалуйста, подождите</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </LayoutCompany>
-    );
-  }
-
-  return (
-    <LayoutCompany>
-      {isEditing ? (
-        <CompanyProfileEdit />
-      ) : (
-        <div className="container mx-auto py-8 px-4">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Профиль компании</h1>
-            <Button onClick={handleEditClick}>
-              <Edit className="mr-2 h-4 w-4" />
-              Редактировать
-            </Button>
-          </div>
-
-          <CompanyProfileView company={company} />
-        </div>
-      )}
-    </LayoutCompany>
-  );
+  // Здесь должна быть логика для отображения профиля компании
+  return <CompanyProfileEdit />;
 };

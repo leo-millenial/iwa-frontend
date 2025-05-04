@@ -4,8 +4,6 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
 
-import { HeyApiPlugin } from "./vite-plugin-heyapi";
-
 export default defineConfig({
   plugins: [
     react({
@@ -14,7 +12,6 @@ export default defineConfig({
       },
     }),
     tailwindcss(),
-    HeyApiPlugin(),
   ],
   resolve: {
     alias: {

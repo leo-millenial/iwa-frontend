@@ -33,10 +33,17 @@ export const brandUpdated = createEvent<{ index: number; value: string }>();
 export const certificateAdded = createEvent();
 export const certificateRemoved = createEvent<number>();
 export const certificateUpdated = createEvent<{ index: number; value: string }>();
+// Новые события для загрузки сертификатов
+export const certificateFileUploaded = createEvent<string>();
 
 export const documentAdded = createEvent();
 export const documentRemoved = createEvent<number>();
 export const documentUpdated = createEvent<{ index: number; value: string }>();
+// Новые события для загрузки документов
+export const documentFileUploaded = createEvent<string>();
+
+// Новое событие для загрузки логотипа
+export const logoFileUploaded = createEvent<string>();
 
 export const fetchCompanyProfileFx = createEffect(async () => {
   // В реальном приложении здесь будет запрос к API
@@ -107,6 +114,7 @@ export const $websiteUrl = createStore("")
 export const $logoUrl = createStore("")
   .on(fetchCompanyProfileFx.doneData, (_, company) => company.logoUrl || "")
   .on(logoUrlChanged, (_, url) => url)
+  .on(logoFileUploaded, (_, fileId) => `/api/files/${fileId}`)
   .on(updateCompanyProfileFx.doneData, (_, company) => company.logoUrl || "")
   .reset(editingCancelled);
 
@@ -145,6 +153,7 @@ export const $certificateUrls = createStore<string[]>([])
     newCertificates[index] = value;
     return newCertificates;
   })
+  .on(certificateFileUploaded, (state, fileId) => [...state, `/api/files/${fileId}`])
   .on(updateCompanyProfileFx.doneData, (_, company) => company.certificateUrls || [])
   .reset(editingCancelled);
 
@@ -161,6 +170,7 @@ export const $documentUrls = createStore<string[]>([])
     newDocuments[index] = value;
     return newDocuments;
   })
+  .on(documentFileUploaded, (state, fileId) => [...state, `/api/files/${fileId}`])
   .on(updateCompanyProfileFx.doneData, (_, company) => company.documentUrls || [])
   .reset(editingCancelled);
 
@@ -189,24 +199,15 @@ export const $company = combine({
   certificateUrls: $certificateUrls,
   documentUrls: $documentUrls,
 });
-
-// Связи (Samples)
-sample({
-  clock: formSubmitted,
-  source: $company,
-  target: updateCompanyProfileFx,
-});
-
-// Инициализация данных при загрузке страницы
 sample({
   clock: currentRoute.opened,
   target: fetchCompanyProfileFx,
 });
 
-// Сэмплы для обработки событий
 sample({
-  clock: authenticatedRoute.opened,
-  target: fetchCompanyProfileFx,
+  clock: formSubmitted,
+  source: $company,
+  target: updateCompanyProfileFx,
 });
 
 export const companyFieldChanged = {
@@ -219,4 +220,7 @@ export const companyFieldChanged = {
   websiteUrl: websiteUrlChanged,
   logoUrl: logoUrlChanged,
   description: descriptionChanged,
+  logoFile: logoFileUploaded,
+  certificateFile: certificateFileUploaded,
+  documentFile: documentFileUploaded,
 };
