@@ -171,14 +171,12 @@ export const AuthRegistrationJobseekerProfilePage = () => {
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="max-w-[400px] p-0" align="start">
                     <Calendar
-                      mode="single"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
                       selected={birthDate || undefined}
                       onSelect={handleBirthDateChange}
-                      disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                      locale={ru}
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>

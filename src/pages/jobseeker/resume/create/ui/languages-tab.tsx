@@ -30,7 +30,7 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
   const handleAddLanguage = () => {
     // Валидация
     const newErrors: Record<string, string> = {};
-    if (!currentLanguage.name.trim()) {
+    if (!currentLanguage.name?.trim()) {
       newErrors.name = "Введите название языка";
     }
 

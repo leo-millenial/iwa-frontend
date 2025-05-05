@@ -30,7 +30,7 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
   const handleAddSkill = () => {
     // Валидация
     const newErrors: Record<string, string> = {};
-    if (!currentSkill.name.trim()) {
+    if (!currentSkill.name?.trim()) {
       newErrors.name = "Введите название навыка";
     }
 
