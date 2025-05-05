@@ -70,7 +70,7 @@ const startRegistrationFx = createEffect(async (data: RegistrationStep1Data) => 
 });
 
 const step2Fx = createEffect(async (data: RegistrationStep2Data) => {
-  const url = new URL("/api/registration/step2", window.location.origin);
+  const url = new URL("/api/registration/full-name", window.location.origin);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -89,7 +89,7 @@ const step2Fx = createEffect(async (data: RegistrationStep2Data) => {
 });
 
 const step3Fx = createEffect(async (data: RegistrationStep3Data) => {
-  const url = new URL("/api/registration/step3", window.location.origin);
+  const url = new URL("/api/registration/phone", window.location.origin);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -146,7 +146,7 @@ const verifySmsFx = createEffect(async (data: RegistrationVerifySmsData) => {
 });
 
 const step5Fx = createEffect(async (data: RegistrationStep5Data) => {
-  const url = new URL("/api/registration/step5", window.location.origin);
+  const url = new URL("/api/registration/send-data", window.location.origin);
 
   const response = await fetch(url.toString(), {
     method: "POST",

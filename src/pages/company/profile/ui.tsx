@@ -1,5 +1,5 @@
 import { useUnit } from "effector-react";
-import { PlusCircle, Save, Trash2, X } from "lucide-react";
+import { Loader2, PlusCircle, Save, Trash2, X } from "lucide-react";
 
 import { UploadPhoto } from "@/features/upload/";
 
@@ -23,6 +23,7 @@ import {
   $inn,
   $logoUrl,
   $name,
+  $pending,
   $phone,
   $region,
   $websiteUrl,
@@ -55,6 +56,7 @@ const CompanyProfileEdit = () => {
     brands,
     certificateUrls,
     documentUrls,
+    pending,
     handleSave,
     handleCancel,
     handleNameChange,
@@ -90,6 +92,7 @@ const CompanyProfileEdit = () => {
     $brands,
     $certificateUrls,
     $documentUrls,
+    $pending,
     formSubmitted,
     editingCancelled,
     companyFieldChanged.name,
@@ -121,21 +124,34 @@ const CompanyProfileEdit = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Редактирование профиля</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={handleCancel} disabled={pending}>
             <X className="mr-2 h-4 w-4" />
             Отмена
           </Button>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Сохранить
+          <Button onClick={handleSave} disabled={pending}>
+            {pending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Сохранение...
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Сохранить
+              </>
+            )}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="general">Основная информация</TabsTrigger>
-          <TabsTrigger value="media">Медиа и документы</TabsTrigger>
+          <TabsTrigger value="general" disabled={pending}>
+            Основная информация
+          </TabsTrigger>
+          <TabsTrigger value="media" disabled={pending}>
+            Медиа и документы
+          </TabsTrigger>
         </TabsList>
 
         {/* Вкладка с основной информацией */}
@@ -166,6 +182,7 @@ const CompanyProfileEdit = () => {
                     fileType={FileType.Logo}
                     onSuccess={handleLogoFileUploaded}
                     className="mb-4"
+                    disabled={pending}
                   />
 
                   <div className="text-xs text-muted-foreground mt-2 text-center">
@@ -189,6 +206,7 @@ const CompanyProfileEdit = () => {
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="ООО 'Название компании'"
                     required
+                    disabled={pending}
                   />
                 </div>
 
@@ -201,6 +219,7 @@ const CompanyProfileEdit = () => {
                       onChange={(e) => handleRegionChange(e.target.value)}
                       placeholder="Например: Московская область"
                       required
+                      disabled={pending}
                     />
                   </div>
 
@@ -212,6 +231,7 @@ const CompanyProfileEdit = () => {
                       onChange={(e) => handleCityChange(e.target.value)}
                       placeholder="Например: Москва"
                       required
+                      disabled={pending}
                     />
                   </div>
                 </div>
@@ -233,6 +253,7 @@ const CompanyProfileEdit = () => {
                       }}
                       placeholder="10 или 12 цифр"
                       required
+                      disabled={pending}
                     />
                   </div>
 
@@ -245,6 +266,7 @@ const CompanyProfileEdit = () => {
                       onChange={(e) => handlePhoneChange(e.target.value)}
                       placeholder="+7 (XXX) XXX-XX-XX"
                       required
+                      disabled={pending}
                     />
                   </div>
                 </div>
@@ -258,6 +280,7 @@ const CompanyProfileEdit = () => {
                       value={websiteUrl || ""}
                       onChange={(e) => handleWebsiteUrlChange(e.target.value)}
                       placeholder="https://example.com"
+                      disabled={pending}
                     />
                   </div>
 
@@ -269,6 +292,7 @@ const CompanyProfileEdit = () => {
                       value={employeesCount || ""}
                       onChange={(e) => handleEmployeesCountChange(Number(e.target.value))}
                       placeholder="Например: 150"
+                      disabled={pending}
                     />
                   </div>
                 </div>
@@ -281,6 +305,7 @@ const CompanyProfileEdit = () => {
                     onChange={(e) => handleDescriptionChange(e.target.value)}
                     placeholder="Расскажите о вашей компании..."
                     rows={4}
+                    disabled={pending}
                   />
                 </div>
 
@@ -297,12 +322,14 @@ const CompanyProfileEdit = () => {
                           })
                         }
                         placeholder="Название бренда"
+                        disabled={pending}
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={() => handleBrandRemove(index)}
+                        disabled={pending}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -314,6 +341,7 @@ const CompanyProfileEdit = () => {
                     size="sm"
                     onClick={handleBrandAdd}
                     className="mt-2"
+                    disabled={pending}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Добавить бренд
@@ -348,12 +376,14 @@ const CompanyProfileEdit = () => {
                         })
                       }
                       placeholder="URL сертификата"
+                      disabled={pending}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={() => handleCertificateRemove(index)}
+                      disabled={pending}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -366,6 +396,7 @@ const CompanyProfileEdit = () => {
                     size="sm"
                     onClick={handleCertificateAdd}
                     className="w-full"
+                    disabled={pending}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Добавить URL сертификата
@@ -378,6 +409,7 @@ const CompanyProfileEdit = () => {
                     fileType={FileType.Certificate}
                     onSuccess={handleCertificateFileUploaded}
                     className="w-full"
+                    disabled={pending}
                   />
                 </div>
               </CardContent>
@@ -403,12 +435,14 @@ const CompanyProfileEdit = () => {
                         })
                       }
                       placeholder="URL документа"
+                      disabled={pending}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDocumentRemove(index)}
+                      disabled={pending}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -421,6 +455,7 @@ const CompanyProfileEdit = () => {
                     size="sm"
                     onClick={handleDocumentAdd}
                     className="w-full"
+                    disabled={pending}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Добавить URL документа

@@ -11,6 +11,7 @@ import { UploadPhotoProps, uploadPhotoFactory } from "./model";
 type UploadPhotoComponentProps = UploadPhotoProps & {
   className?: string;
   buttonText?: string;
+  disabled?: boolean;
 };
 
 export const UploadPhoto = (props: UploadPhotoComponentProps) => {
@@ -57,6 +58,7 @@ export const UploadPhoto = (props: UploadPhotoComponentProps) => {
   return (
     <div className={cn("flex flex-col items-center", props.className)}>
       <input
+        disabled={props.disabled}
         type="file"
         ref={fileInputRef}
         onChange={handleFileChange}
@@ -87,6 +89,7 @@ export const UploadPhoto = (props: UploadPhotoComponentProps) => {
             className="w-full h-40 object-cover rounded-md"
           />
           <Button
+            disabled={props.disabled}
             variant="destructive"
             size="icon"
             className="absolute top-2 right-2 h-8 w-8"
@@ -103,7 +106,7 @@ export const UploadPhoto = (props: UploadPhotoComponentProps) => {
         type="button"
         variant="outline"
         onClick={handleButtonClick}
-        disabled={isUploading}
+        disabled={isUploading || props.disabled}
         className="w-full"
       >
         {isUploading ? (

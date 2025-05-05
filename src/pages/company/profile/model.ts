@@ -1,9 +1,10 @@
-import { combine, createEffect, createEvent, createStore, sample } from "effector";
+import { combine, createEvent, createStore, sample } from "effector";
 
+import { getCompanyByIdQuery, updateCompanyMutation } from "@/shared/api/company";
+import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
-import { ICompany } from "@/shared/types/company.interface.ts";
 import { UserRole } from "@/shared/types/user.interface.ts";
-import { chainAuthenticated } from "@/shared/viewer";
+import { $viewer, chainAuthenticated } from "@/shared/viewer";
 
 export const currentRoute = routes.company.profile;
 
@@ -16,15 +17,31 @@ export const editingStarted = createEvent();
 export const editingCancelled = createEvent();
 export const formSubmitted = createEvent();
 
-export const nameChanged = createEvent<string>();
-export const regionChanged = createEvent<string>();
-export const cityChanged = createEvent<string>();
-export const innChanged = createEvent<number>();
-export const phoneChanged = createEvent<string>();
-export const employeesCountChanged = createEvent<number>();
-export const websiteUrlChanged = createEvent<string>();
+// Создаем объект с событиями для изменения полей компании
+export const companyFieldChanged = {
+  name: createEvent<string>(),
+  region: createEvent<string>(),
+  city: createEvent<string>(),
+  inn: createEvent<number>(),
+  phone: createEvent<string>(),
+  employeesCount: createEvent<number>(),
+  websiteUrl: createEvent<string>(),
+  description: createEvent<string>(),
+  logoFile: createEvent<string>(),
+  certificateFile: createEvent<string>(),
+  documentFile: createEvent<string>(),
+};
+
+// Для обратной совместимости оставляем отдельные события
+export const nameChanged = companyFieldChanged.name;
+export const regionChanged = companyFieldChanged.region;
+export const cityChanged = companyFieldChanged.city;
+export const innChanged = companyFieldChanged.inn;
+export const phoneChanged = companyFieldChanged.phone;
+export const employeesCountChanged = companyFieldChanged.employeesCount;
+export const websiteUrlChanged = companyFieldChanged.websiteUrl;
 export const logoUrlChanged = createEvent<string>();
-export const descriptionChanged = createEvent<string>();
+export const descriptionChanged = companyFieldChanged.description;
 
 export const brandAdded = createEvent();
 export const brandRemoved = createEvent<number>();
@@ -33,99 +50,74 @@ export const brandUpdated = createEvent<{ index: number; value: string }>();
 export const certificateAdded = createEvent();
 export const certificateRemoved = createEvent<number>();
 export const certificateUpdated = createEvent<{ index: number; value: string }>();
-// Новые события для загрузки сертификатов
-export const certificateFileUploaded = createEvent<string>();
 
 export const documentAdded = createEvent();
 export const documentRemoved = createEvent<number>();
 export const documentUpdated = createEvent<{ index: number; value: string }>();
-// Новые события для загрузки документов
-export const documentFileUploaded = createEvent<string>();
 
-// Новое событие для загрузки логотипа
-export const logoFileUploaded = createEvent<string>();
+// Получаем ID компании из данных пользователя
+const $companyId = $viewer.map((viewer) => viewer?.company?._id ?? "");
 
-export const fetchCompanyProfileFx = createEffect(async () => {
-  // В реальном приложении здесь будет запрос к API
-  // Возвращаем моковые данные для примера
-  return {
-    name: "ООО Рога и Копыта",
-    region: "Московская область",
-    city: "Москва",
-    inn: 7712345678,
-    phone: "+7 (999) 123-45-67",
-    brands: ["Бренд 1", "Бренд 2"],
-    employeesCount: 150,
-    websiteUrl: "https://example.com",
-    logoUrl: "https://via.placeholder.com/150",
-    certificateUrls: ["https://via.placeholder.com/300x400"],
-    documentUrls: ["https://via.placeholder.com/300x400"],
-    description: "Наша компания занимается разработкой инновационных решений в области IT.",
-  } as ICompany;
-});
-
-export const updateCompanyProfileFx = createEffect(async (company: ICompany) => {
-  console.log("Отправка данных на сервер:", company);
-  return company;
-});
-
+// Сторы для полей компании
 export const $name = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.name)
-  .on(nameChanged, (_, name) => name)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.name)
+  .on(companyFieldChanged.name, (_, name) => name)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.name ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.name ?? "")
   .reset(editingCancelled);
 
 export const $region = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.region)
-  .on(regionChanged, (_, region) => region)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.region)
+  .on(companyFieldChanged.region, (_, region) => region)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.region ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.region ?? "")
   .reset(editingCancelled);
 
 export const $city = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.city)
-  .on(cityChanged, (_, city) => city)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.city)
+  .on(companyFieldChanged.city, (_, city) => city)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.city ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.city ?? "")
   .reset(editingCancelled);
 
 export const $inn = createStore<number>(0)
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.inn)
-  .on(innChanged, (_, inn) => inn)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.inn)
+  .on(companyFieldChanged.inn, (_, inn) => inn)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.inn ?? 0)
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.inn ?? 0)
   .reset(editingCancelled);
 
 export const $phone = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.phone)
-  .on(phoneChanged, (_, phone) => phone)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.phone)
+  .on(companyFieldChanged.phone, (_, phone) => phone)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.phone ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.phone ?? "")
   .reset(editingCancelled);
 
 export const $employeesCount = createStore<number>(0)
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.employeesCount || 0)
-  .on(employeesCountChanged, (_, count) => count)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.employeesCount || 0)
+  .on(companyFieldChanged.employeesCount, (_, count) => count)
+  .on(
+    updateCompanyMutation.finished.success,
+    (_, { result }) => result?.company.employeesCount ?? 0,
+  )
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.employeesCount ?? 0)
   .reset(editingCancelled);
 
 export const $websiteUrl = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.websiteUrl || "")
-  .on(websiteUrlChanged, (_, url) => url)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.websiteUrl || "")
+  .on(companyFieldChanged.websiteUrl, (_, url) => url)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.websiteUrl ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.websiteUrl ?? "")
   .reset(editingCancelled);
 
 export const $logoUrl = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.logoUrl || "")
   .on(logoUrlChanged, (_, url) => url)
-  .on(logoFileUploaded, (_, fileId) => `/api/files/${fileId}`)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.logoUrl || "")
+  .on(companyFieldChanged.logoFile, (_, fileId) => `/api/files/${fileId}`)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.logoUrl ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.logoUrl ?? "")
   .reset(editingCancelled);
 
 export const $description = createStore("")
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.description || "")
-  .on(descriptionChanged, (_, description) => description)
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.description || "")
+  .on(companyFieldChanged.description, (_, description) => description)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.description ?? "")
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.description ?? "")
   .reset(editingCancelled);
 
 export const $brands = createStore<string[]>([])
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.brands || [])
   .on(brandAdded, (state) => [...state, ""])
   .on(brandRemoved, (state, index) => {
     const newBrands = [...state];
@@ -137,11 +129,11 @@ export const $brands = createStore<string[]>([])
     newBrands[index] = value;
     return newBrands;
   })
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.brands || [])
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.brands ?? [])
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.brands ?? [])
   .reset(editingCancelled);
 
 export const $certificateUrls = createStore<string[]>([])
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.certificateUrls || [])
   .on(certificateAdded, (state) => [...state, ""])
   .on(certificateRemoved, (state, index) => {
     const newCertificates = [...state];
@@ -153,12 +145,15 @@ export const $certificateUrls = createStore<string[]>([])
     newCertificates[index] = value;
     return newCertificates;
   })
-  .on(certificateFileUploaded, (state, fileId) => [...state, `/api/files/${fileId}`])
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.certificateUrls || [])
+  .on(companyFieldChanged.certificateFile, (state, fileId) => [...state, `/api/files/${fileId}`])
+  .on(
+    updateCompanyMutation.finished.success,
+    (_, { result }) => result?.company.certificateUrls ?? [],
+  )
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.certificateUrls ?? [])
   .reset(editingCancelled);
 
 export const $documentUrls = createStore<string[]>([])
-  .on(fetchCompanyProfileFx.doneData, (_, company) => company.documentUrls || [])
   .on(documentAdded, (state) => [...state, ""])
   .on(documentRemoved, (state, index) => {
     const newDocuments = [...state];
@@ -170,22 +165,18 @@ export const $documentUrls = createStore<string[]>([])
     newDocuments[index] = value;
     return newDocuments;
   })
-  .on(documentFileUploaded, (state, fileId) => [...state, `/api/files/${fileId}`])
-  .on(updateCompanyProfileFx.doneData, (_, company) => company.documentUrls || [])
+  .on(companyFieldChanged.documentFile, (state, fileId) => [...state, `/api/files/${fileId}`])
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.documentUrls ?? [])
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.documentUrls ?? [])
   .reset(editingCancelled);
 
+// Стор для отслеживания состояния редактирования
 export const $isEditing = createStore(false)
   .on(editingStarted, () => true)
   .on(editingCancelled, () => false)
-  .on(updateCompanyProfileFx.done, () => false);
+  .on(updateCompanyMutation.finished.success, () => false);
 
-export const $pending = createStore(false).on(
-  [fetchCompanyProfileFx.pending, updateCompanyProfileFx.pending],
-  (_, pending) => pending,
-);
-
-// Комбинированные хранилища
-export const $company = combine({
+export const $companyForm = combine({
   name: $name,
   region: $region,
   city: $city,
@@ -193,34 +184,46 @@ export const $company = combine({
   phone: $phone,
   employeesCount: $employeesCount,
   websiteUrl: $websiteUrl,
-  logoUrl: $logoUrl,
   description: $description,
   brands: $brands,
   certificateUrls: $certificateUrls,
   documentUrls: $documentUrls,
+  logoUrl: $logoUrl,
 });
+
+// Стор для отслеживания состояния загрузки
+export const $pending = updateCompanyMutation.$pending;
+
+// Загрузка данных компании при открытии страницы
 sample({
   clock: currentRoute.opened,
-  target: fetchCompanyProfileFx,
+  source: $companyId,
+  filter: (companyId) => Boolean(companyId),
+  target: getCompanyByIdQuery.start,
 });
 
 sample({
   clock: formSubmitted,
-  source: $company,
-  target: updateCompanyProfileFx,
+  source: {
+    id: $companyId,
+    data: $companyForm,
+  },
+  target: updateCompanyMutation.start,
 });
 
-export const companyFieldChanged = {
-  name: nameChanged,
-  region: regionChanged,
-  city: cityChanged,
-  inn: innChanged,
-  phone: phoneChanged,
-  employeesCount: employeesCountChanged,
-  websiteUrl: websiteUrlChanged,
-  logoUrl: logoUrlChanged,
-  description: descriptionChanged,
-  logoFile: logoFileUploaded,
-  certificateFile: certificateFileUploaded,
-  documentFile: documentFileUploaded,
-};
+sample({
+  clock: updateCompanyMutation.finished.success,
+  fn: () => ({
+    message: "Успешно!",
+    description: "Данные компании успешно изменены",
+  }),
+  target: showSuccessToast,
+});
+sample({
+  clock: updateCompanyMutation.finished.failure,
+  fn: () => ({
+    message: "Ошибка!",
+    description: "Не удалось изменить данные компании",
+  }),
+  target: showErrorToast,
+});

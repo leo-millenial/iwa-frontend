@@ -1,6 +1,5 @@
 import { createFactory } from "@withease/factories";
 import { createEffect, createEvent, createStore, sample } from "effector";
-import { debug } from "patronum";
 
 import { uploadFileMutation } from "@/shared/api/file";
 import { FileType } from "@/shared/types/file.interface";
@@ -22,15 +21,6 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   const setEntityParams = createEvent<Omit<UploadPhotoProps, "onSuccess">>();
   const setIsUploading = createEvent<boolean>();
   const callOnSuccess = createEvent<string>();
-
-  debug({ photoSelected: photoSelected });
-  debug({ uploadRequested: uploadRequested });
-  debug({ uploadReset: uploadReset });
-  debug({ uploadSuccess: uploadSuccess });
-  debug({ uploadFailed: uploadFailed });
-  debug({ setEntityParams: setEntityParams });
-  debug({ setIsUploading: setIsUploading });
-  debug({ callOnSuccess: callOnSuccess });
 
   const $selectedPhoto = createStore<File | null>(null)
     .on(photoSelected, (_, file) => file)
