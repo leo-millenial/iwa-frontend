@@ -26,15 +26,6 @@ import {
   saveClicked,
 } from "./model";
 
-export interface ICompany {
-  name: string;
-  region: string;
-  city: string;
-  inn: number | string;
-  brands?: string[];
-  phone: string;
-}
-
 export const getCompanyErrorMessage = (error: CompanyFormError): string | null => {
   if (!error) return null;
 

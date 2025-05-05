@@ -1,43 +1,62 @@
 import { createMutation } from "@farfetched/core";
-import { zodContract } from "@farfetched/zod";
-import { createEffect } from "effector";
-import { z } from "zod";
+import { attach, createEffect, sample } from "effector";
 
-import { filesControllerUploadFile } from "@/shared/api/__generated__";
+import { $headers } from "@/shared/tokens";
 import { FileType } from "@/shared/types/file.interface.ts";
 import { UserRole } from "@/shared/types/user.interface.ts";
 
-// Определяем схему валидации для данных загрузки файла
-const zUploadFileDto = z.object({
-  file: z.instanceof(File),
-  fileType: z.nativeEnum(FileType),
-  entityType: z.nativeEnum(UserRole),
-  entityId: z.string(),
-});
+// Определяем интерфейс для данных загрузки файла
+export interface UploadFileDto {
+  file: File;
+  fileType: FileType;
+  entityType: UserRole;
+  entityId?: string;
+}
 
-// Создаем эффект для загрузки файла
-const uploadFileFx = createEffect(async (data: z.infer<typeof zUploadFileDto>) => {
-  const formData = new FormData();
-  formData.append("file", data.file);
-  formData.append("entityType", data.entityType);
+const uploadFileFx = createEffect<{ headers: Record<string, string>; data: UploadFileDto }, Error>(
+  async ({ headers, data }) => {
+    const url = new URL("/api/files/upload", window.location.origin);
 
-  if (data.entityId) {
-    formData.append("entityId", data.entityId);
-  }
+    const formData = new FormData();
+    formData.append("file", data.file);
+    formData.append("fileType", data.fileType);
+    formData.append("entityType", data.entityType);
 
-  const res = await filesControllerUploadFile({
-    body: {
-      fileType: data.fileType,
-      file: data.file,
-      entityType: data.entityType,
-      entityId: data.entityId,
-    },
-  });
+    if (data.entityId) {
+      formData.append("entityId", data.entityId);
+    }
 
-  return res.data;
-});
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers: {
+        ...headers,
+        // Не устанавливаем Content-Type, так как браузер автоматически
+        // установит правильный Content-Type с boundary для FormData
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Ошибка при загрузке файла");
+    }
+
+    return await response.json();
+  },
+);
 
 export const uploadFileMutation = createMutation({
-  effect: uploadFileFx,
-  contract: zodContract(zUploadFileDto),
+  effect: attach({
+    source: $headers,
+    mapParams: (data: UploadFileDto, headers: Record<string, string>) => ({
+      headers,
+      data,
+    }),
+    effect: uploadFileFx,
+  }),
+});
+
+sample({
+  clock: uploadFileMutation.finished.failure,
+  fn: (response) => console.log("File upload failure", response),
 });

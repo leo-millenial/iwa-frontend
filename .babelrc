@@ -6,7 +6,7 @@
   "plugins": [
     ["effector/babel-plugin",
       {
-        "factories": ["patronum"],
+        "factories": ["patronum", "@withease/factories", "atomic-router"],
         "hmr": "es"
       }
     ]
@@ -16,7 +16,7 @@
       "plugins": [
         ["effector/babel-plugin",
           {
-            "factories": ["patronum"],
+            "factories": ["patronum", "@withease/factories", "atomic-router"],
             "hmr": "none"
           }
         ]

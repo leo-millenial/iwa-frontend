@@ -159,19 +159,19 @@ const mockResume: IResume = {
     },
   ],
   skills: [
-    { name: "React", level: SkillLevel.Advanced },
-    { name: "TypeScript", level: SkillLevel.Advanced },
-    { name: "JavaScript", level: SkillLevel.Advanced },
-    { name: "HTML/CSS", level: SkillLevel.Advanced },
-    { name: "Redux", level: SkillLevel.Intermediate },
-    { name: "Node.js", level: SkillLevel.Intermediate },
+    { plan: "React", level: SkillLevel.Advanced },
+    { plan: "TypeScript", level: SkillLevel.Advanced },
+    { plan: "JavaScript", level: SkillLevel.Advanced },
+    { plan: "HTML/CSS", level: SkillLevel.Advanced },
+    { plan: "Redux", level: SkillLevel.Intermediate },
+    { plan: "Node.js", level: SkillLevel.Intermediate },
   ],
   aboutMe:
     "Опытный frontend-разработчик с более чем 5-летним стажем работы. Специализируюсь на создании современных, производительных и удобных веб-приложений. Имею глубокие знания JavaScript, TypeScript и React. Постоянно изучаю новые технологии и подходы к разработке.",
   languages: [
-    { name: "Русский", level: LanguageLevel.Native },
-    { name: "Английский", level: LanguageLevel.Advanced },
-    { name: "Немецкий", level: LanguageLevel.Beginner },
+    { plan: "Русский", level: LanguageLevel.Native },
+    { plan: "Английский", level: LanguageLevel.Advanced },
+    { plan: "Немецкий", level: LanguageLevel.Beginner },
   ],
   certificates: ["https://example.com/cert1", "https://example.com/cert2"],
 };

@@ -13,7 +13,16 @@ export interface ICompany {
   brands?: string[];
   phone: string;
   subscriptions?: ICompanySubscription[];
+  employeesCount?: number;
+  websiteUrl?: string;
+  description?: string;
 
+  // Файлы
+  CompanyLogoFileId?: string;
+  CompanyPhotoFileId?: string;
+  CompanyCertificateFileIds?: string[];
+  CompanyDocumentFileIds?: string[];
+  // URL для файлов (добавляются динамически)
   logoUrl?: string;
   certificateUrls?: string[];
   documentUrls?: string[];

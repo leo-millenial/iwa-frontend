@@ -96,14 +96,14 @@ export const $educations = createStore<IEducation[]>([
 
 export const $skills = createStore<ISkill[]>([
   {
-    name: "",
+    plan: "",
     level: SkillLevel.Beginner,
   },
 ]);
 
 export const $languages = createStore<ILanguage[]>([
   {
-    name: "",
+    plan: "",
     level: LanguageLevel.Beginner,
   },
 ]);
@@ -158,7 +158,7 @@ $educations
 
 $skills
   .on(skillsChanged, (_, skills) => skills)
-  .on(skillAdded, (state) => [...state, { name: "", level: SkillLevel.Beginner }])
+  .on(skillAdded, (state) => [...state, { plan: "", level: SkillLevel.Beginner }])
   .on(skillRemoved, (state, index) => state.filter((_, i) => i !== index))
   .on(skillFieldChanged, (state, { index, field, value }) => {
     const newState = [...state];
@@ -168,7 +168,7 @@ $skills
 
 $languages
   .on(languagesChanged, (_, languages) => languages)
-  .on(languageAdded, (state) => [...state, { name: "", level: LanguageLevel.Beginner }])
+  .on(languageAdded, (state) => [...state, { plan: "", level: LanguageLevel.Beginner }])
   .on(languageRemoved, (state, index) => state.filter((_, i) => i !== index))
   .on(languageFieldChanged, (state, { index, field, value }) => {
     const newState = [...state];
@@ -261,11 +261,11 @@ const $educationsValid = $educations.map(
 );
 
 const $skillsValid = $skills.map(
-  (skills) => skills.length > 0 && skills.every((skill) => Boolean(skill.name.trim())),
+  (skills) => skills.length > 0 && skills?.every((skill) => Boolean(skill.name?.trim())),
 );
 
 const $languagesValid = $languages.map(
-  (languages) => languages.length > 0 && languages.every((lang) => Boolean(lang.name.trim())),
+  (languages) => languages.length > 0 && languages.every((lang) => Boolean(lang.name?.trim())),
 );
 
 const $aboutMeValid = $aboutMe.map((aboutMe) => aboutMe.length <= 1000 && aboutMe.length > 0);

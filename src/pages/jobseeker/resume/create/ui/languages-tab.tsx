@@ -103,7 +103,7 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
   const handleNameChange = (value: string) => {
     setCurrentLanguage((prev) => ({
       ...prev,
-      name: value,
+      plan: value,
     }));
 
     // Очистка ошибки при изменении поля
