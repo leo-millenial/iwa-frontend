@@ -1,7 +1,9 @@
 import { useUnit } from "effector-react";
-import { Loader2, PlusCircle, Save, Trash2, X } from "lucide-react";
+import { Edit, Loader2, PlusCircle, Save, Trash2, X } from "lucide-react";
 
 import { UploadPhoto } from "@/features/upload/";
+
+import { CompanyProfileView } from "@/entities/company/profile/view/ui.tsx";
 
 import { FileType } from "@/shared/types/file.interface";
 import { UserRole } from "@/shared/types/user.interface";
@@ -17,10 +19,12 @@ import {
   $brands,
   $certificateUrls,
   $city,
+  $company,
   $description,
   $documentUrls,
   $employeesCount,
   $inn,
+  $isEditing,
   $logoUrl,
   $name,
   $pending,
@@ -38,6 +42,7 @@ import {
   documentRemoved,
   documentUpdated,
   editingCancelled,
+  editingStarted,
   formSubmitted,
 } from "./model.ts";
 
@@ -149,9 +154,9 @@ const CompanyProfileEdit = () => {
           <TabsTrigger value="general" disabled={pending}>
             Основная информация
           </TabsTrigger>
-          <TabsTrigger value="media" disabled={pending}>
-            Медиа и документы
-          </TabsTrigger>
+          {/*<TabsTrigger value="media" disabled={pending}>*/}
+          {/*  Медиа и документы*/}
+          {/*</TabsTrigger>*/}
         </TabsList>
 
         {/* Вкладка с основной информацией */}
@@ -420,7 +425,8 @@ const CompanyProfileEdit = () => {
               <CardHeader>
                 <CardTitle>Документы</CardTitle>
                 <CardDescription>
-                  Добавьте юридические документы, презентации и другие материалы о вашей компании
+                  Добавьте документы, которые могут быть полезны для соискателей (презентации,
+                  брошюры и т.д.)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -468,6 +474,7 @@ const CompanyProfileEdit = () => {
                     fileType={FileType.Document}
                     onSuccess={handleDocumentFileUploaded}
                     className="w-full"
+                    disabled={pending}
                   />
                 </div>
               </CardContent>
@@ -481,6 +488,33 @@ const CompanyProfileEdit = () => {
 
 // Основной компонент страницы профиля компании
 export const CompanyProfilePage = () => {
-  // Здесь должна быть логика для отображения профиля компании
-  return <CompanyProfileEdit />;
+  const [isEditing, pending, handleEditStart] = useUnit([$isEditing, $pending, editingStarted]);
+
+  const company = useUnit($company);
+
+  // Загружаем данные компании при монтировании компонента
+
+  if (isEditing) {
+    return <CompanyProfileEdit />;
+  }
+
+  return (
+    <div className="container mx-auto py-6 px-4 max-w-6xl">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Профиль компании</h1>
+        <Button onClick={handleEditStart} disabled={pending}>
+          <Edit className="mr-2 h-4 w-4" />
+          Редактировать
+        </Button>
+      </div>
+
+      {company ? (
+        <CompanyProfileView company={company} />
+      ) : (
+        <div className="flex items-center justify-center p-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      )}
+    </div>
+  );
 };

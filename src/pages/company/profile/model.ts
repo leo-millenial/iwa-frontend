@@ -3,6 +3,7 @@ import { combine, createEvent, createStore, sample } from "effector";
 import { getCompanyByIdQuery, updateCompanyMutation } from "@/shared/api/company";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
+import { ICompany } from "@/shared/types/company.interface.ts";
 import { UserRole } from "@/shared/types/user.interface.ts";
 import { $viewer, chainAuthenticated } from "@/shared/viewer";
 
@@ -57,6 +58,10 @@ export const documentUpdated = createEvent<{ index: number; value: string }>();
 
 // Получаем ID компании из данных пользователя
 const $companyId = $viewer.map((viewer) => viewer?.company?._id ?? "");
+
+export const $company = createStore<ICompany | null>(null)
+  .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company ?? null)
+  .on(getCompanyByIdQuery.finished.success, (_, { result }) => result ?? null);
 
 // Сторы для полей компании
 export const $name = createStore("")
