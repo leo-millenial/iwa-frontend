@@ -28,7 +28,12 @@ const employmentTypeLabels: Record<EmploymentType, string> = {
   [EmploymentType.Hybrid]: "Гибридный формат",
 };
 
-export const ExperienceTab = () => {
+interface WorkExperience {
+  onNext: () => void;
+  onPrev: () => void;
+}
+
+export const ExperienceTab = ({ onNext, onPrev }: WorkExperience) => {
   const [workExperience, handleAddExperience, handleUpdateExperience, handleRemoveExperience] =
     useUnit([$workExperience, addWorkExperience, updateWorkExperience, removeWorkExperience]);
 
@@ -207,6 +212,15 @@ export const ExperienceTab = () => {
                     placeholder="Опишите ваши основные обязанности и достижения на этой должности"
                     className="min-h-[120px]"
                   />
+                </div>
+
+                <div className="flex justify-between pt-4">
+                  <Button type="button" variant="outline" onClick={onPrev}>
+                    Назад
+                  </Button>
+                  <Button type="button" onClick={onNext}>
+                    Далее
+                  </Button>
                 </div>
               </CardContent>
             </Card>

@@ -1,5 +1,4 @@
 import { combine, createEffect, createEvent, createStore, sample } from "effector";
-import { debug } from "patronum";
 
 import { fileUrlByFileId } from "@/shared/config";
 import { routes } from "@/shared/routing";
@@ -140,8 +139,6 @@ export const $jobseekerId = createStore<string>("")
 export const $position = createStore<string>("")
   .on(positionChanged, (_, value) => value)
   .reset(resetForm);
-
-debug({ incomeAmountChanged });
 
 export const $incomeAmount = createStore<number>(0)
   .on(incomeAmountChanged, (_, amount) => amount)
