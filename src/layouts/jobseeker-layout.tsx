@@ -19,6 +19,7 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
   const handleLoggedOut = useUnit(viewerLoggedOut);
 
   const viewerName = viewer?.user.firstName || "";
+  const jobseekerId = viewer?.jobseeker?._id || "";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -30,7 +31,7 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
           <nav className="hidden md:flex space-x-6">
             <Link
               to={routes.jobseeker.search}
-              params={{ jobseekerId: "123" }}
+              params={{ jobseekerId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Вакансии
@@ -45,11 +46,16 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Кнопка добавления вакансии */}
-          <Button size="sm" className="hidden sm:flex items-center gap-1">
-            <Plus className="h-4 w-4" />
-            <span>Добавить резюме</span>
-          </Button>
+          <Link
+            className="flex items-center gap-2 w-full"
+            to={routes.jobseeker.resume.create}
+            params={{ jobseekerId }}
+          >
+            <Button size="sm" className="hidden sm:flex items-center gap-1">
+              <Plus className="h-4 w-4" />
+              <span>Добавить резюме</span>
+            </Button>
+          </Link>
 
           {/* Иконки */}
           <Button variant="ghost" size="icon" className="rounded-full">

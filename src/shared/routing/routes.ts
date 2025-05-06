@@ -130,7 +130,7 @@ export const routesMap: UnmappedRouteObject<object>[] = [
     route: routes.jobseeker.search as RouteInstance<object>,
   },
   {
-    path: "/jobseeker/:jobseekerId/resume/create",
+    path: "/jobseeker/:jobseekerId/resume-create",
     route: routes.jobseeker.resume.create as RouteInstance<object>,
   },
   {

@@ -4,14 +4,13 @@ import { ru } from "date-fns/locale";
 import { CalendarIcon, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import { IEducation, IResume } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
 import { Calendar } from "@/shared/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
-
-import { IEducation, IResume } from ".";
 
 interface EducationTabProps {
   resume: IResume;

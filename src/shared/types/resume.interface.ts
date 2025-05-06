@@ -69,7 +69,7 @@ export interface IResume {
   income: Income;
   fullName: IFullName;
   gender: Gender;
-  birthday: Date;
+  birthday: Date | null;
   email: string;
   phone: string;
   city: string;

@@ -1,13 +1,12 @@
 import { X } from "lucide-react";
 import { useState } from "react";
 
+import { IResume } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";
-
-import { IResume } from ".";
 
 interface AdditionalInfoTabProps {
   resume: IResume;

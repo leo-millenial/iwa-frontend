@@ -42,6 +42,7 @@ export const languageLevelLabels = {
 
 export const JobseekerResumeCreatePage = () => {
   const [activeTab, setActiveTab] = useState("personal");
+
   const [resume, setResume] = useState<IResume>({
     workExperience: [],
     education: [],
