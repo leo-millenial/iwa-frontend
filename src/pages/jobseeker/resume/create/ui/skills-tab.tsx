@@ -1,9 +1,16 @@
+import { useUnit } from "effector-react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import {
+  $skills,
+  addSkill,
+  removeSkill,
+  updateSkill,
+} from "@/pages/jobseeker/resume/create/model.ts";
 import { skillLevelLabels } from "@/pages/jobseeker/resume/create/ui/index.tsx";
 
-import { IResume, ISkill, SkillLevel } from "@/shared/types/resume.interface.ts";
+import { ISkill, SkillLevel } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
@@ -11,20 +18,31 @@ import { Label } from "@/shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 
 interface SkillsTabProps {
-  resume: IResume;
-  setResume: React.Dispatch<React.SetStateAction<IResume>>;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps) => {
-  const [currentSkill, setCurrentSkill] = useState<ISkill>({
-    id: crypto.randomUUID(),
+export const SkillsTab = ({ onNext, onPrev }: SkillsTabProps) => {
+  // Получаем данные и события из модели
+  const skills = useUnit($skills);
+  const addSkillEvent = useUnit(addSkill);
+  const updateSkillEvent = useUnit(updateSkill);
+  const removeSkillEvent = useUnit(removeSkill);
+
+  // Создаем временный объект для хранения текущего редактируемого навыка
+  // Это нужно для отслеживания состояния формы, но не влияет на модель
+  const [currentSkill, setCurrentSkill] = useState<{
+    index: number | null;
+    name: string;
+    level: SkillLevel;
+  }>({
+    index: null,
     name: "",
     level: SkillLevel.Intermediate,
   });
-  const [isEditing, setIsEditing] = useState(false);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const isEditing = currentSkill.index !== null;
 
   // Обработчик добавления/обновления навыка
   const handleAddSkill = () => {
@@ -37,7 +55,7 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
     // Проверка на дубликаты
     if (
       !isEditing &&
-      resume.skills?.some((skill) => skill.name.toLowerCase() === currentSkill.name.toLowerCase())
+      skills?.some((skill) => skill.name.toLowerCase() === currentSkill.name.toLowerCase())
     ) {
       newErrors.name = "Этот навык уже добавлен";
     }
@@ -47,24 +65,37 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
       return;
     }
 
-    if (isEditing) {
-      // Обновление существующего навыка
-      setResume((prev) => ({
-        ...prev,
-        skills: prev.skills?.map((skill) => (skill.id === currentSkill.id ? currentSkill : skill)),
-      }));
-      setIsEditing(false);
+    if (isEditing && currentSkill.index !== null) {
+      // Обновление существующего навыка через модель
+      updateSkillEvent({
+        index: currentSkill.index,
+        field: "name",
+        value: currentSkill.name,
+      });
+      updateSkillEvent({
+        index: currentSkill.index,
+        field: "level",
+        value: currentSkill.level,
+      });
     } else {
-      // Добавление нового навыка
-      setResume((prev) => ({
-        ...prev,
-        skills: [...(prev.skills || []), currentSkill],
-      }));
+      // Добавление нового навыка через модель
+      addSkillEvent();
+      const newIndex = skills.length;
+      updateSkillEvent({
+        index: newIndex,
+        field: "name",
+        value: currentSkill.name,
+      });
+      updateSkillEvent({
+        index: newIndex,
+        field: "level",
+        value: currentSkill.level,
+      });
     }
 
     // Сброс формы
     setCurrentSkill({
-      id: crypto.randomUUID(),
+      index: null,
       name: "",
       level: SkillLevel.Intermediate,
     });
@@ -72,26 +103,25 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
   };
 
   // Обработчик редактирования навыка
-  const handleEditSkill = (skill: ISkill) => {
-    setCurrentSkill(skill);
-    setIsEditing(true);
+  const handleEditSkill = (skill: ISkill, index: number) => {
+    setCurrentSkill({
+      index,
+      name: skill.name,
+      level: skill.level,
+    });
     setErrors({});
   };
 
   // Обработчик удаления навыка
-  const handleDeleteSkill = (id: string) => {
-    setResume((prev) => ({
-      ...prev,
-      skills: prev.skills?.filter((skill) => skill.id !== id),
-    }));
+  const handleDeleteSkill = (index: number) => {
+    removeSkillEvent(index);
 
-    if (isEditing && currentSkill.id === id) {
+    if (isEditing && currentSkill.index === index) {
       setCurrentSkill({
-        id: crypto.randomUUID(),
+        index: null,
         name: "",
         level: SkillLevel.Intermediate,
       });
-      setIsEditing(false);
     }
   };
 
@@ -99,7 +129,7 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
   const handleNameChange = (value: string) => {
     setCurrentSkill((prev) => ({
       ...prev,
-      plan: value,
+      name: value,
     }));
 
     // Очистка ошибки при изменении поля
@@ -130,13 +160,13 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Список добавленных навыков */}
-        {resume.skills && resume.skills.length > 0 && (
+        {skills && skills.length > 0 && (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Добавленные навыки</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {resume.skills.map((skill) => (
+              {skills.map((skill, index) => (
                 <div
-                  key={skill.id}
+                  key={index}
                   className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div>
@@ -150,7 +180,7 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleEditSkill(skill)}
+                      onClick={() => handleEditSkill(skill, index)}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -158,7 +188,7 @@ export const SkillsTab = ({ resume, setResume, onNext, onPrev }: SkillsTabProps)
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteSkill(skill.id)}
+                      onClick={() => handleDeleteSkill(index)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

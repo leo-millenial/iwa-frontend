@@ -1,4 +1,5 @@
 import { combine, createEffect, createEvent, createStore, sample } from "effector";
+import { and, debug } from "patronum";
 
 import { fileUrlByFileId } from "@/shared/config";
 import { routes } from "@/shared/routing";
@@ -62,7 +63,6 @@ export const incomeAmountChanged = createEvent<number>();
 export const incomeCurrencyChanged = createEvent<string>();
 
 export const updateFullName = createEvent<{ field: keyof IFullName; value: string }>();
-export const updateIncome = createEvent<{ field: keyof Income; value: number | string | null }>();
 
 export const addWorkExperience = createEvent();
 export const updateWorkExperience = createEvent<{
@@ -256,7 +256,7 @@ export const $certificates = createStore<CertificateUrl[]>([])
 
 export const $income = combine($incomeAmount, $incomeCurrency, (amount, currency) => {
   if (amount !== null) {
-    return { amount, currency: currency || "RUB" }; // Используем RUB как валюту по умолчанию
+    return { amount, currency: currency || "RUB" };
   }
   if (currency && !amount) {
     return { amount: null, currency };
@@ -298,6 +298,8 @@ export const $resumeForm = combine({
   certificates: $certificates,
   languages: $languages,
 });
+
+debug({ $resumeForm });
 
 // Валидация формы
 export const $positionValid = $position.map((position) => position.trim().length > 0);
@@ -380,6 +382,11 @@ export const $formValid = combine(
 export const $formError = createStore<ResumeFormError>(null)
   .on(setFormError, (_, error) => error)
   .reset(resetForm);
+
+export const $canSubmitForm = and(
+  $formValid,
+  $formError.map((error) => error !== null),
+);
 
 // Логика отправки формы
 sample({
@@ -482,14 +489,14 @@ sample({
   target: setFormError,
 });
 
-sample({
-  clock: uploadVideo,
-  target: uploadVideoFx,
-});
+// sample({
+//   clock: uploadVideo,
+//   target: uploadVideoFx,
+// });
 
 // Инициализация пустых массивов при первом рендере
 sample({
   clock: currentRoute.opened,
   fn: () => {},
-  target: [addSkill, addLanguage],
+  target: [],
 });

@@ -1,8 +1,11 @@
+import { useUnit } from "effector-react";
 import { useState } from "react";
+
+import { $canSubmitForm } from "@/pages/jobseeker/resume/create/model.ts";
 
 import { LayoutJobseeker } from "@/layouts/jobseeker-layout.tsx";
 
-import { Gender, IResume, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
+import { Gender, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
 import { EmploymentType } from "@/shared/types/vacancy.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
@@ -43,18 +46,12 @@ export const languageLevelLabels = {
 export const JobseekerResumeCreatePage = () => {
   const [activeTab, setActiveTab] = useState("personal");
 
-  const [resume, setResume] = useState<IResume>({
-    workExperience: [],
-    education: [],
-    skills: [],
-    languages: [],
-    certificates: [],
-  });
+  const canSubmitForm = useUnit($canSubmitForm);
 
   // Обработчик отправки формы
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Отправка резюме:", resume);
+    console.log("Отправка резюме:");
     // Здесь будет логика отправки данных на сервер
   };
 
@@ -94,18 +91,11 @@ export const JobseekerResumeCreatePage = () => {
 
             {/* Основная информация */}
             <TabsContent value="personal">
-              <PersonalInfoTab
-                resume={resume}
-                setResume={setResume}
-                onNext={() => goToNextTab("personal")}
-              />
+              <PersonalInfoTab onNext={() => goToNextTab("personal")} />
             </TabsContent>
-
             {/* Опыт работы */}
             <TabsContent value="experience">
               <ExperienceTab
-                resume={resume}
-                setResume={setResume}
                 onNext={() => goToNextTab("experience")}
                 onPrev={() => goToPrevTab("experience")}
               />
@@ -114,8 +104,6 @@ export const JobseekerResumeCreatePage = () => {
             {/* Образование */}
             <TabsContent value="education">
               <EducationTab
-                resume={resume}
-                setResume={setResume}
                 onNext={() => goToNextTab("education")}
                 onPrev={() => goToPrevTab("education")}
               />
@@ -124,8 +112,6 @@ export const JobseekerResumeCreatePage = () => {
             {/* Навыки */}
             <TabsContent value="skills">
               <SkillsTab
-                resume={resume}
-                setResume={setResume}
                 onNext={() => goToNextTab("skills")}
                 onPrev={() => goToPrevTab("skills")}
               />
@@ -134,8 +120,6 @@ export const JobseekerResumeCreatePage = () => {
             {/* Языки */}
             <TabsContent value="languages">
               <LanguagesTab
-                resume={resume}
-                setResume={setResume}
                 onNext={() => goToNextTab("languages")}
                 onPrev={() => goToPrevTab("languages")}
               />
@@ -143,17 +127,14 @@ export const JobseekerResumeCreatePage = () => {
 
             {/* Дополнительная информация */}
             <TabsContent value="additional">
-              <AdditionalInfoTab
-                resume={resume}
-                setResume={setResume}
-                onPrev={() => goToPrevTab("additional")}
-                onSubmit={handleSubmit}
-              />
+              <AdditionalInfoTab onPrev={() => goToPrevTab("additional")} onSubmit={handleSubmit} />
             </TabsContent>
           </Tabs>
 
           <div className="mt-8 flex justify-end">
-            <Button type="submit">Сохранить резюме</Button>
+            <Button disabled={!canSubmitForm} type="submit">
+              Сохранить резюме
+            </Button>
           </div>
         </form>
       </div>
