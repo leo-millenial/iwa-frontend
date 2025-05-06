@@ -1,29 +1,20 @@
 import { useUnit } from "effector-react";
 import { useState } from "react";
 
-import { $canSubmitForm } from "@/pages/jobseeker/resume/create/model.ts";
-
 import { LayoutJobseeker } from "@/layouts/jobseeker-layout.tsx";
 
 import { Gender, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
-import { EmploymentType } from "@/shared/types/vacancy.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
+import { $formError, $pending, submitForm } from "../model.ts";
 import { AdditionalInfoTab } from "./additional-info-tab";
 import { EducationTab } from "./education-tab";
 import { ExperienceTab } from "./experience-tab";
+import { FormError } from "./form-error";
 import { LanguagesTab } from "./languages-tab";
 import { PersonalInfoTab } from "./personal-info-tab";
 import { SkillsTab } from "./skills-tab";
-
-export const employmentTypeLabels = {
-  [EmploymentType.FullTime]: "Полная занятость",
-  [EmploymentType.PartTime]: "Частичная занятость",
-  [EmploymentType.Remote]: "Удаленная работа",
-  [EmploymentType.Office]: "Работа в офисе",
-  [EmploymentType.Hybrid]: "Гибридный формат",
-};
 
 export const genderLabels = {
   [Gender.Male]: "Мужской",
@@ -46,13 +37,14 @@ export const languageLevelLabels = {
 export const JobseekerResumeCreatePage = () => {
   const [activeTab, setActiveTab] = useState("personal");
 
-  const canSubmitForm = useUnit($canSubmitForm);
+  const [formError, pending] = useUnit([$formError, $pending]);
+
+  const handleSubmitForm = useUnit(submitForm);
 
   // Обработчик отправки формы
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Отправка резюме:");
-    // Здесь будет логика отправки данных на сервер
+    handleSubmitForm();
   };
 
   // Функция для перехода к следующему табу
@@ -127,13 +119,14 @@ export const JobseekerResumeCreatePage = () => {
 
             {/* Дополнительная информация */}
             <TabsContent value="additional">
-              <AdditionalInfoTab onPrev={() => goToPrevTab("additional")} onSubmit={handleSubmit} />
+              <AdditionalInfoTab onPrev={() => goToPrevTab("additional")} />
             </TabsContent>
           </Tabs>
 
-          <div className="mt-8 flex justify-end">
-            <Button disabled={!canSubmitForm} type="submit">
-              Сохранить резюме
+          <div className="mt-8 flex justify-end items-center gap-4">
+            {formError && <FormError error={formError} />}
+            <Button disabled={pending} type="submit">
+              {pending ? "Сохранение..." : "Сохранить резюме"}
             </Button>
           </div>
         </form>

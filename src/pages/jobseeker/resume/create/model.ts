@@ -1,7 +1,9 @@
 import { combine, createEffect, createEvent, createStore, sample } from "effector";
-import { and, debug } from "patronum";
+import { debug, reset } from "patronum";
 
+import { createResumeMutation } from "@/shared/api/resume";
 import { fileUrlByFileId } from "@/shared/config";
+import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import {
   CertificateUrl,
@@ -9,7 +11,6 @@ import {
   IEducation,
   IFullName,
   ILanguage,
-  IResume,
   ISkill,
   IWorkExperience,
   Income,
@@ -17,6 +18,7 @@ import {
   SkillLevel,
 } from "@/shared/types/resume.interface";
 import { EmploymentType } from "@/shared/types/vacancy.interface";
+import { $viewer } from "@/shared/viewer";
 
 export const currentRoute = routes.jobseeker.resume.create;
 
@@ -40,8 +42,7 @@ export interface ResumeForm {
   languages: ILanguage[];
 }
 
-// Тип для ошибок формы резюме
-export type ResumeFormError =
+export type ResumeCreateFormError =
   | null
   | "EMPTY_FORM"
   | "INVALID_PERSONAL_INFO"
@@ -49,7 +50,11 @@ export type ResumeFormError =
   | "INVALID_EDUCATION"
   | "INVALID_SKILLS"
   | "INVALID_LANGUAGES"
-  | "SERVER_ERROR";
+  | "ABOUT_ME_TOO_LONG"
+  | "SERVER_ERROR"
+  | "INVALID_BIRTH_DATE"
+  | "INVALID_POSITION"
+  | "INVALID_SALARY";
 
 export const positionChanged = createEvent<string>();
 export const genderChanged = createEvent<Gender>();
@@ -109,19 +114,13 @@ export const removeVideo = createEvent();
 
 export const submitForm = createEvent();
 export const resetForm = createEvent();
-export const setFormError = createEvent<ResumeFormError>();
+export const setFormError = createEvent<ResumeCreateFormError>();
 
 export const uploadVideoFx = createEffect<File, string, Error>(async (file) => {
   return URL.createObjectURL(file);
 });
 
-export const createResumeFx = createEffect<ResumeForm, IResume, Error>(async (resumeData) => {
-  return {
-    ...resumeData,
-    _id: Math.random().toString(36).substring(2, 15),
-    jobseekerId: resumeData.jobseekerId || Math.random().toString(36).substring(2, 15),
-  } as IResume;
-});
+export const $pending = createResumeMutation.$pending;
 
 export const $photo = createStore<string>("")
   .on(photoChanged, (_, fileId) => fileUrlByFileId(fileId))
@@ -132,9 +131,7 @@ export const $video = createStore<string>("")
   .on(removeVideo, () => "")
   .reset(resetForm);
 
-export const $jobseekerId = createStore<string>("")
-  .on(jobseekerIdChanged, (_, value) => value)
-  .reset(resetForm);
+export const $jobseekerId = $viewer.map((viewer) => viewer?.jobseeker?._id ?? "");
 
 export const $position = createStore<string>("")
   .on(positionChanged, (_, value) => value)
@@ -280,9 +277,9 @@ export const $fullName = combine(
 
 // Объединяем все сторы в один общий стор формы
 export const $resumeForm = combine({
+  jobseekerId: $jobseekerId,
   photo: $photo,
   video: $video,
-  jobseekerId: $jobseekerId,
   position: $position,
   income: $income,
   fullName: $fullName,
@@ -298,8 +295,6 @@ export const $resumeForm = combine({
   certificates: $certificates,
   languages: $languages,
 });
-
-debug({ $resumeForm });
 
 // Валидация формы
 export const $positionValid = $position.map((position) => position.trim().length > 0);
@@ -341,6 +336,12 @@ export const $languagesValid = $languages.map(
   (languages) => languages.length === 0 || languages.every((lang) => lang.name.trim().length > 0),
 );
 
+export const $birthDateValid = $birthday.map((date) => date !== null);
+// Добавим валидацию для зарплаты
+export const $salaryValid = $income.map(
+  (income) => income !== null && income.amount !== null && income.amount > 0,
+);
+
 export const $aboutMeValid = $aboutMe.map((aboutMe) => aboutMe.length <= 2000);
 
 export const $formValid = combine(
@@ -354,6 +355,8 @@ export const $formValid = combine(
   $skillsValid,
   $languagesValid,
   $aboutMeValid,
+  $birthDateValid,
+  $salaryValid,
   (
     positionValid,
     fullNameValid,
@@ -365,6 +368,8 @@ export const $formValid = combine(
     skillsValid,
     languagesValid,
     aboutMeValid,
+    birthDateValid,
+    salaryValid,
   ) =>
     positionValid &&
     fullNameValid &&
@@ -375,57 +380,21 @@ export const $formValid = combine(
     educationsValid &&
     skillsValid &&
     languagesValid &&
-    aboutMeValid,
+    aboutMeValid &&
+    birthDateValid &&
+    salaryValid,
 );
 
 // Стор для хранения ошибок формы
-export const $formError = createStore<ResumeFormError>(null)
+export const $formError = createStore<ResumeCreateFormError>(null)
   .on(setFormError, (_, error) => error)
   .reset(resetForm);
 
-export const $canSubmitForm = and(
-  $formValid,
-  $formError.map((error) => error !== null),
-);
+debug({ $formError });
 
-// Логика отправки формы
-sample({
-  clock: submitForm,
-  source: {
-    form: $resumeForm,
-    valid: $formValid,
-    positionValid: $positionValid,
-    fullNameValid: $fullNameValid,
-    emailValid: $emailValid,
-    phoneValid: $phoneValid,
-    cityValid: $cityValid,
-    workExperienceValid: $workExperienceValid,
-    educationsValid: $educationsValid,
-    skillsValid: $skillsValid,
-    languagesValid: $languagesValid,
-    aboutMeValid: $aboutMeValid,
-  },
-  filter: ({ valid }) => valid,
-  fn: ({ form }) => form,
-  target: createResumeFx,
-});
-
-// Обработка ошибок валидации при отправке формы
-sample({
-  clock: submitForm,
-  source: {
-    positionValid: $positionValid,
-    fullNameValid: $fullNameValid,
-    emailValid: $emailValid,
-    phoneValid: $phoneValid,
-    cityValid: $cityValid,
-    workExperienceValid: $workExperienceValid,
-    educationsValid: $educationsValid,
-    skillsValid: $skillsValid,
-    languagesValid: $languagesValid,
-    aboutMeValid: $aboutMeValid,
-  },
-  filter: ({
+// Создаем эффект для проверки валидности формы
+const validateFormFx = createEffect(
+  ({
     positionValid,
     fullNameValid,
     emailValid,
@@ -436,30 +405,33 @@ sample({
     skillsValid,
     languagesValid,
     aboutMeValid,
-  }) =>
-    !positionValid ||
-    !fullNameValid ||
-    !emailValid ||
-    !phoneValid ||
-    !cityValid ||
-    !workExperienceValid ||
-    !educationsValid ||
-    !skillsValid ||
-    !languagesValid ||
-    !aboutMeValid,
-  fn: ({
-    positionValid,
-    fullNameValid,
-    emailValid,
-    phoneValid,
-    cityValid,
-    workExperienceValid,
-    educationsValid,
-    skillsValid,
-    languagesValid,
-    aboutMeValid,
+    birthDateValid,
+    salaryValid,
+  }: {
+    positionValid: boolean;
+    fullNameValid: boolean;
+    emailValid: boolean;
+    phoneValid: boolean;
+    cityValid: boolean;
+    workExperienceValid: boolean;
+    educationsValid: boolean;
+    skillsValid: boolean;
+    languagesValid: boolean;
+    aboutMeValid: boolean;
+    birthDateValid: boolean;
+    salaryValid: boolean;
   }) => {
-    if (!positionValid || !fullNameValid || !emailValid || !phoneValid || !cityValid) {
+    // Проверяем валидность формы
+    if (!positionValid) {
+      return "INVALID_POSITION";
+    }
+    if (!birthDateValid) {
+      return "INVALID_BIRTH_DATE";
+    }
+    if (!salaryValid) {
+      return "INVALID_SALARY";
+    }
+    if (!fullNameValid || !emailValid || !phoneValid || !cityValid) {
       return "INVALID_PERSONAL_INFO";
     }
     if (!workExperienceValid) {
@@ -477,26 +449,106 @@ sample({
     if (!aboutMeValid) {
       return "ABOUT_ME_TOO_LONG";
     }
-    return "EMPTY_FORM";
+
+    // Если все проверки прошли успешно
+    return null;
   },
+);
+
+sample({
+  clock: submitForm,
+  source: {
+    positionValid: $positionValid,
+    fullNameValid: $fullNameValid,
+    emailValid: $emailValid,
+    phoneValid: $phoneValid,
+    cityValid: $cityValid,
+    workExperienceValid: $workExperienceValid,
+    educationsValid: $educationsValid,
+    skillsValid: $skillsValid,
+    languagesValid: $languagesValid,
+    aboutMeValid: $aboutMeValid,
+    birthDateValid: $birthDateValid,
+    salaryValid: $salaryValid,
+  },
+  target: validateFormFx,
+});
+
+// Устанавливаем ошибку, если форма невалидна
+sample({
+  clock: validateFormFx.doneData,
+  filter: (error: ResumeCreateFormError) => error !== null,
   target: setFormError,
 });
 
-// Обработка ошибок при создании резюме
+// Отправляем форму, если она валидна
 sample({
-  clock: createResumeFx.failData,
+  clock: submitForm,
+  filter: $formValid,
+  source: $resumeForm,
+  target: createResumeMutation.start,
+});
+
+sample({
+  clock: createResumeMutation.$succeeded,
+  fn: () => ({
+    message: "Успешно!",
+    description: "Резюме создано",
+  }),
+  target: [showSuccessToast, resetForm],
+});
+
+sample({
+  clock: createResumeMutation.$succeeded,
+  source: { jobseekerId: $jobseekerId },
+  target: routes.jobseeker.search.open,
+});
+
+sample({
+  clock: createResumeMutation.$failed,
   fn: () => "SERVER_ERROR" as const,
   target: setFormError,
 });
 
-// sample({
-//   clock: uploadVideo,
-//   target: uploadVideoFx,
-// });
-
-// Инициализация пустых массивов при первом рендере
 sample({
-  clock: currentRoute.opened,
-  fn: () => {},
-  target: [],
+  clock: createResumeMutation.$failed,
+  fn: () => ({
+    message: "Ошибка!",
+    description: "Не удалось создать резюме",
+  }),
+  target: showErrorToast,
+});
+
+reset({
+  clock: [
+    positionChanged,
+    genderChanged,
+    birthdayChanged,
+    emailChanged,
+    phoneChanged,
+    cityChanged,
+    aboutMeChanged,
+    incomeAmountChanged,
+    incomeCurrencyChanged,
+    updateFullName,
+    addWorkExperience,
+    updateWorkExperience,
+    removeWorkExperience,
+    addEducation,
+    updateEducation,
+    removeEducation,
+    addSkill,
+    updateSkill,
+    removeSkill,
+    addLanguage,
+    updateLanguage,
+    removeLanguage,
+    addCertificate,
+    updateCertificate,
+    removeCertificate,
+    photoChanged,
+    uploadVideo,
+    removeVideo,
+  ],
+  target: $formError,
 });

@@ -5,7 +5,6 @@ import { useUnit } from "effector-react";
 import { CalendarIcon } from "lucide-react";
 
 import {
-  $aboutMe,
   $birthday,
   $city,
   $email,
@@ -15,7 +14,6 @@ import {
   $phone,
   $photo,
   $position,
-  aboutMeChanged,
   birthdayChanged,
   cityChanged,
   emailChanged,
@@ -43,7 +41,6 @@ import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { Textarea } from "@/shared/ui/textarea";
 import { $viewer } from "@/shared/viewer";
 
 interface PersonalInfoTabProps {
@@ -60,7 +57,6 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     email,
     phone,
     city,
-    aboutMe,
     fullName,
     income,
     handlePositionChange,
@@ -69,7 +65,6 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     handleEmailChange,
     handlePhoneChange,
     handleCityChange,
-    handleAboutMeChange,
     handleUpdateFullName,
     handlePhotoChange,
     handleIncomeAmountChange,
@@ -82,7 +77,6 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     $email,
     $phone,
     $city,
-    $aboutMe,
     $fullName,
     $income,
     positionChanged,
@@ -91,7 +85,6 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     emailChanged,
     phoneChanged,
     cityChanged,
-    aboutMeChanged,
     updateFullName,
     photoChanged,
     incomeAmountChanged,
@@ -283,18 +276,6 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
               </SelectContent>
             </Select>
           </div>
-        </div>
-
-        {/* О себе */}
-        <div className="space-y-2">
-          <Label htmlFor="aboutMe">О себе</Label>
-          <Textarea
-            id="aboutMe"
-            value={aboutMe || ""}
-            onChange={(e) => handleAboutMeChange(e.target.value)}
-            placeholder="Расскажите о себе, своих навыках и опыте работы"
-            className="min-h-[150px]"
-          />
         </div>
 
         <div className="flex justify-end mt-6">
