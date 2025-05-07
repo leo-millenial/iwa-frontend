@@ -150,6 +150,7 @@ sample({
 sample({
   clock: $completedStep,
   filter: (step) => step === RegistrationStep.EmailSucceed,
+  fn: () => ({}),
   target: routes.auth.registrationFlow.fullName.open,
 });
 

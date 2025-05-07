@@ -47,11 +47,13 @@ sample({
 sample({
   clock: $completedStep,
   filter: (step) => step === RegistrationStep.SmsSendSucceed,
+  fn: () => ({}),
   target: routes.auth.registrationFlow.confirmPhone.open,
 });
 
 sample({
   clock: step3Mutation.finished.failure,
+  fn: () => ({}),
   target: routes.auth.registration.open,
 });
 

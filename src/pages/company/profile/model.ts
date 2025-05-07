@@ -5,14 +5,13 @@ import { fileUrlByFileId } from "@/shared/config";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import { ICompany } from "@/shared/types/company.interface.ts";
-import { UserRole } from "@/shared/types/user.interface.ts";
-import { $viewer, chainAuthenticated } from "@/shared/viewer";
+import { $viewer } from "@/shared/viewer";
 
 export const currentRoute = routes.company.profile;
 
-export const authenticatedRoute = chainAuthenticated(currentRoute, {
-  requiredRole: UserRole.Company,
-});
+// export const authenticatedRoute = chainAuthenticated(currentRoute, {
+//   requiredRole: UserRole.Company,
+// });
 
 // События (Events)
 export const editingStarted = createEvent();

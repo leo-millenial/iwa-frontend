@@ -220,6 +220,7 @@ sample({
 
 sample({
   clock: completeRegistrationMutation.$succeeded,
+  fn: () => ({}),
   target: routes.auth.finish.open,
 });
 

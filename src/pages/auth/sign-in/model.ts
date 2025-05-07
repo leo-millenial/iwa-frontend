@@ -67,7 +67,7 @@ sample({
   clock: getMeQuery.finished.success,
   filter: ({ result }) =>
     Boolean(result.user && result.user.role === UserRole.Jobseeker && result.jobseeker),
-  fn: ({ result }) => ({ jobseekerId: result.jobseeker!._id }),
+  fn: ({ result }) => ({ params: { jobseekerId: result.jobseeker!._id } }),
   target: routes.jobseeker.search.open,
 });
 
@@ -75,7 +75,7 @@ sample({
   clock: getMeQuery.finished.success,
   filter: ({ result }) =>
     Boolean(result.user && result.user.role === UserRole.Company && result.company),
-  fn: ({ result }) => ({ companyId: result.company!._id }),
+  fn: ({ result }) => ({ params: { companyId: result.company!._id } }),
   target: routes.company.search.open,
 });
 

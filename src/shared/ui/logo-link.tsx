@@ -1,4 +1,4 @@
-import { Link } from "atomic-router-react";
+import { Link } from "@argon-router/react";
 
 import { routes } from "@/shared/routing";
 

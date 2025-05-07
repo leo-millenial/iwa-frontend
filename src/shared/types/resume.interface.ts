@@ -79,6 +79,8 @@ export interface IResume {
   aboutMe?: string;
   certificates?: CertificateUrl[];
   languages?: ILanguage[];
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }
 
 export interface ResumeSearchParams {

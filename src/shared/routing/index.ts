@@ -1,22 +1,21 @@
-import { createHistoryRouter, createRouterControls } from "atomic-router";
+import { createRouter } from "@argon-router/core";
+import { createRouterControls } from "@argon-router/core";
 import { sample } from "effector";
 import { createBrowserHistory } from "history";
 
 import { appStarted } from "../init";
-import { notFoundRoute, routesMap } from "./routes";
+import { routesMap } from "./routes";
 
-export { routes, notFoundRoute } from "./routes";
+export { routes } from "./routes";
+
+export const router = createRouter({
+  routes: routesMap,
+});
 
 export const controls = createRouterControls();
-
-export const router = createHistoryRouter({
-  routes: routesMap,
-  notFoundRoute,
-  controls,
-});
 
 sample({
   clock: appStarted,
   fn: () => createBrowserHistory(),
-  target: router.setHistory,
+  target: [router.setHistory, controls.setHistory],
 });

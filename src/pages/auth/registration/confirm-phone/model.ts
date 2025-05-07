@@ -183,6 +183,7 @@ sample({
   clock: verificationSucceeded,
   source: $role,
   filter: (role) => role === UserRole.Company,
+  fn: () => ({}),
   target: routes.auth.registrationFlow.company.about.open,
 });
 
@@ -190,6 +191,7 @@ sample({
   clock: verificationSucceeded,
   source: $role,
   filter: (role) => role === UserRole.Jobseeker,
+  fn: () => ({}),
   target: routes.auth.registrationFlow.jobseeker.profile.open,
 });
 

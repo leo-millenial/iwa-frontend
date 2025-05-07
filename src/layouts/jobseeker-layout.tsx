@@ -1,4 +1,4 @@
-import { Link } from "atomic-router-react";
+import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
 import { LogOut, MessageSquare, Plus, Search, User } from "lucide-react";
 
