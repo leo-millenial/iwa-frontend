@@ -4,13 +4,13 @@ import { getVacancyByIdQuery, updateVacancyMutation } from "@/shared/api/vacancy
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import { EmploymentType, Experience } from "@/shared/types/vacancy.interface";
-import { $companyId, chainAuthenticated } from "@/shared/viewer";
+import { $companyId } from "@/shared/viewer";
 
 export const currentRoute = routes.company.vacancy.edit;
 
-export const authenticatedRoute = chainAuthenticated(currentRoute, {
-  otherwise: routes.auth.signIn.open,
-});
+// export const authenticatedRoute = chainAuthenticated(currentRoute, {
+//   otherwise: routes.auth.signIn.open,
+// });
 
 // События для формы
 export const formSubmitted = createEvent();
@@ -164,6 +164,7 @@ sample({
 sample({
   clock: updateVacancyMutation.$succeeded,
   source: { companyId: $companyId, vacancyId: $vacancyId },
+  fn: ({ companyId, vacancyId }) => ({ params: { companyId, vacancyId } }),
   target: routes.company.vacancy.view.open,
 });
 

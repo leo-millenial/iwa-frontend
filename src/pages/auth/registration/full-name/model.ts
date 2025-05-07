@@ -124,6 +124,7 @@ sample({
 sample({
   clock: $completedStep,
   filter: (step) => step === RegistrationStep.FullNameSucceed,
+  fn: () => ({}),
   target: routes.auth.registrationFlow.phone.open,
 });
 

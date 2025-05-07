@@ -1,5 +1,5 @@
 import { combine, createEffect, createEvent, createStore, sample } from "effector";
-import { debug, reset } from "patronum";
+import { reset } from "patronum";
 
 import { createResumeMutation } from "@/shared/api/resume";
 import { fileUrlByFileId } from "@/shared/config";
@@ -389,8 +389,6 @@ export const $formValid = combine(
 export const $formError = createStore<ResumeCreateFormError>(null)
   .on(setFormError, (_, error) => error)
   .reset(resetForm);
-
-debug({ $formError });
 
 // Создаем эффект для проверки валидности формы
 const validateFormFx = createEffect(

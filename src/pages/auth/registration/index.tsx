@@ -1,4 +1,4 @@
-import { Link } from "atomic-router-react";
+import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
 import { Loader2 } from "lucide-react";
 
@@ -116,7 +116,14 @@ export const AuthRegistrationPage = () => {
                 />
               </div>
 
-              <Button disabled={pending} onClick={() => handleNextClick()} className="w-full">
+              <Button
+                disabled={pending}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNextClick();
+                }}
+                className="w-full"
+              >
                 {pending && <Loader2 className="animate-spin" />}
                 Далее
               </Button>

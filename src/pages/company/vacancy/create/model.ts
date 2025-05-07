@@ -4,13 +4,13 @@ import { reset } from "patronum";
 import { createVacancyMutation } from "@/shared/api/vacancy";
 import { routes } from "@/shared/routing";
 import { EmploymentType, Experience } from "@/shared/types/vacancy.interface.ts";
-import { $companyId, chainAuthenticated } from "@/shared/viewer";
+import { $companyId } from "@/shared/viewer";
 
 export const currentRoute = routes.company.vacancy.create;
 
-export const authenticatedRoute = chainAuthenticated(currentRoute, {
-  otherwise: routes.auth.signIn.open,
-});
+// export const authenticatedRoute = chainAuthenticated(currentRoute, {
+//   otherwise: routes.auth.signIn.open,
+// });
 
 export const formSubmitted = createEvent();
 
@@ -95,6 +95,7 @@ sample({
 sample({
   clock: createVacancyMutation.$succeeded,
   source: currentRoute.$params,
+  fn: ({ companyId }) => ({ params: { companyId } }),
   target: routes.company.vacancies.open,
 });
 

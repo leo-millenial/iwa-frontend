@@ -1,5 +1,5 @@
-import { combine, createEvent, createStore, sample } from "effector";
-import { interval, reset } from "patronum";
+import { createEvent, createStore, sample } from "effector";
+import { and, interval, reset } from "patronum";
 
 import { getMeQuery } from "@/shared/api/user";
 import { routes } from "@/shared/routing";
@@ -36,19 +36,13 @@ sample({
 
 $queryFinished.on(getMeQuery.finished.success, () => true);
 
-const $readyToRedirect = combine(
-  {
-    countdownFinished: $countdownFinished,
-    queryFinished: $queryFinished,
-  },
-  ({ countdownFinished, queryFinished }) => countdownFinished && queryFinished,
-);
+const $readyToRedirect = and($countdownFinished, $queryFinished);
 
 sample({
   clock: $readyToRedirect,
   source: getMeQuery.finished.success,
   filter: ({ result }) => result.user?.role === UserRole.Jobseeker && Boolean(result.jobseeker),
-  fn: ({ result }) => ({ jobseekerId: result.jobseeker!._id }),
+  fn: ({ result }) => ({ params: { jobseekerId: result.jobseeker!._id } }),
   target: routes.jobseeker.search.open,
 });
 
@@ -56,12 +50,13 @@ sample({
   clock: $readyToRedirect,
   source: getMeQuery.finished.success,
   filter: ({ result }) => result.user?.role === UserRole.Company && Boolean(result.company),
-  fn: ({ result }) => ({ companyId: result.company!._id }),
+  fn: ({ result }) => ({ params: { companyId: result.company!._id } }),
   target: routes.company.search.open,
 });
 
 sample({
   clock: getMeQuery.finished.failure,
+  fn: () => ({}),
   target: routes.home.open,
 });
 

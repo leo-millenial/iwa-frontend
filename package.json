@@ -15,6 +15,8 @@
     "generate:api": "ts-node-esm scripts/generate.ts"
   },
   "dependencies": {
+    "@argon-router/core": "^0.7.0",
+    "@argon-router/react": "^0.7.0",
     "@farfetched/core": "^0.13.1",
     "@farfetched/zod": "^0.13.1",
     "@maskito/core": "^3.7.1",
@@ -40,8 +42,6 @@
     "@tailwindcss/vite": "^4.1.4",
     "@withease/contracts": "^1.1.0",
     "@withease/factories": "^1.0.5",
-    "atomic-router": "^0.11.0",
-    "atomic-router-react": "^0.10.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
