@@ -1,11 +1,13 @@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 import { useUnit } from "effector-react";
 import { CalendarIcon, Loader2, PlusCircle, Save, Trash2 } from "lucide-react";
 
 import { Gender, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface";
 import { EmploymentType } from "@/shared/types/vacancy.interface";
 import { Button } from "@/shared/ui/button";
+import { Calendar } from "@/shared/ui/calendar.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
@@ -36,7 +38,6 @@ export const JobseekerResumeEditPage = () => {
     education,
     skills,
     languages,
-    certificates,
     pending,
     activeTab,
   ] = useUnit([
@@ -56,7 +57,6 @@ export const JobseekerResumeEditPage = () => {
     model.$education,
     model.$skills,
     model.$languages,
-    model.$certificates,
     model.$pending,
     model.$activeTab,
   ]);
@@ -85,11 +85,9 @@ export const JobseekerResumeEditPage = () => {
     handleAddLanguage,
     handleUpdateLanguage,
     handleRemoveLanguage,
-    handleAddCertificate,
-    handleUpdateCertificate,
-    handleRemoveCertificate,
     handleSubmit,
     handleActiveTabChange,
+    handleBirthdayChange,
   ] = useUnit([
     model.positionChanged,
     model.firstNameChanged,
@@ -114,11 +112,9 @@ export const JobseekerResumeEditPage = () => {
     model.addLanguage,
     model.updateLanguage,
     model.removeLanguage,
-    model.addCertificate,
-    model.updateCertificate,
-    model.removeCertificate,
     model.formSubmitted,
     model.activeTabChanged,
+    model.birthdayChanged,
   ]);
 
   if (pending) {
@@ -144,8 +140,7 @@ export const JobseekerResumeEditPage = () => {
           <TabsTrigger value="personal">Личная информация</TabsTrigger>
           <TabsTrigger value="experience">Опыт работы</TabsTrigger>
           <TabsTrigger value="education">Образование</TabsTrigger>
-          <TabsTrigger value="skills">Навыки</TabsTrigger>
-          <TabsTrigger value="additional">Дополнительно</TabsTrigger>
+          <TabsTrigger value="skills">Навыки и языки</TabsTrigger>
         </TabsList>
 
         {/* Личная информация */}
@@ -182,8 +177,8 @@ export const JobseekerResumeEditPage = () => {
                     <Input
                       id="incomeAmount"
                       type="number"
-                      value={incomeAmount || ""}
-                      onChange={(e) => handleIncomeAmountChange(Number(e.target.value))}
+                      value={incomeAmount}
+                      onChange={(e) => handleIncomeAmountChange(e.target.value)}
                       placeholder="Например: 150000"
                     />
                     <Select value={incomeCurrency} onValueChange={handleIncomeCurrencyChange}>
@@ -263,18 +258,29 @@ export const JobseekerResumeEditPage = () => {
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
+                        id="birthday"
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal",
                           !birthday && "text-muted-foreground",
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {birthday ? format(birthday, "dd.MM.yyyy") : "Выберите дату"}
+                        {birthday ? (
+                          format(new Date(birthday), "dd MMMM yyyy", { locale: ru })
+                        ) : (
+                          <span>Выберите дату</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      {/* Здесь должен быть календарь для выбора даты */}
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={birthday ? new Date(birthday) : undefined}
+                        onSelect={(date) =>
+                          date ? handleBirthdayChange(date) : handleBirthdayChange(null)
+                        }
+                      />
                     </PopoverContent>
                   </Popover>
                 </div>
@@ -730,57 +736,6 @@ export const JobseekerResumeEditPage = () => {
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Добавить язык
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Дополнительно */}
-        <TabsContent value="additional" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Сертификаты</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {certificates && certificates.length > 0 ? (
-                certificates.map((certificate, index) => (
-                  <div key={index} className="flex items-center space-x-4 p-2 border rounded-lg">
-                    <div className="flex-grow">
-                      <Input
-                        value={certificate}
-                        onChange={(e) =>
-                          handleUpdateCertificate({
-                            index,
-                            value: e.target.value,
-                          })
-                        }
-                        placeholder="URL сертификата"
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveCertificate(index)}
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  У вас пока нет добавленных сертификатов
-                </div>
-              )}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAddCertificate}
-                className="w-full"
-              >
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Добавить сертификат
               </Button>
             </CardContent>
           </Card>

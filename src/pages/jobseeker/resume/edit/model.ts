@@ -1,12 +1,11 @@
 import { combine, createEvent, createStore, sample } from "effector";
-import { or } from "patronum";
+import { debug, or } from "patronum";
 
 import { updateResumeMutation } from "@/shared/api/resume";
 import { getResumeByIdQuery } from "@/shared/api/resume/get-by-id.ts";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import {
-  CertificateUrl,
   Gender,
   IEducation,
   ILanguage,
@@ -17,13 +16,13 @@ import {
   SkillLevel,
 } from "@/shared/types/resume.interface";
 import { EmploymentType } from "@/shared/types/vacancy.interface";
-import { $viewer } from "@/shared/viewer";
+import { $viewer, chainAuthenticated } from "@/shared/viewer";
 
 export const currentRoute = routes.jobseeker.resume.edit;
 
-// export const authenticatedRoute = chainAuthenticated(routes.jobseeker.resume.edit, {
-//   otherwise: routes.auth.signIn.open,
-// });
+export const authenticatedRoute = chainAuthenticated(routes.jobseeker.resume.edit, {
+  otherwise: routes.auth.signIn.open,
+});
 
 // События для формы
 export const formSubmitted = createEvent();
@@ -45,7 +44,7 @@ export const lastNameChanged = createEvent<string>();
 export const patronymicChanged = createEvent<string>();
 
 // События для дохода
-export const incomeAmountChanged = createEvent<number>();
+export const incomeAmountChanged = createEvent<string>();
 export const incomeCurrencyChanged = createEvent<string>();
 
 // События для опыта работы
@@ -56,6 +55,8 @@ export const updateWorkExperience = createEvent<{
   value: unknown;
 }>();
 export const removeWorkExperience = createEvent<number>();
+
+debug({ updateWorkExperience });
 
 // События для образования
 export const addEducation = createEvent();
@@ -110,7 +111,7 @@ export const $lastName = createStore<string>("");
 export const $patronymic = createStore<string>("");
 
 // Сторы для дохода
-export const $incomeAmount = createStore<Income["amount"]>(0);
+export const $incomeAmount = createStore<number | string>(0);
 export const $incomeCurrency = createStore<Income["currency"]>("RUB");
 
 // Сторы для опыта работы, образования, навыков, языков и сертификатов
@@ -118,7 +119,6 @@ export const $workExperience = createStore<IWorkExperience[]>([]);
 export const $education = createStore<IEducation[]>([]);
 export const $skills = createStore<ISkill[]>([]);
 export const $languages = createStore<ILanguage[]>([]);
-export const $certificates = createStore<CertificateUrl[]>([]);
 
 export const $jobseekerId = $viewer.map((viewer) => viewer?.jobseeker?._id ?? "");
 
@@ -128,72 +128,92 @@ export const $pending = or(updateResumeMutation.$pending, getResumeByIdQuery.$pe
 $position
   .on(positionChanged, (_, position) => position)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.position)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.position);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.position);
 
 $photo
   .on(photoChanged, (_, photo) => photo)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.photo)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.photo);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.photo);
 
 $video
   .on(videoChanged, (_, video) => video)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.video)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.video);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.video);
 
 $gender
   .on(genderChanged, (_, gender) => gender)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.gender)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.gender);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.gender);
 
 $birthday
   .on(birthdayChanged, (_, birthday) => birthday)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.birthday)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.birthday);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.birthday);
 
 $email
   .on(emailChanged, (_, email) => email)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.email)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.email);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.email);
 
 $phone
   .on(phoneChanged, (_, phone) => phone)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.phone)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.phone);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.phone);
 
 $city
   .on(cityChanged, (_, city) => city)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.city)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.city);
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.city);
 
 $aboutMe
   .on(aboutMeChanged, (_, aboutMe) => aboutMe)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.aboutMe || "")
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.aboutMe || "");
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.aboutMe || "");
 
 $firstName
   .on(firstNameChanged, (_, firstName) => firstName)
-  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.fullName?.firstName)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.fullName?.firstName);
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.fullName?.firstName ?? "")
+  .on(
+    updateResumeMutation.finished.success,
+    (_, { result }) => result.resume?.fullName?.firstName ?? "",
+  );
 
 $lastName
   .on(lastNameChanged, (_, lastName) => lastName)
-  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.fullName?.lastName)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.fullName?.lastName);
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.fullName?.lastName ?? "")
+  .on(
+    updateResumeMutation.finished.success,
+    (_, { result }) => result.resume?.fullName?.lastName ?? "",
+  );
 
 $patronymic
   .on(patronymicChanged, (_, patronymic) => patronymic)
-  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.fullName?.patronymic)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.fullName?.patronymic);
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.fullName?.patronymic ?? "")
+  .on(
+    updateResumeMutation.finished.success,
+    (_, { result }) => result.resume?.fullName?.patronymic ?? "",
+  );
 
 $incomeAmount
-  .on(incomeAmountChanged, (_, amount) => amount)
-  .on(getResumeByIdQuery.finished.success, (_, { result }) => result?.income?.amount ?? 0)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.income.amount ?? 0);
+  .on(incomeAmountChanged, (_, amount) => {
+    return amount === "" ? "" : Number(amount);
+  })
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => {
+    const amount = result?.income?.amount ?? 0;
+    return amount.toString();
+  })
+  .on(updateResumeMutation.finished.success, (_, { result }) => {
+    const amount = result.resume?.income?.amount ?? 0;
+    return amount.toString();
+  });
 
 $incomeCurrency
   .on(incomeCurrencyChanged, (_, currency) => currency)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result?.income?.currency ?? "RUB")
-  .on(updateResumeMutation.finished.success, (_, { result }) => result?.income?.currency ?? "RUB");
+  .on(
+    updateResumeMutation.finished.success,
+    (_, { result }) => result?.resume?.income?.currency ?? "RUB",
+  );
 
 // Обработка опыта работы
 $workExperience
@@ -212,7 +232,22 @@ $workExperience
   .on(updateWorkExperience, (state, { index, field, value }) =>
     state.map((exp, i) => (i === index ? { ...exp, [field]: value } : exp)),
   )
-  .on(removeWorkExperience, (state, index) => state.filter((_, i) => i !== index));
+  .on(removeWorkExperience, (state, index) => state.filter((_, i) => i !== index))
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => {
+    return (result.workExperience || []).map((exp) => ({
+      ...exp,
+      startDate: exp.startDate ? new Date(exp.startDate) : new Date(),
+      endDate: exp.endDate ? new Date(exp.endDate) : null,
+    }));
+  })
+  .on(updateResumeMutation.finished.success, (_, { result }) => {
+    // Преобразуем строковые даты в объекты Date
+    return (result.resume?.workExperience || []).map((exp) => ({
+      ...exp,
+      startDate: exp.startDate ? new Date(exp.startDate) : new Date(),
+      endDate: exp.endDate ? new Date(exp.endDate) : null,
+    }));
+  });
 
 // Обработка образования
 $education
@@ -229,9 +264,20 @@ $education
   .on(updateEducation, (state, { index, field, value }) =>
     state.map((edu, i) => (i === index ? { ...edu, [field]: value } : edu)),
   )
-  .on(removeEducation, (state, index) => state.filter((_, i) => i !== index));
+  .on(removeEducation, (state, index) => state.filter((_, i) => i !== index))
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => {
+    return (result.education || []).map((edu) => ({
+      ...edu,
+      graduationDate: edu.graduationDate ? new Date(edu.graduationDate) : new Date(),
+    }));
+  })
+  .on(updateResumeMutation.finished.success, (_, { result }) => {
+    return (result.resume?.education || []).map((edu) => ({
+      ...edu,
+      graduationDate: edu.graduationDate ? new Date(edu.graduationDate) : new Date(),
+    }));
+  });
 
-// Обработка навыков
 $skills
   .on(addSkill, (state) => [
     ...state,
@@ -244,9 +290,11 @@ $skills
   .on(updateSkill, (state, { index, field, value }) =>
     state.map((skill, i) => (i === index ? { ...skill, [field]: value } : skill)),
   )
-  .on(removeSkill, (state, index) => state.filter((_, i) => i !== index));
+  .on(removeSkill, (state, index) => state.filter((_, i) => i !== index))
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.skills || [])
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.skills || []);
 
-// Обработка языков
+// Обработка навыков
 $languages
   .on(addLanguage, (state) => [
     ...state,
@@ -259,39 +307,15 @@ $languages
   .on(updateLanguage, (state, { index, field, value }) =>
     state.map((lang, i) => (i === index ? { ...lang, [field]: value } : lang)),
   )
-  .on(removeLanguage, (state, index) => state.filter((_, i) => i !== index));
-
-// Обработка сертификатов
-$certificates
-  .on(addCertificate, (state) => [...state, ""])
-  .on(updateCertificate, (state, { index, value }) =>
-    state.map((cert, i) => (i === index ? value : cert)),
-  )
-  .on(removeCertificate, (state, index) => state.filter((_, i) => i !== index));
+  .on(removeLanguage, (state, index) => state.filter((_, i) => i !== index))
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.languages || [])
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.languages || []);
 
 // Загрузка данных резюме
 sample({
   clock: currentRoute.opened,
   source: $resumeId,
   target: getResumeByIdQuery.start,
-});
-
-sample({
-  clock: getResumeByIdQuery.finished.success,
-  fn: ({ result }) => result.skills || [],
-  target: $skills,
-});
-
-sample({
-  clock: getResumeByIdQuery.finished.success,
-  fn: ({ result }) => result.languages || [],
-  target: $languages,
-});
-
-sample({
-  clock: getResumeByIdQuery.finished.success,
-  fn: ({ result }) => result.certificates || [],
-  target: $certificates,
 });
 
 export const $fullName = combine(
@@ -307,7 +331,8 @@ export const $fullName = combine(
 
 // Комбинированный стор для формирования дохода
 export const $income = combine($incomeAmount, $incomeCurrency, (amount, currency) => ({
-  amount,
+  // Преобразуем строковое значение в число при отправке формы
+  amount: amount === "" ? 0 : Number(amount),
   currency,
 }));
 
@@ -330,8 +355,9 @@ export const $formData = combine({
   education: $education,
   skills: $skills,
   languages: $languages,
-  certificates: $certificates,
 });
+
+// debug({ $formData });
 
 // Отправка формы
 sample({
@@ -352,12 +378,12 @@ sample({
 });
 
 // Переход на страницу просмотра после успешного обновления
-sample({
-  clock: updateResumeMutation.$succeeded,
-  source: { resumeId: $resumeId },
-  fn: ({ resumeId }) => ({ params: { resumeId } }),
-  target: routes.jobseeker.resume.view.open,
-});
+// sample({
+//   clock: updateResumeMutation.$succeeded,
+//   source: currentRoute.$params,
+//   fn: ({ resumeId, jobseekerId }) => ({ params: { resumeId, jobseekerId } }),
+//   target: routes.jobseeker.resume.view.open,
+// });
 
 // Обработка ошибки обновления
 sample({

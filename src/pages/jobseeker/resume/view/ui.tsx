@@ -6,10 +6,11 @@ import { ResumeView } from "@/entities/resume";
 import { Button } from "@/shared/ui/button";
 import { PageLoader } from "@/shared/ui/page-loader.tsx";
 
-import { $resume } from "./model.ts";
+import { $resume, editClicker } from "./model.ts";
 
 export const JobseekerResumeViewPage = () => {
   const resume = useUnit($resume);
+  const handleEditClick = useUnit(editClicker);
 
   if (!resume)
     return (
@@ -31,7 +32,7 @@ export const JobseekerResumeViewPage = () => {
           {/*  <Share2 className="h-4 w-4 mr-2" />*/}
           {/*  Поделиться*/}
           {/*</Button>*/}
-          <Button variant="outline" size="sm">
+          <Button onClick={() => handleEditClick()} variant="outline" size="sm">
             <Edit className="h-4 w-4 mr-2" />
             Редактировать
           </Button>

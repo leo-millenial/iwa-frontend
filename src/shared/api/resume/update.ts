@@ -6,7 +6,7 @@ import { IResume } from "@/shared/types/resume.interface.ts";
 
 const updateResumeFx = createEffect<
   { headers: Record<string, string>; id: string; data: Partial<IResume> },
-  IResume
+  { resume: IResume }
 >(async ({ headers, id, data }) => {
   const url = new URL(`/api/resume/update/${id}`, window.location.origin);
 
