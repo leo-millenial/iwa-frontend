@@ -69,7 +69,7 @@ export interface IResume {
   income: Income;
   fullName: IFullName;
   gender: Gender;
-  birthday: Date;
+  birthday: Date | null;
   email: string;
   phone: string;
   city: string;
@@ -79,6 +79,8 @@ export interface IResume {
   aboutMe?: string;
   certificates?: CertificateUrl[];
   languages?: ILanguage[];
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
 }
 
 export interface ResumeSearchParams {
@@ -89,4 +91,5 @@ export interface ResumeSearchParams {
   salaryMin?: number;
   salaryMax?: number;
   skills?: string;
+  jobseekerId?: string;
 }

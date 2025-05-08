@@ -1,321 +1,241 @@
-import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { CalendarIcon, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useUnit } from "effector-react";
+import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
 
+import { EmploymentType } from "@/shared/types/vacancy.interface";
 import { Button } from "@/shared/ui/button";
 import { Calendar } from "@/shared/ui/calendar";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Checkbox } from "@/shared/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
 
-import { EmploymentType, IResume, IWorkExperience, employmentTypeLabels } from "../ui";
+import {
+  $workExperience,
+  addWorkExperience,
+  removeWorkExperience,
+  updateWorkExperience,
+} from "../model.ts";
 
-interface ExperienceTabProps {
-  resume: IResume;
-  setResume: React.Dispatch<React.SetStateAction<IResume>>;
+const employmentTypeLabels: Record<EmploymentType, string> = {
+  [EmploymentType.FullTime]: "Полная занятость",
+  [EmploymentType.PartTime]: "Частичная занятость",
+  [EmploymentType.Remote]: "Удаленная работа",
+  [EmploymentType.Office]: "Офис",
+  [EmploymentType.Hybrid]: "Гибридный формат",
+};
+
+interface WorkExperience {
   onNext: () => void;
   onPrev: () => void;
 }
 
-export const ExperienceTab = ({ resume, setResume, onNext, onPrev }: ExperienceTabProps) => {
-  const [currentWorkExperience, setCurrentWorkExperience] = useState<IWorkExperience>({
-    id: crypto.randomUUID(),
-    currentJob: false,
-  });
-
-  // Обработчики для опыта работы
-  const handleAddWorkExperience = () => {
-    if (!currentWorkExperience.position || !currentWorkExperience.company) return;
-
-    setResume((prev) => ({
-      ...prev,
-      workExperience: [...(prev.workExperience || []), currentWorkExperience],
-    }));
-    setCurrentWorkExperience({
-      id: crypto.randomUUID(),
-      currentJob: false,
-    });
-  };
-
-  const handleDeleteWorkExperience = (id: string) => {
-    setResume((prev) => ({
-      ...prev,
-      workExperience: prev.workExperience?.filter((exp) => exp.id !== id) || [],
-    }));
-  };
+export const ExperienceTab = ({ onNext, onPrev }: WorkExperience) => {
+  const [workExperience, handleAddExperience, handleUpdateExperience, handleRemoveExperience] =
+    useUnit([$workExperience, addWorkExperience, updateWorkExperience, removeWorkExperience]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Опыт работы</CardTitle>
-        <CardDescription>
-          Добавьте информацию о вашем опыте работы, начиная с последнего места
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Список добавленного опыта работы */}
-        {resume.workExperience && resume.workExperience.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="font-medium">Добавленный опыт работы:</h3>
-            {resume.workExperience.map((experience) => (
-              <div
-                key={experience.id}
-                className="border rounded-lg p-4 relative hover:bg-muted/50 transition-colors"
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2"
-                  onClick={() => handleDeleteWorkExperience(experience.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Опыт работы</h2>
+        <Button type="button" variant="outline" size="sm" onClick={() => handleAddExperience()}>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Добавить место работы
+        </Button>
+      </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-                  <div>
-                    <h4 className="font-medium">{experience.position}</h4>
-                    <p className="text-sm text-muted-foreground">{experience.company}</p>
-                  </div>
-                  <div className="text-sm text-right">
-                    {experience.startDate && (
-                      <span>
-                        {format(experience.startDate, "MMMM yyyy", { locale: ru })} -{" "}
-                        {experience.currentJob
-                          ? "По настоящее время"
-                          : experience.endDate &&
-                            format(experience.endDate, "MMMM yyyy", { locale: ru })}
-                      </span>
-                    )}
-                    <p className="text-muted-foreground">
-                      {experience.employmentType && employmentTypeLabels[experience.employmentType]}
-                    </p>
-                  </div>
-                </div>
-                {experience.responsibilitiesDescription && (
-                  <p className="text-sm mt-2">{experience.responsibilitiesDescription}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Форма добавления нового опыта работы */}
-        <div className="border rounded-lg p-4 space-y-4">
-          <h3 className="font-medium">Добавить новое место работы</h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="position">Должность *</Label>
-              <Input
-                id="position"
-                value={currentWorkExperience.position || ""}
-                onChange={(e) =>
-                  setCurrentWorkExperience((prev) => ({
-                    ...prev,
-                    position: e.target.value,
-                  }))
-                }
-                placeholder="Например: Frontend-разработчик"
-              />
+      {workExperience.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="pt-6 flex flex-col items-center justify-center text-center p-8">
+            <div className="text-muted-foreground mb-2">
+              Добавьте информацию о вашем опыте работы
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="company">Компания *</Label>
-              <Input
-                id="company"
-                value={currentWorkExperience.company || ""}
-                onChange={(e) =>
-                  setCurrentWorkExperience((prev) => ({
-                    ...prev,
-                    company: e.target.value,
-                  }))
-                }
-                placeholder="Например: ООО 'Компания'"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="employmentType">Тип занятости</Label>
-              <Select
-                value={currentWorkExperience.employmentType}
-                onValueChange={(value) =>
-                  setCurrentWorkExperience((prev) => ({
-                    ...prev,
-                    employmentType: value as EmploymentType,
-                  }))
-                }
-              >
-                <SelectTrigger id="employmentType">
-                  <SelectValue placeholder="Выберите тип занятости" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(employmentTypeLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website">Сайт компании</Label>
-              <Input
-                id="website"
-                value={currentWorkExperience.website || ""}
-                onChange={(e) =>
-                  setCurrentWorkExperience((prev) => ({
-                    ...prev,
-                    website: e.target.value,
-                  }))
-                }
-                placeholder="https://example.com"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Дата начала</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="startDate"
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !currentWorkExperience.startDate && "text-muted-foreground",
-                    )}
-                  >
-                    {currentWorkExperience.startDate ? (
-                      format(currentWorkExperience.startDate, "MMMM yyyy", { locale: ru })
-                    ) : (
-                      <span>Выберите дату</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={currentWorkExperience.startDate}
-                    onSelect={(date) =>
-                      setCurrentWorkExperience((prev) => ({
-                        ...prev,
-                        startDate: date,
-                      }))
-                    }
-                    initialFocus
-                    locale={ru}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="endDate">Дата окончания</Label>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="currentJob"
-                    checked={currentWorkExperience.currentJob}
-                    onCheckedChange={(checked) =>
-                      setCurrentWorkExperience((prev) => ({
-                        ...prev,
-                        currentJob: checked === true,
-                        endDate: checked === true ? null : prev.endDate,
-                      }))
-                    }
-                  />
-                  <Label htmlFor="currentJob" className="text-sm">
-                    Текущее место работы
-                  </Label>
-                </div>
-              </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="endDate"
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !currentWorkExperience.endDate && "text-muted-foreground",
-                    )}
-                    disabled={currentWorkExperience.currentJob === true}
-                  >
-                    {currentWorkExperience.endDate ? (
-                      format(currentWorkExperience.endDate, "MMMM yyyy", { locale: ru })
-                    ) : (
-                      <span>
-                        {currentWorkExperience.currentJob ? "По настоящее время" : "Выберите дату"}
-                      </span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={currentWorkExperience.endDate || undefined}
-                    onSelect={(date) =>
-                      setCurrentWorkExperience((prev) => ({
-                        ...prev,
-                        endDate: date,
-                      }))
-                    }
-                    initialFocus
-                    locale={ru}
-                    disabled={currentWorkExperience.currentJob === true}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="responsibilities">Обязанности и достижения</Label>
-            <Textarea
-              id="responsibilities"
-              value={currentWorkExperience.responsibilitiesDescription || ""}
-              onChange={(e) =>
-                setCurrentWorkExperience((prev) => ({
-                  ...prev,
-                  responsibilitiesDescription: e.target.value,
-                }))
-              }
-              placeholder="Опишите ваши основные обязанности и достижения на этой позиции"
-              className="min-h-[100px]"
-            />
-          </div>
-
-          <div className="flex justify-end mt-4">
-            <Button
-              type="button"
-              onClick={handleAddWorkExperience}
-              disabled={!currentWorkExperience.position || !currentWorkExperience.company}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => handleAddExperience()}>
+              <PlusCircle className="mr-2 h-4 w-4" />
               Добавить место работы
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {workExperience.map((experience, index) => (
+            <Card key={index}>
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg">
+                    {experience.position || "Новое место работы"}
+                  </CardTitle>
+                  <Button variant="ghost" size="icon" onClick={() => handleRemoveExperience(index)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`position-${index}`}>Должность</Label>
+                    <Input
+                      id={`position-${index}`}
+                      value={experience.position}
+                      onChange={(e) =>
+                        handleUpdateExperience({
+                          index,
+                          field: "position",
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="Например: Frontend-разработчик"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor={`company-${index}`}>Компания</Label>
+                    <Input
+                      id={`company-${index}`}
+                      value={experience.company}
+                      onChange={(e) =>
+                        handleUpdateExperience({
+                          index,
+                          field: "company",
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="Например: ООО 'Технологии'"
+                    />
+                  </div>
+                </div>
 
-        <div className="flex justify-between mt-6">
-          <Button type="button" variant="outline" onClick={onPrev}>
-            Назад
-          </Button>
-          <Button type="button" onClick={onNext}>
-            Далее
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor={`employment-type-${index}`}>Тип занятости</Label>
+                    <Select
+                      value={experience.employmentType}
+                      onValueChange={(value) =>
+                        handleUpdateExperience({
+                          index,
+                          field: "employmentType",
+                          value: value as EmploymentType,
+                        })
+                      }
+                    >
+                      <SelectTrigger id={`employment-type-${index}`}>
+                        <SelectValue placeholder="Выберите тип занятости" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(employmentTypeLabels).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Дата начала</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {experience.startDate
+                            ? format(new Date(experience.startDate), "PPP", { locale: ru })
+                            : "Выберите дату"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            experience.startDate ? new Date(experience.startDate) : undefined
+                          }
+                          onSelect={(date) =>
+                            handleUpdateExperience({
+                              index,
+                              field: "startDate",
+                              value: date || new Date(),
+                            })
+                          }
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Дата окончания</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {experience.endDate
+                            ? format(new Date(experience.endDate), "PPP", { locale: ru })
+                            : "По настоящее время"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={experience.endDate ? new Date(experience.endDate) : undefined}
+                          onSelect={(date) =>
+                            handleUpdateExperience({
+                              index,
+                              field: "endDate",
+                              value: date ? date : null,
+                            })
+                          }
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`description-${index}`}>Обязанности и достижения</Label>
+                  <Textarea
+                    id={`description-${index}`}
+                    value={experience.responsibilitiesDescription}
+                    onChange={(e) =>
+                      handleUpdateExperience({
+                        index,
+                        field: "responsibilitiesDescription",
+                        value: e.target.value,
+                      })
+                    }
+                    placeholder="Опишите ваши основные обязанности и достижения на этой должности"
+                    className="min-h-[120px]"
+                  />
+                </div>
+
+                <div className="flex justify-between pt-4">
+                  <Button type="button" variant="outline" onClick={onPrev}>
+                    Назад
+                  </Button>
+                  <Button type="button" onClick={onNext}>
+                    Далее
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {workExperience.length > 0 && (
+        <div className="flex justify-center">
+          <Button type="button" variant="outline" onClick={() => handleAddExperience()}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Добавить еще одно место работы
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 };

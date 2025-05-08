@@ -1,27 +1,35 @@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { useUnit } from "effector-react";
 import { CalendarIcon, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import {
+  $education,
+  addEducation,
+  removeEducation,
+  updateEducation,
+} from "@/pages/jobseeker/resume/create/model.ts";
+
+import { IEducation } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
-import { Calendar } from "@/shared/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 
-import { IEducation, IResume } from ".";
-
 interface EducationTabProps {
-  resume: IResume;
-  setResume: React.Dispatch<React.SetStateAction<IResume>>;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTabProps) => {
-  const [currentEducation, setCurrentEducation] = useState<IEducation>({
+interface EducationCreate extends IEducation {
+  id: string;
+}
+
+export const EducationTab = ({ onNext, onPrev }: EducationTabProps) => {
+  const [currentEducation, setCurrentEducation] = useState<EducationCreate>({
     id: crypto.randomUUID(),
     university: "",
     faculty: "",
@@ -30,6 +38,12 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
   });
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Получаем список образований из модели
+  const education = useUnit($education);
+  const addEducationEvent = useUnit(addEducation);
+  const updateEducationEvent = useUnit(updateEducation);
+  const removeEducationEvent = useUnit(removeEducation);
 
   // Обработчик добавления/обновления образования
   const handleAddEducation = () => {
@@ -54,20 +68,29 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
     }
 
     if (isEditing) {
-      // Обновление существующего образования
-      setResume((prev) => ({
-        ...prev,
-        education: prev.education?.map((edu) =>
-          edu.id === currentEducation.id ? currentEducation : edu,
-        ),
-      }));
+      // Обновление существующего образования через модель
+      const index = education.findIndex((edu) => edu.id === currentEducation.id);
+      if (index !== -1) {
+        Object.entries(currentEducation).forEach(([key, value]) => {
+          updateEducationEvent({
+            index,
+            field: key as keyof IEducation,
+            value,
+          });
+        });
+      }
       setIsEditing(false);
     } else {
-      // Добавление нового образования
-      setResume((prev) => ({
-        ...prev,
-        education: [...(prev.education || []), currentEducation],
-      }));
+      // Добавление нового образования через модель
+      addEducationEvent();
+      const index = education.length;
+      Object.entries(currentEducation).forEach(([key, value]) => {
+        updateEducationEvent({
+          index,
+          field: key as keyof IEducation,
+          value,
+        });
+      });
     }
 
     // Сброс формы
@@ -82,7 +105,7 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
   };
 
   // Обработчик редактирования образования
-  const handleEditEducation = (education: IEducation) => {
+  const handleEditEducation = (education: EducationCreate) => {
     setCurrentEducation(education);
     setIsEditing(true);
     setErrors({});
@@ -90,10 +113,10 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
 
   // Обработчик удаления образования
   const handleDeleteEducation = (id: string) => {
-    setResume((prev) => ({
-      ...prev,
-      education: prev.education?.filter((edu) => edu.id !== id),
-    }));
+    const index = education.findIndex((edu) => edu.id === id);
+    if (index !== -1) {
+      removeEducationEvent(index);
+    }
 
     if (isEditing && currentEducation.id === id) {
       setCurrentEducation({
@@ -135,22 +158,22 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Список добавленного образования */}
-        {resume.education && resume.education.length > 0 && (
+        {education && education.length > 0 && (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Добавленное образование</h3>
             <div className="space-y-3">
-              {resume.education.map((education) => (
+              {education.map((edu) => (
                 <div
-                  key={education.id}
+                  key={edu.id}
                   className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div>
-                    <div className="font-medium">{education.university}</div>
+                    <div className="font-medium">{edu.university}</div>
                     <div className="text-sm text-muted-foreground">
-                      {education.faculty}, {education.degree}
+                      {edu.faculty}, {edu.degree}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Год окончания: {format(education.graduationDate, "yyyy", { locale: ru })}
+                      Год окончания: {format(edu.graduationDate, "yyyy", { locale: ru })}
                     </div>
                   </div>
                   <div className="flex space-x-2">
@@ -158,7 +181,7 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleEditEducation(education)}
+                      onClick={() => handleEditEducation(edu)}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -166,7 +189,7 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteEducation(education.id)}
+                      onClick={() => handleDeleteEducation(edu.id)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -243,17 +266,42 @@ export const EducationTab = ({ resume, setResume, onNext, onPrev }: EducationTab
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={currentEducation.graduationDate}
-                    onSelect={(date) => handleInputChange("graduationDate", date as Date)}
-                    initialFocus
-                    locale={ru}
-                    captionLayout="dropdown-buttons"
-                    fromYear={1970}
-                    toYear={new Date().getFullYear() + 5}
-                    disabled={(date) => date > new Date(new Date().getFullYear() + 5, 0, 1)}
-                  />
+                  <div className="p-3 w-[280px] max-h-[300px] overflow-y-auto">
+                    <div className="grid grid-cols-4 gap-2">
+                      {Array.from(
+                        { length: new Date().getFullYear() + 5 - 1970 + 1 },
+                        (_, i) => new Date().getFullYear() + 5 - i,
+                      ).map((year) => {
+                        const isSelected =
+                          currentEducation.graduationDate &&
+                          currentEducation.graduationDate.getFullYear() === year;
+                        return (
+                          <Button
+                            key={year}
+                            variant={isSelected ? "default" : "outline"}
+                            className={cn(
+                              "h-9 w-full",
+                              isSelected && "bg-primary text-primary-foreground",
+                            )}
+                            onClick={() => {
+                              // Создаем новую дату с выбранным годом, сохраняя текущий месяц и день
+                              const currentDate = currentEducation.graduationDate || new Date();
+                              const newDate = new Date(
+                                year,
+                                currentDate.getMonth(),
+                                currentDate.getDate(),
+                              );
+                              handleInputChange("graduationDate", newDate);
+                              // Закрываем попап после выбора
+                              document.body.click(); // Простой способ закрыть Popover
+                            }}
+                          >
+                            {year}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </PopoverContent>
               </Popover>
               {errors.graduationDate && (

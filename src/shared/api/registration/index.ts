@@ -42,6 +42,7 @@ type RegistrationStep5Data = {
 
 type RegistrationResponse = {
   sessionId: string;
+  currentStep: number;
 };
 
 type AuthTokens = {

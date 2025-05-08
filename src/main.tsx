@@ -1,4 +1,4 @@
-import { RouterProvider } from "atomic-router-react";
+import { RouterProvider } from "@argon-router/react";
 import { allSettled, fork } from "effector";
 import { Provider } from "effector-react";
 import { createRoot } from "react-dom/client";

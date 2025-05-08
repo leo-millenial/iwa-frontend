@@ -1,7 +1,15 @@
+import { useUnit } from "effector-react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { ILanguage, IResume, LanguageLevel } from "@/shared/types/resume.interface.ts";
+import {
+  $languages,
+  addLanguage,
+  removeLanguage,
+  updateLanguage,
+} from "@/pages/jobseeker/resume/create/model.ts";
+
+import { ILanguage, LanguageLevel } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
@@ -11,35 +19,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { languageLevelLabels } from "./index.tsx";
 
 interface LanguagesTabProps {
-  resume: IResume;
-  setResume: React.Dispatch<React.SetStateAction<IResume>>;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTabProps) => {
-  const [currentLanguage, setCurrentLanguage] = useState<ILanguage>({
-    id: crypto.randomUUID(),
+export const LanguagesTab = ({ onNext, onPrev }: LanguagesTabProps) => {
+  const languages = useUnit($languages);
+  const addLanguageEvent = useUnit(addLanguage);
+  const updateLanguageEvent = useUnit(updateLanguage);
+  const removeLanguageEvent = useUnit(removeLanguage);
+
+  // Создаем временный объект для хранения текущего редактируемого языка
+  // Это нужно для отслеживания состояния формы, но не влияет на модель
+  const [currentLanguage, setCurrentLanguage] = useState<{
+    index: number | null;
+    name: string;
+    level: LanguageLevel;
+  }>({
+    index: null,
     name: "",
     level: LanguageLevel.Beginner,
   });
-  const [isEditing, setIsEditing] = useState(false);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const isEditing = currentLanguage.index !== null;
 
   // Обработчик добавления/обновления языка
   const handleAddLanguage = () => {
     // Валидация
     const newErrors: Record<string, string> = {};
-    if (!currentLanguage.name.trim()) {
+    if (!currentLanguage.name?.trim()) {
       newErrors.name = "Введите название языка";
     }
 
     // Проверка на дубликаты
     if (
       !isEditing &&
-      resume.languages?.some(
-        (lang) => lang.name.toLowerCase() === currentLanguage.name.toLowerCase(),
-      )
+      languages?.some((lang) => lang.name.toLowerCase() === currentLanguage.name.toLowerCase())
     ) {
       newErrors.name = "Этот язык уже добавлен";
     }
@@ -49,26 +65,37 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
       return;
     }
 
-    if (isEditing) {
-      // Обновление существующего языка
-      setResume((prev) => ({
-        ...prev,
-        languages: prev.languages?.map((lang) =>
-          lang.id === currentLanguage.id ? currentLanguage : lang,
-        ),
-      }));
-      setIsEditing(false);
+    if (isEditing && currentLanguage.index !== null) {
+      // Обновление существующего языка через модель
+      updateLanguageEvent({
+        index: currentLanguage.index,
+        field: "name",
+        value: currentLanguage.name,
+      });
+      updateLanguageEvent({
+        index: currentLanguage.index,
+        field: "level",
+        value: currentLanguage.level,
+      });
     } else {
-      // Добавление нового языка
-      setResume((prev) => ({
-        ...prev,
-        languages: [...(prev.languages || []), currentLanguage],
-      }));
+      // Добавление нового языка через модель
+      addLanguageEvent();
+      const newIndex = languages.length;
+      updateLanguageEvent({
+        index: newIndex,
+        field: "name",
+        value: currentLanguage.name,
+      });
+      updateLanguageEvent({
+        index: newIndex,
+        field: "level",
+        value: currentLanguage.level,
+      });
     }
 
     // Сброс формы
     setCurrentLanguage({
-      id: crypto.randomUUID(),
+      index: null,
       name: "",
       level: LanguageLevel.Beginner,
     });
@@ -76,26 +103,25 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
   };
 
   // Обработчик редактирования языка
-  const handleEditLanguage = (language: ILanguage) => {
-    setCurrentLanguage(language);
-    setIsEditing(true);
+  const handleEditLanguage = (language: ILanguage, index: number) => {
+    setCurrentLanguage({
+      index,
+      name: language.name,
+      level: language.level,
+    });
     setErrors({});
   };
 
   // Обработчик удаления языка
-  const handleDeleteLanguage = (id: string) => {
-    setResume((prev) => ({
-      ...prev,
-      languages: prev.languages?.filter((lang) => lang.id !== id),
-    }));
+  const handleDeleteLanguage = (index: number) => {
+    removeLanguageEvent(index);
 
-    if (isEditing && currentLanguage.id === id) {
+    if (isEditing && currentLanguage.index === index) {
       setCurrentLanguage({
-        id: crypto.randomUUID(),
+        index: null,
         name: "",
         level: LanguageLevel.Beginner,
       });
-      setIsEditing(false);
     }
   };
 
@@ -103,7 +129,7 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
   const handleNameChange = (value: string) => {
     setCurrentLanguage((prev) => ({
       ...prev,
-      plan: value,
+      name: value,
     }));
 
     // Очистка ошибки при изменении поля
@@ -134,13 +160,13 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Список добавленных языков */}
-        {resume.languages && resume.languages.length > 0 && (
+        {languages && languages.length > 0 && (
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Добавленные языки</h3>
             <div className="space-y-3">
-              {resume.languages.map((language) => (
+              {languages.map((language, index) => (
                 <div
-                  key={language.id}
+                  key={index}
                   className="flex items-center justify-between p-3 bg-muted rounded-lg"
                 >
                   <div>
@@ -154,7 +180,7 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleEditLanguage(language)}
+                      onClick={() => handleEditLanguage(language, index)}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -162,7 +188,7 @@ export const LanguagesTab = ({ resume, setResume, onNext, onPrev }: LanguagesTab
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteLanguage(language.id)}
+                      onClick={() => handleDeleteLanguage(index)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>

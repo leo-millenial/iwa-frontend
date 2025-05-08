@@ -1,17 +1,17 @@
 import { combine, createEvent, createStore, sample } from "effector";
 
 import { getCompanyByIdQuery, updateCompanyMutation } from "@/shared/api/company";
+import { fileUrlByFileId } from "@/shared/config";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import { ICompany } from "@/shared/types/company.interface.ts";
-import { UserRole } from "@/shared/types/user.interface.ts";
-import { $viewer, chainAuthenticated } from "@/shared/viewer";
+import { $viewer } from "@/shared/viewer";
 
 export const currentRoute = routes.company.profile;
 
-export const authenticatedRoute = chainAuthenticated(currentRoute, {
-  requiredRole: UserRole.Company,
-});
+// export const authenticatedRoute = chainAuthenticated(currentRoute, {
+//   requiredRole: UserRole.Company,
+// });
 
 // События (Events)
 export const editingStarted = createEvent();
@@ -111,7 +111,7 @@ export const $websiteUrl = createStore("")
 
 export const $logoUrl = createStore("")
   .on(logoUrlChanged, (_, url) => url)
-  .on(companyFieldChanged.logoFile, (_, fileId) => `/api/files/${fileId}`)
+  .on(companyFieldChanged.logoFile, (_, fileId) => fileUrlByFileId(fileId))
   .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.logoUrl ?? "")
   .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.logoUrl ?? "")
   .reset(editingCancelled);
@@ -150,7 +150,7 @@ export const $certificateUrls = createStore<string[]>([])
     newCertificates[index] = value;
     return newCertificates;
   })
-  .on(companyFieldChanged.certificateFile, (state, fileId) => [...state, `/api/files/${fileId}`])
+  .on(companyFieldChanged.certificateFile, (state, fileId) => [...state, fileUrlByFileId(fileId)])
   .on(
     updateCompanyMutation.finished.success,
     (_, { result }) => result?.company.certificateUrls ?? [],

@@ -1,6 +1,7 @@
 export enum UserRole {
   Company = "Company",
   Jobseeker = "Jobseeker",
+  Admin = "Admin",
 }
 
 export interface IUser {

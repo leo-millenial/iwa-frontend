@@ -1,26 +1,18 @@
+import { useUnit } from "effector-react";
 import { useState } from "react";
 
-import { LayoutJobseeker } from "@/layouts/jobseeker-layout.tsx";
-
-import { Gender, IResume, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
-import { EmploymentType } from "@/shared/types/vacancy.interface.ts";
+import { Gender, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
 
+import { $formError, $pending, submitForm } from "../model.ts";
 import { AdditionalInfoTab } from "./additional-info-tab";
 import { EducationTab } from "./education-tab";
 import { ExperienceTab } from "./experience-tab";
+import { FormError } from "./form-error";
 import { LanguagesTab } from "./languages-tab";
 import { PersonalInfoTab } from "./personal-info-tab";
 import { SkillsTab } from "./skills-tab";
-
-export const employmentTypeLabels = {
-  [EmploymentType.FullTime]: "Полная занятость",
-  [EmploymentType.PartTime]: "Частичная занятость",
-  [EmploymentType.Remote]: "Удаленная работа",
-  [EmploymentType.Office]: "Работа в офисе",
-  [EmploymentType.Hybrid]: "Гибридный формат",
-};
 
 export const genderLabels = {
   [Gender.Male]: "Мужской",
@@ -42,19 +34,15 @@ export const languageLevelLabels = {
 
 export const JobseekerResumeCreatePage = () => {
   const [activeTab, setActiveTab] = useState("personal");
-  const [resume, setResume] = useState<IResume>({
-    workExperience: [],
-    education: [],
-    skills: [],
-    languages: [],
-    certificates: [],
-  });
+
+  const [formError, pending] = useUnit([$formError, $pending]);
+
+  const handleSubmitForm = useUnit(submitForm);
 
   // Обработчик отправки формы
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Отправка резюме:", resume);
-    // Здесь будет логика отправки данных на сервер
+    handleSubmitForm();
   };
 
   // Функция для перехода к следующему табу
@@ -76,86 +64,66 @@ export const JobseekerResumeCreatePage = () => {
   };
 
   return (
-    <LayoutJobseeker>
-      <div className="container mx-auto py-6 max-w-4xl">
-        <h1 className="text-2xl font-bold mb-6">Создание резюме</h1>
+    <div className="container mx-auto py-6 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-6">Создание резюме</h1>
 
-        <form onSubmit={handleSubmit}>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid grid-cols-2 md:grid-cols-6 w-full">
-              <TabsTrigger value="personal">Основное</TabsTrigger>
-              <TabsTrigger value="experience">Опыт работы</TabsTrigger>
-              <TabsTrigger value="education">Образование</TabsTrigger>
-              <TabsTrigger value="skills">Навыки</TabsTrigger>
-              <TabsTrigger value="languages">Языки</TabsTrigger>
-              <TabsTrigger value="additional">Дополнительно</TabsTrigger>
-            </TabsList>
+      <form onSubmit={handleSubmit}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList className="grid grid-cols-2 md:grid-cols-6 w-full">
+            <TabsTrigger value="personal">Основное</TabsTrigger>
+            <TabsTrigger value="experience">Опыт работы</TabsTrigger>
+            <TabsTrigger value="education">Образование</TabsTrigger>
+            <TabsTrigger value="skills">Навыки</TabsTrigger>
+            <TabsTrigger value="languages">Языки</TabsTrigger>
+            <TabsTrigger value="additional">Дополнительно</TabsTrigger>
+          </TabsList>
 
-            {/* Основная информация */}
-            <TabsContent value="personal">
-              <PersonalInfoTab
-                resume={resume}
-                setResume={setResume}
-                onNext={() => goToNextTab("personal")}
-              />
-            </TabsContent>
+          {/* Основная информация */}
+          <TabsContent value="personal">
+            <PersonalInfoTab onNext={() => goToNextTab("personal")} />
+          </TabsContent>
+          {/* Опыт работы */}
+          <TabsContent value="experience">
+            <ExperienceTab
+              onNext={() => goToNextTab("experience")}
+              onPrev={() => goToPrevTab("experience")}
+            />
+          </TabsContent>
 
-            {/* Опыт работы */}
-            <TabsContent value="experience">
-              <ExperienceTab
-                resume={resume}
-                setResume={setResume}
-                onNext={() => goToNextTab("experience")}
-                onPrev={() => goToPrevTab("experience")}
-              />
-            </TabsContent>
+          {/* Образование */}
+          <TabsContent value="education">
+            <EducationTab
+              onNext={() => goToNextTab("education")}
+              onPrev={() => goToPrevTab("education")}
+            />
+          </TabsContent>
 
-            {/* Образование */}
-            <TabsContent value="education">
-              <EducationTab
-                resume={resume}
-                setResume={setResume}
-                onNext={() => goToNextTab("education")}
-                onPrev={() => goToPrevTab("education")}
-              />
-            </TabsContent>
+          {/* Навыки */}
+          <TabsContent value="skills">
+            <SkillsTab onNext={() => goToNextTab("skills")} onPrev={() => goToPrevTab("skills")} />
+          </TabsContent>
 
-            {/* Навыки */}
-            <TabsContent value="skills">
-              <SkillsTab
-                resume={resume}
-                setResume={setResume}
-                onNext={() => goToNextTab("skills")}
-                onPrev={() => goToPrevTab("skills")}
-              />
-            </TabsContent>
+          {/* Языки */}
+          <TabsContent value="languages">
+            <LanguagesTab
+              onNext={() => goToNextTab("languages")}
+              onPrev={() => goToPrevTab("languages")}
+            />
+          </TabsContent>
 
-            {/* Языки */}
-            <TabsContent value="languages">
-              <LanguagesTab
-                resume={resume}
-                setResume={setResume}
-                onNext={() => goToNextTab("languages")}
-                onPrev={() => goToPrevTab("languages")}
-              />
-            </TabsContent>
+          {/* Дополнительная информация */}
+          <TabsContent value="additional">
+            <AdditionalInfoTab onPrev={() => goToPrevTab("additional")} />
+          </TabsContent>
+        </Tabs>
 
-            {/* Дополнительная информация */}
-            <TabsContent value="additional">
-              <AdditionalInfoTab
-                resume={resume}
-                setResume={setResume}
-                onPrev={() => goToPrevTab("additional")}
-                onSubmit={handleSubmit}
-              />
-            </TabsContent>
-          </Tabs>
-
-          <div className="mt-8 flex justify-end">
-            <Button type="submit">Сохранить резюме</Button>
-          </div>
-        </form>
-      </div>
-    </LayoutJobseeker>
+        <div className="mt-8 flex justify-end items-center gap-4">
+          {formError && <FormError error={formError} />}
+          <Button disabled={pending} type="submit">
+            {pending ? "Сохранение..." : "Сохранить резюме"}
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };

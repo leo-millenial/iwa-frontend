@@ -19,8 +19,6 @@ import {
   skillsChanged,
 } from "@/pages/company/search/model.ts";
 
-import { LayoutCompany } from "@/layouts/company-layout.tsx";
-
 import { IResume } from "@/shared/types/resume.interface.ts";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -452,7 +450,7 @@ export const CompanySearchPage = () => {
   };
 
   return (
-    <LayoutCompany>
+    <>
       <div className="container mx-auto py-6 px-4">
         {/* Заголовок и поисковая строка */}
         <div className="flex flex-col items-center mb-8 gap-4">
@@ -560,6 +558,6 @@ export const CompanySearchPage = () => {
           <ChevronUp className="h-5 w-5" />
         </Button>
       )}
-    </LayoutCompany>
+    </>
   );
 };

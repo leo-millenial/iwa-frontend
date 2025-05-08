@@ -338,7 +338,11 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
                           <Calendar
+                            fromYear={1900}
+                            toYear={new Date().getFullYear()}
                             mode="single"
+                            locale={ru}
+                            captionLayout="dropdown-buttons"
                             selected={currentExperience.startDate || undefined}
                             onSelect={(date) => handleCurrentExperienceChanged({ startDate: date })}
                             initialFocus

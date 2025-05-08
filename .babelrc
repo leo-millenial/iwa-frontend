@@ -1,12 +1,11 @@
 {
   "presets": [
-    "patronum/babel-preset",
-    "atomic-router/babel-preset"
+    "patronum/babel-preset"
   ],
   "plugins": [
     ["effector/babel-plugin",
       {
-        "factories": ["patronum", "@withease/factories", "atomic-router"],
+        "factories": ["patronum", "@withease/factories"],
         "hmr": "es"
       }
     ]
@@ -16,7 +15,7 @@
       "plugins": [
         ["effector/babel-plugin",
           {
-            "factories": ["patronum", "@withease/factories", "atomic-router"],
+            "factories": ["patronum", "@withease/factories"],
             "hmr": "none"
           }
         ]

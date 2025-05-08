@@ -205,10 +205,10 @@ const Skills = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Отображение добавленных навыков в виде тегов */}
-        {skills.some((skill) => skill.name.trim()) && (
+        {skills.some((skill) => skill.name?.trim()) && (
           <div className="flex flex-wrap gap-2 mb-4">
             {skills
-              .filter((skill) => skill.name.trim())
+              .filter((skill) => skill.name?.trim())
               .map((skill, index) => (
                 <div
                   key={index}
@@ -292,7 +292,7 @@ const Skills = () => {
             variant="outline"
             onClick={() => handleAdd()}
             className="w-full mt-4"
-            disabled={!skills[skills.length - 1].name.trim()}
+            disabled={!skills[skills.length - 1].name?.trim()}
           >
             <PlusCircle className="mr-2 h-4 w-4" />
             Добавить навык
@@ -325,10 +325,10 @@ const Languages = () => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Отображение добавленных языков в виде тегов */}
-        {languages.some((language) => language.name.trim()) && (
+        {languages.some((language) => language.name?.trim()) && (
           <div className="flex flex-wrap gap-2 mb-4">
             {languages
-              .filter((language) => language.name.trim())
+              .filter((language) => language.name?.trim())
               .map((language, index) => (
                 <div
                   key={index}
@@ -412,7 +412,7 @@ const Languages = () => {
             variant="outline"
             onClick={() => handleAdd()}
             className="w-full mt-4"
-            disabled={!languages[languages.length - 1].name.trim()}
+            disabled={!languages[languages.length - 1].name?.trim()}
           >
             <PlusCircle className="mr-2 h-4 w-4" />
             Добавить язык

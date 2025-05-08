@@ -1,8 +1,6 @@
 import { useUnit } from "effector-react";
 import { Edit, MoreVertical, Trash2 } from "lucide-react";
 
-import { LayoutCompany } from "@/layouts/company-layout.tsx";
-
 import { DeleteVacancyDialog, deleteVacancyClicked } from "@/features/vacancy-delete";
 
 import { EmploymentType, Experience, ISalary } from "@/shared/types/vacancy.interface.ts";
@@ -103,37 +101,35 @@ export const CompanyVacancyViewPage = () => {
   // Если данные еще не загружены, показываем скелетон
   if (!vacancy) {
     return (
-      <LayoutCompany>
-        <div className="flex justify-center items-start py-8 px-4">
-          <div className="w-full max-w-3xl">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <Skeleton className="h-8 w-64 mb-2" />
-                <Skeleton className="h-4 w-40" />
-              </div>
-              <Skeleton className="h-9 w-32" />
+      <div className="flex justify-center items-start py-8 px-4">
+        <div className="w-full max-w-3xl">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <Skeleton className="h-8 w-64 mb-2" />
+              <Skeleton className="h-4 w-40" />
             </div>
-            <Card className="mb-6">
-              <CardContent className="p-4">
-                <Skeleton className="h-16 w-full" />
-              </CardContent>
-            </Card>
-            <Card className="mb-6">
-              <CardHeader>
-                <Skeleton className="h-6 w-48" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-24 w-full" />
-              </CardContent>
-            </Card>
+            <Skeleton className="h-9 w-32" />
           </div>
+          <Card className="mb-6">
+            <CardContent className="p-4">
+              <Skeleton className="h-16 w-full" />
+            </CardContent>
+          </Card>
+          <Card className="mb-6">
+            <CardHeader>
+              <Skeleton className="h-6 w-48" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-24 w-full" />
+            </CardContent>
+          </Card>
         </div>
-      </LayoutCompany>
+      </div>
     );
   }
 
   return (
-    <LayoutCompany>
+    <>
       <div className="flex justify-center items-start py-8 px-4">
         <div className="w-full max-w-3xl">
           {/* Заголовок и действия */}
@@ -231,6 +227,6 @@ export const CompanyVacancyViewPage = () => {
       </div>
 
       <DeleteVacancyDialog />
-    </LayoutCompany>
+    </>
   );
 };

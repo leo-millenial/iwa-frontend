@@ -1,144 +1,92 @@
-import { RouteInstance, UnmappedRouteObject, createRoute } from "atomic-router";
+import { createRoute } from "@argon-router/core";
 
 export const routes = {
-  home: createRoute(),
-  help: createRoute(),
-  resume: createRoute<{ resumeId: string }>(),
+  home: createRoute({ path: "/" }),
+  help: createRoute({ path: "/help" }),
+  resume: createRoute({ path: "/resume/:resumeId" }),
 
   auth: {
-    signIn: createRoute(),
-    finish: createRoute(),
-    registration: createRoute(),
+    signIn: createRoute({ path: "/auth/sign-in" }),
+    finish: createRoute({ path: "/auth/finish" }),
+    registration: createRoute({ path: "/auth/registration" }),
     registrationFlow: {
-      fullName: createRoute(),
-      phone: createRoute(),
-      confirmPhone: createRoute(),
+      fullName: createRoute({ path: "/auth/registration/full-name" }),
+      phone: createRoute({ path: "/auth/registration/phone" }),
+      confirmPhone: createRoute({ path: "/auth/registration/confirm-phone" }),
 
       jobseeker: {
-        profile: createRoute(),
-        experience: createRoute(),
-        about: createRoute(),
+        profile: createRoute({ path: "/auth/registration/jobseeker/profile" }),
+        experience: createRoute({ path: "/auth/registration/jobseeker/experience" }),
+        about: createRoute({ path: "/auth/registration/jobseeker/about" }),
       },
 
       company: {
-        about: createRoute(),
+        about: createRoute({ path: "/auth/registration/company/about" }),
       },
     },
   },
 
   company: {
-    search: createRoute<{ companyId: string }>(),
-    vacancies: createRoute<{ companyId: string }>(),
-    subscription: createRoute<{ companyId: string }>(),
-    profile: createRoute<{ companyId: string }>(),
+    search: createRoute({ path: "/company/:companyId" }),
+    vacancies: createRoute({ path: "/company/:companyId/vacancies" }),
+    subscription: createRoute({ path: "/company/:companyId/subscription" }),
+    profile: createRoute({ path: "/company/:companyId/profile" }),
 
     vacancy: {
-      create: createRoute<{ companyId: string }>(),
-      view: createRoute<{ companyId: string; vacancyId: string }>(),
-      edit: createRoute<{ companyId: string; vacancyId: string }>(),
+      create: createRoute({ path: "/company/:companyId/vacancy-create" }),
+      view: createRoute({ path: "/company/:companyId/vacancy/:vacancyId" }),
+      edit: createRoute({ path: "/company/:companyId/vacancy/:vacancyId/edit" }),
     },
   },
 
   jobseeker: {
-    search: createRoute<{ jobseekerId: string }>(),
+    search: createRoute({ path: "/jobseeker/:jobseekerId" }),
+    profile: createRoute({ path: "/jobseeker/:jobseekerId/profile" }),
     resume: {
-      create: createRoute<{ jobseekerId: string }>(),
-      view: createRoute<{ jobseekerId: string; resumeId: string }>(),
-      edit: createRoute<{ jobseekerId: string; resumeId: string }>(),
+      create: createRoute({ path: "/jobseeker/:jobseekerId/resume-create" }),
+      view: createRoute({ path: "/jobseeker/:jobseekerId/resume/:resumeId" }),
+      edit: createRoute({ path: "/jobseeker/:jobseekerId/resume/:resumeId/edit" }),
     },
   },
 };
 
-export const notFoundRoute = createRoute();
+export const notFoundRoute = createRoute({ path: "*" });
 
-export const routesMap: UnmappedRouteObject<object>[] = [
-  /* Not Auth routes */
-  { path: "/", route: routes.home },
-  {
-    path: "/help",
-    route: routes.help as RouteInstance<object>,
-  },
-  /* Auth */
-  { path: "/auth/sign-in", route: routes.auth.signIn },
-  { path: "/auth/finish", route: routes.auth.finish },
-  { path: "/auth/registration", route: routes.auth.registration },
-  {
-    path: "/auth/registration/fullname",
-    route: routes.auth.registrationFlow.fullName,
-  },
-  {
-    path: "/auth/registration/phone",
-    route: routes.auth.registrationFlow.phone,
-  },
-  {
-    path: "/auth/registration/confirm-phone",
-    route: routes.auth.registrationFlow.confirmPhone,
-  },
-  {
-    path: "/auth/registration/jobseeker/profile",
-    route: routes.auth.registrationFlow.jobseeker.profile,
-  },
-  {
-    path: "/auth/registration/jobseeker/experience",
-    route: routes.auth.registrationFlow.jobseeker.experience,
-  },
-  {
-    path: "/auth/registration/jobseeker/about",
-    route: routes.auth.registrationFlow.jobseeker.about,
-  },
-  {
-    path: "/auth/registration/company/about",
-    route: routes.auth.registrationFlow.company.about,
-  },
-  {
-    path: "/resume/:resumeId",
-    route: routes.resume as RouteInstance<object>,
-  },
-  /* Auth routes */
+export const routesMap = [
+  routes.home,
+  routes.help,
+  routes.resume,
+
+  /*Auth routes */
+  routes.auth.signIn,
+  routes.auth.finish,
+  routes.auth.registration,
+  routes.auth.registrationFlow.fullName,
+  routes.auth.registrationFlow.phone,
+  routes.auth.registrationFlow.confirmPhone,
+
+  routes.auth.registrationFlow.jobseeker.profile,
+  routes.auth.registrationFlow.jobseeker.experience,
+  routes.auth.registrationFlow.jobseeker.about,
+
+  routes.auth.registrationFlow.company.about,
+
   /* Company routes */
-  {
-    path: "/company/:companyId",
-    route: routes.company.search as RouteInstance<object>,
-  },
-  {
-    path: "/company/:companyId/vacancies",
-    route: routes.company.vacancies as RouteInstance<object>,
-  },
-  {
-    path: "/company/:companyId/subscription",
-    route: routes.company.subscription as RouteInstance<object>,
-  },
-  {
-    path: "/company/:companyId/vacancy-create",
-    route: routes.company.vacancy.create as RouteInstance<object>,
-  },
-  {
-    path: "/company/:companyId/vacancy/:vacancyId",
-    route: routes.company.vacancy.view as RouteInstance<object>,
-  },
-  {
-    path: "/company/:companyId/vacancy/:vacancyId/edit",
-    route: routes.company.vacancy.edit as RouteInstance<object>,
-  },
-  {
-    path: "/company/:companyId/profile",
-    route: routes.company.profile as RouteInstance<object>,
-  },
+  routes.company.search,
+  routes.company.vacancies,
+  routes.company.subscription,
+  routes.company.profile,
+  routes.company.vacancy.create,
+  routes.company.vacancy.view,
+  routes.company.vacancy.edit,
+
   /* Jobseeker routes */
-  {
-    path: "/jobseeker/:jobseekerId",
-    route: routes.jobseeker.search as RouteInstance<object>,
-  },
-  {
-    path: "/jobseeker/:jobseekerId/resume/create",
-    route: routes.jobseeker.resume.create as RouteInstance<object>,
-  },
-  {
-    path: "/jobseeker/:jobseekerId/resume/:resumeId",
-    route: routes.jobseeker.resume.view as RouteInstance<object>,
-  },
-  {
-    path: "/jobseeker/:jobseekerId/resume/:resumeId/edit",
-    route: routes.jobseeker.resume.edit as RouteInstance<object>,
-  },
+  routes.jobseeker.search,
+  routes.jobseeker.profile,
+  routes.jobseeker.resume.create,
+  routes.jobseeker.resume.view,
+  routes.jobseeker.resume.edit,
+
+  /* END ROUTE */
+  notFoundRoute,
 ];

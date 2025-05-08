@@ -1,17 +1,18 @@
 import { arr, num, obj, or, str, val } from "@withease/contracts";
 
 const incomeContract = obj({
-  amount: str,
+  amount: or(str, num), // Изменено: поддержка как строки, так и числа
   currency: str,
 });
 
 const fullNameContract = obj({
   firstName: str,
   lastName: str,
-  middleName: or(str, val(null), val(undefined)),
+  patronymic: or(str, val(null), val(undefined)), // Изменено: patronymic вместо middleName
 });
 
 const educationContract = obj({
+  id: or(str, val(null), val(undefined)), // Добавлено: id для образования
   university: str,
   faculty: str,
   degree: str,
@@ -19,21 +20,27 @@ const educationContract = obj({
 });
 
 const skillContract = obj({
+  id: or(str, val(null), val(undefined)), // Добавлено: id для навыка
   name: str,
   level: str,
 });
 
 const languageContract = obj({
+  id: or(str, val(null), val(undefined)), // Добавлено: id для языка
   name: str,
   level: str,
+  plan: or(str, val(null), val(undefined)), // Добавлено: план
 });
 
 const workExperienceContract = obj({
+  id: or(str, val(null), val(undefined)), // Добавлено: id для опыта работы
   company: str,
   position: str,
+  employmentType: or(str, val(null), val(undefined)), // Добавлено: тип занятости
   startDate: str,
   endDate: or(str, val(null), val(undefined)),
   description: or(str, val(null), val(undefined)),
+  responsibilitiesDescription: or(str, val(null), val(undefined)), // Добавлено: описание обязанностей
 });
 
 const resumeContract = obj({
@@ -52,6 +59,10 @@ const resumeContract = obj({
   aboutMe: or(str, val(null), val(undefined)),
   languages: or(arr(languageContract), val(null), val(undefined)),
   certificates: or(arr(str), val(null), val(undefined)),
+  photo: or(str, val(null), val(undefined)), // Добавлено: фото
+  video: or(str, val(null), val(undefined)), // Добавлено: видео
+  createdAt: or(str, val(null), val(undefined)), // Добавлено: дата создания
+  updatedAt: or(str, val(null), val(undefined)), // Добавлено: дата обновления
 });
 
 const jobseekerContract = obj({
