@@ -63,7 +63,6 @@ export const emailChanged = createEvent<string>();
 export const phoneChanged = createEvent<string>();
 export const cityChanged = createEvent<string>();
 export const aboutMeChanged = createEvent<string>();
-export const jobseekerIdChanged = createEvent<string>();
 export const incomeAmountChanged = createEvent<number>();
 export const incomeCurrencyChanged = createEvent<string>();
 
@@ -499,6 +498,7 @@ sample({
 sample({
   clock: createResumeMutation.$succeeded,
   source: { jobseekerId: $jobseekerId },
+  fn: ({ jobseekerId }) => ({ params: { jobseekerId } }),
   target: routes.jobseeker.search.open,
 });
 

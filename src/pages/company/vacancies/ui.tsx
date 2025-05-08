@@ -3,8 +3,6 @@ import { PlusCircle } from "lucide-react";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { LayoutCompany } from "@/layouts/company-layout.tsx";
-
 import { DeleteVacancyDialog, deleteVacancyClicked } from "@/features/vacancy-delete";
 
 import { EmploymentType, ISalary, IVacancy } from "@/shared/types/vacancy.interface.ts";
@@ -187,7 +185,7 @@ export const CompanyVacanciesPage = () => {
   };
 
   return (
-    <LayoutCompany>
+    <>
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Вакансии</h1>
@@ -227,6 +225,6 @@ export const CompanyVacanciesPage = () => {
       </div>
 
       <DeleteVacancyDialog />
-    </LayoutCompany>
+    </>
   );
 };

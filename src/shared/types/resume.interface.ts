@@ -91,4 +91,5 @@ export interface ResumeSearchParams {
   salaryMin?: number;
   salaryMax?: number;
   skills?: string;
+  jobseekerId?: string;
 }

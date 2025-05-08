@@ -14,6 +14,7 @@ const getResumeListFx = createEffect<
 
   // Добавляем параметры в URL, если они определены
   if (params) {
+    if (params.jobseekerId) url.searchParams.append("jobseekerId", params.jobseekerId);
     if (params.query) url.searchParams.append("query", params.query);
     if (params.city) url.searchParams.append("city", params.city);
     if (params.experience) url.searchParams.append("experience", params.experience);

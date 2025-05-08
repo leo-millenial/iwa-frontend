@@ -22,8 +22,6 @@ import {
   titleChanged,
 } from "@/pages/company/vacancy/edit/model";
 
-import { LayoutCompany } from "@/layouts/company-layout.tsx";
-
 import { EmploymentType, Experience } from "@/shared/types/vacancy.interface";
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent } from "@/shared/ui/card.tsx";
@@ -116,176 +114,172 @@ export const CompanyVacancyEditPage = () => {
   // Если данные загружаются, показываем индикатор загрузки
   if (pending && !title) {
     return (
-      <LayoutCompany>
-        <div className="flex justify-center items-center h-full py-20">
-          <div className="flex flex-col items-center">
-            <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Загрузка данных вакансии...</p>
-          </div>
+      <div className="flex justify-center items-center h-full py-20">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+          <p className="text-muted-foreground">Загрузка данных вакансии...</p>
         </div>
-      </LayoutCompany>
+      </div>
     );
   }
 
   return (
-    <LayoutCompany>
-      <div className="flex justify-center items-start py-8 px-4">
-        <div className="w-full max-w-3xl bg-white/50 backdrop-blur-sm rounded-lg p-6 shadow-sm">
-          <div className="flex items-center mb-6">
-            <h1 className="text-2xl font-bold">Редактирование вакансии</h1>
-          </div>
-
-          {/*{error && (*/}
-          {/*  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">*/}
-          {/*    {error}*/}
-          {/*  </div>*/}
-          {/*)}*/}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Основная информация */}
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Название вакансии</Label>
-                    <Input
-                      id="title"
-                      name="title"
-                      value={title}
-                      onChange={handleTitleChange}
-                      placeholder="Например: Frontend-разработчик (React)"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Город</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={city}
-                      onChange={handleCityChange}
-                      placeholder="Например: Москва"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="experience">Требуемый опыт</Label>
-                    <Select value={experience} onValueChange={handleExperienceChange}>
-                      <SelectTrigger id="experience">
-                        <SelectValue placeholder="Выберите требуемый опыт" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(experienceLabels).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Тип занятости</Label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {Object.entries(employmentTypeLabels).map(([value, label]) => (
-                        <div key={value} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`employment-${value}`}
-                            checked={employmentTypes.includes(value as EmploymentType)}
-                            onCheckedChange={() =>
-                              handleEmploymentTypeToggle(value as EmploymentType)
-                            }
-                          />
-                          <Label htmlFor={`employment-${value}`} className="font-normal">
-                            {label}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Зарплата</Label>
-                    <div className="grid grid-cols-12 gap-2">
-                      <div className="col-span-5">
-                        <Input
-                          type="number"
-                          placeholder="От"
-                          value={salaryMin}
-                          onChange={handleSalaryMinChange}
-                        />
-                      </div>
-                      <div className="col-span-5">
-                        <Input
-                          type="number"
-                          placeholder="До"
-                          value={salaryMax}
-                          onChange={handleSalaryMaxChange}
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <Select value={currency} onValueChange={handleCurrencyChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="₽" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {currencies.map((curr) => (
-                              <SelectItem key={curr.value} value={curr.value}>
-                                {curr.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Описание вакансии</Label>
-                    <Textarea
-                      id="description"
-                      value={description}
-                      onChange={handleDescriptionChange}
-                      placeholder="Опишите требования, обязанности и условия работы"
-                      className="min-h-[200px]"
-                    />
-                  </div>
-
-                  {/*<div className="space-y-2">*/}
-                  {/*  <Label htmlFor="skills">Требуемые навыки</Label>*/}
-                  {/*  <Textarea*/}
-                  {/*    id="skills"*/}
-                  {/*    value={skills}*/}
-                  {/*    onChange={handleSkillsChange}*/}
-                  {/*    placeholder="Перечислите необходимые навыки и технологии"*/}
-                  {/*    className="min-h-[100px]"*/}
-                  {/*  />*/}
-                  {/*  <p className="text-xs text-muted-foreground">*/}
-                  {/*    Укажите ключевые навыки и технологии, необходимые для этой позиции. Каждый*/}
-                  {/*    навык с новой строки.*/}
-                  {/*  </p>*/}
-                  {/*</div>*/}
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="flex justify-end space-x-4">
-              <Button type="submit" disabled={pending}>
-                {pending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Сохранение...
-                  </>
-                ) : (
-                  "Сохранить изменения"
-                )}
-              </Button>
-            </div>
-          </form>
+    <div className="flex justify-center items-start py-8 px-4">
+      <div className="w-full max-w-3xl bg-white/50 backdrop-blur-sm rounded-lg p-6 shadow-sm">
+        <div className="flex items-center mb-6">
+          <h1 className="text-2xl font-bold">Редактирование вакансии</h1>
         </div>
+
+        {/*{error && (*/}
+        {/*  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">*/}
+        {/*    {error}*/}
+        {/*  </div>*/}
+        {/*)}*/}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Основная информация */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Название вакансии</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    value={title}
+                    onChange={handleTitleChange}
+                    placeholder="Например: Frontend-разработчик (React)"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="city">Город</Label>
+                  <Input
+                    id="city"
+                    name="city"
+                    value={city}
+                    onChange={handleCityChange}
+                    placeholder="Например: Москва"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="experience">Требуемый опыт</Label>
+                  <Select value={experience} onValueChange={handleExperienceChange}>
+                    <SelectTrigger id="experience">
+                      <SelectValue placeholder="Выберите требуемый опыт" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(experienceLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Тип занятости</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {Object.entries(employmentTypeLabels).map(([value, label]) => (
+                      <div key={value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`employment-${value}`}
+                          checked={employmentTypes.includes(value as EmploymentType)}
+                          onCheckedChange={() =>
+                            handleEmploymentTypeToggle(value as EmploymentType)
+                          }
+                        />
+                        <Label htmlFor={`employment-${value}`} className="font-normal">
+                          {label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Зарплата</Label>
+                  <div className="grid grid-cols-12 gap-2">
+                    <div className="col-span-5">
+                      <Input
+                        type="number"
+                        placeholder="От"
+                        value={salaryMin}
+                        onChange={handleSalaryMinChange}
+                      />
+                    </div>
+                    <div className="col-span-5">
+                      <Input
+                        type="number"
+                        placeholder="До"
+                        value={salaryMax}
+                        onChange={handleSalaryMaxChange}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Select value={currency} onValueChange={handleCurrencyChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="₽" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {currencies.map((curr) => (
+                            <SelectItem key={curr.value} value={curr.value}>
+                              {curr.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Описание вакансии</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={handleDescriptionChange}
+                    placeholder="Опишите требования, обязанности и условия работы"
+                    className="min-h-[200px]"
+                  />
+                </div>
+
+                {/*<div className="space-y-2">*/}
+                {/*  <Label htmlFor="skills">Требуемые навыки</Label>*/}
+                {/*  <Textarea*/}
+                {/*    id="skills"*/}
+                {/*    value={skills}*/}
+                {/*    onChange={handleSkillsChange}*/}
+                {/*    placeholder="Перечислите необходимые навыки и технологии"*/}
+                {/*    className="min-h-[100px]"*/}
+                {/*  />*/}
+                {/*  <p className="text-xs text-muted-foreground">*/}
+                {/*    Укажите ключевые навыки и технологии, необходимые для этой позиции. Каждый*/}
+                {/*    навык с новой строки.*/}
+                {/*  </p>*/}
+                {/*</div>*/}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end space-x-4">
+            <Button type="submit" disabled={pending}>
+              {pending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Сохранение...
+                </>
+              ) : (
+                "Сохранить изменения"
+              )}
+            </Button>
+          </div>
+        </form>
       </div>
-    </LayoutCompany>
+    </div>
   );
 };
