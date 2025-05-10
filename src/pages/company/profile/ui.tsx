@@ -2,13 +2,14 @@ import { useUnit } from "effector-react";
 import { Edit, Loader2, PlusCircle, Save, Trash2, X } from "lucide-react";
 
 import { UploadPhoto } from "@/features/upload/";
+import { UploadDocuments } from "@/features/upload/documents/ui";
 
 import { CompanyProfileView } from "@/entities/company/profile/view/ui.tsx";
 
 import { FileType } from "@/shared/types/file.interface";
 import { UserRole } from "@/shared/types/user.interface";
 import { Button } from "@/shared/ui/button.tsx";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
 import { Input } from "@/shared/ui/input.tsx";
 import { Label } from "@/shared/ui/label.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs.tsx";
@@ -34,13 +35,9 @@ import {
   brandAdded,
   brandRemoved,
   brandUpdated,
-  certificateAdded,
   certificateRemoved,
-  certificateUpdated,
   companyFieldChanged,
-  documentAdded,
   documentRemoved,
-  documentUpdated,
   editingCancelled,
   editingStarted,
   formSubmitted,
@@ -75,12 +72,8 @@ const CompanyProfileEdit = () => {
     handleBrandAdd,
     handleBrandRemove,
     handleBrandUpdate,
-    handleCertificateAdd,
     handleCertificateRemove,
-    handleCertificateUpdate,
-    handleDocumentAdd,
     handleDocumentRemove,
-    handleDocumentUpdate,
     handleLogoFileUploaded,
     handleCertificateFileUploaded,
     handleDocumentFileUploaded,
@@ -111,12 +104,8 @@ const CompanyProfileEdit = () => {
     brandAdded,
     brandRemoved,
     brandUpdated,
-    certificateAdded,
     certificateRemoved,
-    certificateUpdated,
-    documentAdded,
     documentRemoved,
-    documentUpdated,
     companyFieldChanged.logoFile,
     companyFieldChanged.certificateFile,
     companyFieldChanged.documentFile,
@@ -154,9 +143,9 @@ const CompanyProfileEdit = () => {
           <TabsTrigger value="general" disabled={pending}>
             Основная информация
           </TabsTrigger>
-          {/*<TabsTrigger value="media" disabled={pending}>*/}
-          {/*  Медиа и документы*/}
-          {/*</TabsTrigger>*/}
+          <TabsTrigger value="media" disabled={pending}>
+            Медиа и документы
+          </TabsTrigger>
         </TabsList>
 
         {/* Вкладка с основной информацией */}
@@ -360,125 +349,61 @@ const CompanyProfileEdit = () => {
         {/* Вкладка с медиа и документами */}
         <TabsContent value="media">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Сертификаты */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Сертификаты</CardTitle>
-                <CardDescription>
-                  Добавьте сертификаты, лицензии и другие документы, подтверждающие квалификацию
-                  вашей компании
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {certificateUrls?.map((url, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={url}
-                      onChange={(e) =>
-                        handleCertificateUpdate({
-                          index,
-                          value: e.target.value,
-                        })
-                      }
-                      placeholder="URL сертификата"
-                      disabled={pending}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleCertificateRemove(index)}
-                      disabled={pending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <div className="flex flex-col gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCertificateAdd}
-                    className="w-full"
-                    disabled={pending}
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Добавить URL сертификата
-                  </Button>
+            {/* Сертификаты - заменяем на UploadDocuments */}
+            <UploadDocuments
+              entityId={viewer?.company?._id ?? ""}
+              entityType={UserRole.Company}
+              fileType={FileType.CERTIFICATE}
+              title="Сертификаты компании"
+              initialFiles={certificateUrls?.map((url, index) => ({
+                id: `cert-${index}`,
+                name: `Сертификат ${index + 1}`,
+                url,
+                size: 0,
+                type: "image/jpeg",
+              }))}
+              onSuccess={(files) => {
+                files.forEach((file) => {
+                  handleCertificateFileUploaded(file.url);
+                });
+              }}
+              onDelete={(fileId) => {
+                const index = certificateUrls?.findIndex((_, idx) => `cert-${idx}` === fileId);
+                if (index !== undefined && index >= 0) {
+                  handleCertificateRemove(index);
+                }
+              }}
+              disabled={pending}
+              className="md:col-span-1"
+            />
 
-                  <div className="text-sm text-muted-foreground mb-2">или загрузите файл:</div>
-
-                  <UploadPhoto
-                    entityType={UserRole.Company}
-                    fileType={FileType.CERTIFICATE}
-                    onSuccess={handleCertificateFileUploaded}
-                    className="w-full"
-                    disabled={pending}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Документы */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Документы</CardTitle>
-                <CardDescription>
-                  Добавьте документы, которые могут быть полезны для соискателей (презентации,
-                  брошюры и т.д.)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {documentUrls?.map((url, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={url}
-                      onChange={(e) =>
-                        handleDocumentUpdate({
-                          index,
-                          value: e.target.value,
-                        })
-                      }
-                      placeholder="URL документа"
-                      disabled={pending}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDocumentRemove(index)}
-                      disabled={pending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                <div className="flex flex-col gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDocumentAdd}
-                    className="w-full"
-                    disabled={pending}
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Добавить URL документа
-                  </Button>
-
-                  <div className="text-sm text-muted-foreground mb-2">или загрузите файл:</div>
-
-                  <UploadPhoto
-                    entityType={UserRole.Company}
-                    fileType={FileType.DOCUMENT}
-                    onSuccess={handleDocumentFileUploaded}
-                    className="w-full"
-                    disabled={pending}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            {/* Документы - заменяем на UploadDocuments */}
+            <UploadDocuments
+              entityId={viewer?.company?._id ?? ""}
+              entityType={UserRole.Company}
+              fileType={FileType.DOCUMENT}
+              title="Документы компании"
+              initialFiles={documentUrls?.map((url, index) => ({
+                id: `doc-${index}`,
+                name: `Документ ${index + 1}`,
+                url,
+                size: 0,
+                type: "application/pdf",
+              }))}
+              onSuccess={(files) => {
+                files.forEach((file) => {
+                  handleDocumentFileUploaded(file.url);
+                });
+              }}
+              onDelete={(fileId) => {
+                const index = documentUrls?.findIndex((_, idx) => `doc-${idx}` === fileId);
+                if (index !== undefined && index >= 0) {
+                  handleDocumentRemove(index);
+                }
+              }}
+              disabled={pending}
+              className="md:col-span-1"
+            />
           </div>
         </TabsContent>
       </Tabs>
@@ -486,35 +411,32 @@ const CompanyProfileEdit = () => {
   );
 };
 
-// Основной компонент страницы профиля компании
 export const CompanyProfilePage = () => {
-  const [isEditing, pending, handleEditStart] = useUnit([$isEditing, $pending, editingStarted]);
-
-  const company = useUnit($company);
-
-  // Загружаем данные компании при монтировании компонента
+  const [company, isEditing, handleStartEditing] = useUnit([$company, $isEditing, editingStarted]);
 
   if (isEditing) {
     return <CompanyProfileEdit />;
+  }
+
+  if (!company) {
+    return (
+      <div className="container mx-auto py-6 px-4 flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto py-6 px-4 max-w-6xl">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Профиль компании</h1>
-        <Button onClick={handleEditStart} disabled={pending}>
+        <Button onClick={handleStartEditing}>
           <Edit className="mr-2 h-4 w-4" />
           Редактировать
         </Button>
       </div>
 
-      {company ? (
-        <CompanyProfileView company={company} />
-      ) : (
-        <div className="flex items-center justify-center p-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      )}
+      <CompanyProfileView company={company} />
     </div>
   );
 };
