@@ -4,6 +4,8 @@ import { ru } from "date-fns/locale";
 import { useUnit } from "effector-react";
 import { CalendarIcon, Loader2, PlusCircle, Save, Trash2 } from "lucide-react";
 
+import { ResumeStatusSelect } from "@/entities/resume";
+
 import { Gender, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface";
 import { EmploymentType } from "@/shared/types/vacancy.interface";
 import { Button } from "@/shared/ui/button";
@@ -40,6 +42,7 @@ export const JobseekerResumeEditPage = () => {
     languages,
     pending,
     activeTab,
+    status,
   ] = useUnit([
     model.$position,
     model.$firstName,
@@ -59,6 +62,7 @@ export const JobseekerResumeEditPage = () => {
     model.$languages,
     model.$pending,
     model.$activeTab,
+    model.$status,
   ]);
 
   const [
@@ -88,6 +92,7 @@ export const JobseekerResumeEditPage = () => {
     handleSubmit,
     handleActiveTabChange,
     handleBirthdayChange,
+    handleStatusChange,
   ] = useUnit([
     model.positionChanged,
     model.firstNameChanged,
@@ -115,6 +120,7 @@ export const JobseekerResumeEditPage = () => {
     model.formSubmitted,
     model.activeTabChanged,
     model.birthdayChanged,
+    model.statusChanged,
   ]);
 
   if (pending) {
@@ -197,6 +203,16 @@ export const JobseekerResumeEditPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="resume-status"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Статус
+                  </label>
+                  <ResumeStatusSelect value={status} onChange={handleStatusChange} />
                 </div>
               </div>
             </CardContent>

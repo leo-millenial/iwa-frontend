@@ -13,6 +13,7 @@ import {
   IWorkExperience,
   Income,
   LanguageLevel,
+  ResumeStatus,
   SkillLevel,
 } from "@/shared/types/resume.interface";
 import { EmploymentType } from "@/shared/types/vacancy.interface";
@@ -28,6 +29,7 @@ export const authenticatedRoute = chainAuthenticated(routes.jobseeker.resume.edi
 export const formSubmitted = createEvent();
 
 // События для основной информации
+export const statusChanged = createEvent<ResumeStatus>();
 export const positionChanged = createEvent<string>();
 export const photoChanged = createEvent<string>();
 export const videoChanged = createEvent<string>();
@@ -94,6 +96,7 @@ export const updateCertificate = createEvent<{
 export const removeCertificate = createEvent<number>();
 
 // Сторы для формы
+export const $status = createStore<ResumeStatus>(ResumeStatus.ActivelySearching);
 export const $resumeId = currentRoute.$params.map((params) => params.resumeId || "");
 export const $position = createStore<string>("");
 export const $photo = createStore<string>("");
@@ -125,6 +128,11 @@ export const $jobseekerId = $viewer.map((viewer) => viewer?.jobseeker?._id ?? ""
 export const $pending = or(updateResumeMutation.$pending, getResumeByIdQuery.$pending);
 
 // Привязка событий к сторам
+$status
+  .on(statusChanged, (_, status) => status)
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.status)
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.status);
+
 $position
   .on(positionChanged, (_, position) => position)
   .on(getResumeByIdQuery.finished.success, (_, { result }) => result.position)
@@ -339,6 +347,7 @@ export const $income = combine($incomeAmount, $incomeCurrency, (amount, currency
 // Комбинированный стор для формирования данных формы
 export const $formData = combine({
   id: $resumeId,
+  status: $status,
   jobseekerId: $jobseekerId,
   position: $position,
   photo: $photo,
@@ -377,13 +386,12 @@ sample({
   target: showSuccessToast,
 });
 
-// Переход на страницу просмотра после успешного обновления
-// sample({
-//   clock: updateResumeMutation.$succeeded,
-//   source: currentRoute.$params,
-//   fn: ({ resumeId, jobseekerId }) => ({ params: { resumeId, jobseekerId } }),
-//   target: routes.jobseeker.resume.view.open,
-// });
+sample({
+  clock: updateResumeMutation.$succeeded,
+  source: currentRoute.$params,
+  fn: ({ resumeId, jobseekerId }) => ({ params: { resumeId, jobseekerId } }),
+  target: routes.jobseeker.resume.view.open,
+});
 
 // Обработка ошибки обновления
 sample({

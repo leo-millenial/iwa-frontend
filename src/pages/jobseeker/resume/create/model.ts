@@ -12,34 +12,14 @@ import {
   ILanguage,
   ISkill,
   IWorkExperience,
-  Income,
   LanguageLevel,
+  ResumeStatus,
   SkillLevel,
 } from "@/shared/types/resume.interface";
 import { EmploymentType } from "@/shared/types/vacancy.interface";
 import { $viewer } from "@/shared/viewer";
 
 export const currentRoute = routes.jobseeker.resume.create;
-
-export interface ResumeForm {
-  photoUrl: string;
-  videoUrl: string;
-  jobseekerId: string;
-  position: string;
-  income?: Income;
-  fullName?: IFullName;
-  gender?: Gender;
-  birthday?: Date;
-  email: string;
-  phone: string;
-  city: string;
-  workExperience: IWorkExperience[];
-  education: IEducation[];
-  skills: ISkill[];
-  aboutMe: string;
-  certificates: CertificateUrl[];
-  languages: ILanguage[];
-}
 
 export type ResumeCreateFormError =
   | null
@@ -55,6 +35,7 @@ export type ResumeCreateFormError =
   | "INVALID_POSITION"
   | "INVALID_SALARY";
 
+export const statusChanged = createEvent<ResumeStatus>();
 export const positionChanged = createEvent<string>();
 export const genderChanged = createEvent<Gender>();
 export const birthdayChanged = createEvent<Date | null>();
@@ -64,6 +45,7 @@ export const cityChanged = createEvent<string>();
 export const aboutMeChanged = createEvent<string>();
 export const incomeAmountChanged = createEvent<number>();
 export const incomeCurrencyChanged = createEvent<string>();
+const $photo = $viewer.map((viewer) => viewer?.jobseeker?.profile?.photoUrl ?? "");
 
 export const updateFullName = createEvent<{ field: keyof IFullName; value: string }>();
 
@@ -128,6 +110,10 @@ export const $video = createStore<string>("")
   .reset(resetForm);
 
 export const $jobseekerId = $viewer.map((viewer) => viewer?.jobseeker?._id ?? "");
+
+export const $status = createStore<ResumeStatus>(ResumeStatus.ActivelySearching)
+  .on(statusChanged, (_, status) => status)
+  .reset(resetForm);
 
 export const $position = createStore<string>("")
   .on(positionChanged, (_, value) => value)
@@ -275,6 +261,8 @@ export const $fullName = combine(
 // Объединяем все сторы в один общий стор формы
 export const $resumeForm = combine({
   jobseekerId: $jobseekerId,
+  status: $status,
+  photo: $photo,
   photoUrl: $photoUrl,
   videoUrl: $video,
   position: $position,
