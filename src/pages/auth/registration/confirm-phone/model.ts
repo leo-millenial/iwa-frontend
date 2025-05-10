@@ -54,6 +54,7 @@ export const initSendSms = createEvent<string>();
 
 // Запускаем отправку SMS при открытии страницы
 sample({
+  // @ts-expect-error
   clock: currentRoute.opened,
   source: $sessionId,
   filter: Boolean,
@@ -145,6 +146,7 @@ sample({
 
 // Подготавливаем данные для повторной отправки SMS
 sample({
+  // @ts-expect-error
   clock: sendSmsAgainClicked,
   source: $sessionId,
   filter: and($sessionId, $canResend),

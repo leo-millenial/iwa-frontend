@@ -185,6 +185,7 @@ const $companyDto = combine(
 );
 
 sample({
+  // @ts-expect-error
   clock: saveClicked,
   source: { sessionId: $sessionId, company: $companyDto },
   filter: $formValid,

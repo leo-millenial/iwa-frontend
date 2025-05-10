@@ -195,10 +195,11 @@ export const $workExperience = createStore<IWorkExperience[]>([])
   .on(removeWorkExperience, (state, index) => state.filter((_, i) => i !== index))
   .reset(resetForm);
 
-export const $education = createStore<IEducation[]>([])
+export const $education = createStore<(IEducation & { id: string })[]>([])
   .on(addEducation, (state) => [
     ...state,
     {
+      id: crypto.randomUUID(),
       university: "",
       faculty: "",
       degree: "",
@@ -274,8 +275,8 @@ export const $fullName = combine(
 // Объединяем все сторы в один общий стор формы
 export const $resumeForm = combine({
   jobseekerId: $jobseekerId,
-  photo: $photoUrl,
-  video: $video,
+  photoUrl: $photoUrl,
+  videoUrl: $video,
   position: $position,
   income: $income,
   fullName: $fullName,
@@ -354,18 +355,18 @@ export const $formValid = combine(
   $birthDateValid,
   $salaryValid,
   (
-    positionValid,
-    fullNameValid,
-    emailValid,
-    phoneValid,
-    cityValid,
-    workExperienceValid,
-    educationsValid,
-    skillsValid,
-    languagesValid,
-    aboutMeValid,
-    birthDateValid,
-    salaryValid,
+    positionValid: boolean,
+    fullNameValid: boolean,
+    emailValid: boolean,
+    phoneValid: boolean,
+    cityValid: boolean,
+    workExperienceValid: boolean,
+    educationsValid: boolean,
+    skillsValid: boolean,
+    languagesValid: boolean,
+    aboutMeValid: boolean,
+    birthDateValid: boolean,
+    salaryValid: boolean,
   ) =>
     positionValid &&
     fullNameValid &&
@@ -477,6 +478,7 @@ sample({
 
 // Отправляем форму, если она валидна
 sample({
+  // @ts-expect-error
   clock: submitForm,
   filter: $formValid,
   source: $resumeForm,

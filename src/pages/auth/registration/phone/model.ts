@@ -29,6 +29,7 @@ sample({
 });
 
 sample({
+  // @ts-expect-error
   clock: nextClicked,
   source: { phone: $normalizedPhone, sessionId: $sessionId },
   filter: $canProceed,

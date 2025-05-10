@@ -411,7 +411,6 @@ export const CompanySearchPage = () => {
 
   const [handleSearchChange, handleResetFilters] = useUnit([searchChanged, resetFilters]);
 
-  const [setIsMobileFiltersOpen] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   // Подсчет активных фильтров
@@ -478,12 +477,7 @@ export const CompanySearchPage = () => {
 
           {/* Кнопка фильтров для мобильных */}
           <div className="md:hidden">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={() => setIsMobileFiltersOpen(true)}
-            >
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
               <Filter className="h-4 w-4" />
               <span>Фильтры</span>
               {activeFiltersCount > 0 && (
@@ -498,7 +492,7 @@ export const CompanySearchPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Фильтры для десктопа */}
           <div className="hidden lg:block">
-            <DesktopFilters activeFiltersCount={activeFiltersCount} resetFilters={resetFilters} />
+            <DesktopFilters />
           </div>
 
           {/* Список соискателей */}

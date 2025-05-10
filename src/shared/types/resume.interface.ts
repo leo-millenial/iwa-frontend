@@ -62,6 +62,8 @@ export interface IWorkExperience {
 
 export interface IResume {
   _id: string;
+  photo?: string;
+  video?: string;
   jobseekerId: string;
   position: string;
   income: Income;

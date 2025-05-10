@@ -96,14 +96,14 @@ export const $educations = createStore<IEducation[]>([
 
 export const $skills = createStore<ISkill[]>([
   {
-    plan: "",
+    name: "",
     level: SkillLevel.Beginner,
   },
 ]);
 
 export const $languages = createStore<ILanguage[]>([
   {
-    plan: "",
+    name: "",
     level: LanguageLevel.Beginner,
   },
 ]);
@@ -158,7 +158,7 @@ $educations
 
 $skills
   .on(skillsChanged, (_, skills) => skills)
-  .on(skillAdded, (state) => [...state, { plan: "", level: SkillLevel.Beginner }])
+  .on(skillAdded, (state) => [...state, { name: "", level: SkillLevel.Beginner }])
   .on(skillRemoved, (state, index) => state.filter((_, i) => i !== index))
   .on(skillFieldChanged, (state, { index, field, value }) => {
     const newState = [...state];
@@ -168,7 +168,7 @@ $skills
 
 $languages
   .on(languagesChanged, (_, languages) => languages)
-  .on(languageAdded, (state) => [...state, { plan: "", level: LanguageLevel.Beginner }])
+  .on(languageAdded, (state) => [...state, { name: "", level: LanguageLevel.Beginner }])
   .on(languageRemoved, (state, index) => state.filter((_, i) => i !== index))
   .on(languageFieldChanged, (state, { index, field, value }) => {
     const newState = [...state];
@@ -294,6 +294,7 @@ sample({
 });
 
 sample({
+  // @ts-expect-error
   clock: formSubmitted,
   source: { sessionId: $sessionId, jobseeker: $jobseekerDto },
   filter: $formIsValid,

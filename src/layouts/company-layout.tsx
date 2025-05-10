@@ -33,7 +33,6 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   // Получаем данные компании из viewer.company
   const companyName = viewer.company.name || "";
   const companyId = viewer.company._id || "";
-  const userId = viewer.company?.userId || "";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -66,7 +65,6 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
             </Link>
             <Link
               to={routes.help}
-              params={{ viewerId: userId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Помощь
