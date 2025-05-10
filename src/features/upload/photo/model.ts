@@ -5,18 +5,26 @@ import { uploadFileMutation } from "@/shared/api/file";
 import { FileType } from "@/shared/types/file.interface";
 import { UserRole } from "@/shared/types/user.interface";
 
+// Обновленный интерфейс для соответствия реальному ответу сервера
+interface UploadFileResult {
+  success?: boolean;
+  fileId?: string;
+  url?: string;
+  [key: string]: unknown;
+}
+
 export type UploadPhotoProps = {
   entityId?: string;
   entityType: UserRole;
   fileType: FileType;
-  onSuccess?: (fileId: string) => void;
+  onSuccess?: (fileUrl: string) => void;
 };
 
 const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   const photoSelected = createEvent<File | null>();
   const uploadRequested = createEvent();
   const uploadReset = createEvent();
-  const uploadSuccess = createEvent<{ fileId: string; url: string }>();
+  const uploadSuccess = createEvent<{ url: string }>();
   const uploadFailed = createEvent<Error>();
   const setEntityParams = createEvent<Omit<UploadPhotoProps, "onSuccess">>();
   const setIsUploading = createEvent<boolean>();
@@ -42,13 +50,15 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
     .on(photoSelected, (_, file) => (file ? URL.createObjectURL(file) : null))
     .reset(uploadReset);
 
-  const $uploadResult = createStore<{ fileId: string; url: string } | null>(null)
+  const $uploadResult = createStore<{ url: string } | null>(null)
     .on(uploadSuccess, (_, result) => result)
     .reset(uploadReset);
 
   // Эффект для очистки URL объекта
   const revokeObjectUrlFx = createEffect<string, void>((url) => {
-    URL.revokeObjectURL(url);
+    if (url.startsWith("blob:")) {
+      URL.revokeObjectURL(url);
+    }
   });
 
   // Автоматически запускаем загрузку при выборе файла
@@ -62,7 +72,7 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   const uploadStarted = sample({
     source: { photo: $selectedPhoto, params: $entityParams },
     clock: uploadRequested,
-    filter: ({ photo }) => photo !== null,
+    filter: ({ photo, params }) => photo !== null && !!params.entityId,
     fn: ({ photo, params }) => ({
       file: photo as File,
       entityId: params.entityId,
@@ -88,14 +98,28 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   sample({
     clock: uploadFileMutation.finished.success,
     fn: ({ result }) => {
-      if (!result || !result.fileId) {
+      if (!result) {
         throw new Error("Не удалось загрузить файл");
       }
 
-      // Формируем URL для доступа к файлу
-      const fileUrl = `/api/files/${result.fileId}`;
+      // Приводим результат к нужному типу
+      const fileResult = result as UploadFileResult;
+      console.log("Получен ответ от сервера:", fileResult);
 
-      return { fileId: result.fileId, url: fileUrl };
+      // Проверяем успешность операции
+      if (fileResult.success === false) {
+        throw new Error("Ошибка при загрузке файла на сервер");
+      }
+
+      // Используем URL из ответа сервера
+      const url = fileResult.url;
+
+      if (!url) {
+        throw new Error("Не удалось получить URL файла");
+      }
+
+      // Сохраняем результат
+      return { url };
     },
     target: uploadSuccess,
   });
@@ -117,14 +141,14 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   // Вызываем колбэк при успешной загрузке
   sample({
     clock: uploadSuccess,
-    fn: (result) => result.fileId,
+    fn: (result) => result.url,
     target: callOnSuccess,
   });
 
   // Если предоставлен колбэк onSuccess, вызываем его
   if (props?.onSuccess) {
-    callOnSuccess.watch((fileId) => {
-      props.onSuccess?.(fileId);
+    callOnSuccess.watch((url) => {
+      props.onSuccess?.(url);
     });
   }
 
@@ -132,7 +156,7 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   sample({
     source: $previewUrl,
     clock: [uploadReset, photoSelected],
-    filter: (prevUrl): prevUrl is string => prevUrl !== null,
+    filter: (prevUrl): prevUrl is string => prevUrl !== null && prevUrl.startsWith("blob:"),
     target: revokeObjectUrlFx,
   });
 

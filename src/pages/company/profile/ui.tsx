@@ -184,7 +184,7 @@ const CompanyProfileEdit = () => {
                   <UploadPhoto
                     entityId={viewer?.company?._id}
                     entityType={UserRole.Company}
-                    fileType={FileType.Logo}
+                    fileType={FileType.LOGO}
                     onSuccess={handleLogoFileUploaded}
                     className="mb-4"
                     disabled={pending}
@@ -411,7 +411,7 @@ const CompanyProfileEdit = () => {
 
                   <UploadPhoto
                     entityType={UserRole.Company}
-                    fileType={FileType.Certificate}
+                    fileType={FileType.CERTIFICATE}
                     onSuccess={handleCertificateFileUploaded}
                     className="w-full"
                     disabled={pending}
@@ -471,7 +471,7 @@ const CompanyProfileEdit = () => {
 
                   <UploadPhoto
                     entityType={UserRole.Company}
-                    fileType={FileType.Document}
+                    fileType={FileType.DOCUMENT}
                     onSuccess={handleDocumentFileUploaded}
                     className="w-full"
                     disabled={pending}

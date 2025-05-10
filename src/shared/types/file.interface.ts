@@ -1,8 +1,20 @@
+import { UserRole } from "@/shared/types/user.interface.ts";
+
 export enum FileType {
-  Logo = "logo",
-  Photo = "photo",
-  Video = "video",
-  Resume = "resume",
-  Certificate = "certificate",
-  Document = "document",
+  PHOTO = "photo",
+  VIDEO = "video",
+  DOCUMENT = "document",
+  LOGO = "logo",
+  CERTIFICATE = "certificate",
+}
+
+export type FileField = "photoUrl" | "logoUrl" | "certificateUrls" | "documentUrls" | "videoUrl";
+
+export interface IFile {
+  url: string;
+  fileType: FileType;
+  fileName: string;
+  size: number;
+  entityType: UserRole;
+  entityId: string;
 }

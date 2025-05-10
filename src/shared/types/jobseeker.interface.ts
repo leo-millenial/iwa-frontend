@@ -2,8 +2,8 @@ import { Gender, IFullName, IResume, Income } from "@/shared/types/resume.interf
 import { IUser } from "@/shared/types/user.interface.ts";
 
 export interface IJobseekerProfile {
-  photo?: string;
-  video?: string;
+  photoUrl?: string; // ссылка на фотографию
+  videoUrl?: string; // ссылка на видео
   position?: string;
   income: Income;
   fullName: IFullName;
@@ -11,11 +11,8 @@ export interface IJobseekerProfile {
   gender: Gender;
   birthday: Date;
   region: string;
-}
-
-export interface JobseekerRegistrationDto {
-  profile: IJobseekerProfile;
-  resumes: IResume[];
+  documentUrls?: string[]; // ссылки на документы
+  certificateUrls?: string[]; // ссылки на сертификаты
 }
 
 export interface IJobseeker {
@@ -23,6 +20,9 @@ export interface IJobseeker {
   profile: IJobseekerProfile;
   userId?: IUser["_id"];
   resumes: IResume[];
-  documentFileIds?: string[];
-  certificateFileIds?: string[];
+}
+
+export interface JobseekerRegistrationDto {
+  profile: IJobseekerProfile;
+  resumes: IResume[];
 }

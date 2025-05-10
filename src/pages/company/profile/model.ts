@@ -111,7 +111,7 @@ export const $websiteUrl = createStore("")
 
 export const $logoUrl = createStore("")
   .on(logoUrlChanged, (_, url) => url)
-  .on(companyFieldChanged.logoFile, (_, fileId) => fileUrlByFileId(fileId))
+  .on(companyFieldChanged.logoFile, (_, logoUrl) => logoUrl)
   .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.logoUrl ?? "")
   .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.logoUrl ?? "")
   .reset(editingCancelled);
