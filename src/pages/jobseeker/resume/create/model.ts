@@ -499,7 +499,7 @@ sample({
   clock: createResumeMutation.$succeeded,
   source: { jobseekerId: $jobseekerId },
   fn: ({ jobseekerId }) => ({ params: { jobseekerId } }),
-  target: routes.jobseeker.search.open,
+  target: routes.jobseeker.profile.open,
 });
 
 sample({

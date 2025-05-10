@@ -43,7 +43,7 @@ sample({
   source: getMeQuery.finished.success,
   filter: ({ result }) => result.user?.role === UserRole.Jobseeker && Boolean(result.jobseeker),
   fn: ({ result }) => ({ params: { jobseekerId: result.jobseeker!._id } }),
-  target: routes.jobseeker.search.open,
+  target: routes.jobseeker.profile.open,
 });
 
 sample({
@@ -51,7 +51,7 @@ sample({
   source: getMeQuery.finished.success,
   filter: ({ result }) => result.user?.role === UserRole.Company && Boolean(result.company),
   fn: ({ result }) => ({ params: { companyId: result.company!._id } }),
-  target: routes.company.search.open,
+  target: routes.company.profile.open,
 });
 
 sample({

@@ -150,7 +150,7 @@ export const JobseekerProfilePage = () => {
                 {photoUrl ? (
                   <img
                     src={photoUrl}
-                    alt={`Фото ${viewer?.jobseeker?.profile.fullName.firstName || "профиля"}`}
+                    alt={`Фото ${viewer?.jobseeker?.profile?.fullName?.firstName || "профиля"}`}
                     className="w-full h-full object-cover"
                   />
                 ) : (

@@ -30,11 +30,11 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">
             <Link
-              to={routes.jobseeker.search}
+              to={routes.jobseeker.profile}
               params={{ jobseekerId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
-              Вакансии
+              Профиль
             </Link>
             <Link
               to={routes.help}
