@@ -13,6 +13,7 @@ import {
   $income,
   $phone,
   $position,
+  $status,
   birthdayChanged,
   cityChanged,
   emailChanged,
@@ -21,9 +22,12 @@ import {
   incomeCurrencyChanged,
   phoneChanged,
   positionChanged,
+  statusChanged,
   updateFullName,
 } from "@/pages/jobseeker/resume/create/model.ts";
 import { genderLabels } from "@/pages/jobseeker/resume/create/ui/index.tsx";
+
+import { ResumeStatusSelect } from "@/entities/resume";
 
 import { Gender } from "@/shared/types/resume.interface.ts";
 import { Button } from "@/shared/ui/button";
@@ -49,6 +53,7 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     city,
     fullName,
     income,
+    status,
     handlePositionChange,
     handleGenderChange,
     handleBirthdayChange,
@@ -58,6 +63,7 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     handleUpdateFullName,
     handleIncomeAmountChange,
     handleIncomeCurrencyChange,
+    handleStatusChange,
   ] = useUnit([
     $position,
     $gender,
@@ -67,6 +73,7 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     $city,
     $fullName,
     $income,
+    $status,
     positionChanged,
     genderChanged,
     birthdayChanged,
@@ -76,6 +83,7 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     updateFullName,
     incomeAmountChanged,
     incomeCurrencyChanged,
+    statusChanged,
   ]);
 
   return (
@@ -85,6 +93,12 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
         <CardDescription>Заполните основную информацию о себе для создания резюме</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div>
+          <label htmlFor="resume-status" className="block text-sm font-medium text-gray-700">
+            Статус
+          </label>
+          <ResumeStatusSelect value={status} onChange={handleStatusChange} />
+        </div>
         {/* Фото профиля */}
         {/*<div className="flex flex-col items-center space-y-4">*/}
         {/*  <Avatar className="h-32 w-32">*/}

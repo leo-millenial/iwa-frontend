@@ -1,6 +1,5 @@
 import { createFactory } from "@withease/factories";
 import { createEffect, createEvent, createStore, sample } from "effector";
-import { debounce } from "patronum/debounce";
 
 import { uploadFileMutation } from "@/shared/api/file";
 import { FileType } from "@/shared/types/file.interface";
@@ -31,14 +30,8 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   const setIsUploading = createEvent<boolean>();
   const callOnSuccess = createEvent<string>();
 
-  // Дебаунс для события выбора файла, чтобы избежать множественных вызовов
-  const photoSelectedDebounced = debounce({
-    source: photoSelected,
-    timeout: 300,
-  });
-
   const $selectedPhoto = createStore<File | null>(null)
-    .on(photoSelectedDebounced, (_, file) => file)
+    .on(photoSelected, (_, file) => file)
     .reset(uploadReset);
 
   const $entityParams = createStore<Omit<UploadPhotoProps, "onSuccess">>(
@@ -51,20 +44,15 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
 
   const $uploadError = createStore<string | null>(null)
     .on(uploadFailed, (_, error) => error.message)
-    .reset([photoSelectedDebounced, uploadReset]);
+    .reset([photoSelected, uploadReset]);
 
   const $previewUrl = createStore<string | null>(null)
-    .on(photoSelectedDebounced, (_, file) => (file ? URL.createObjectURL(file) : null))
+    .on(photoSelected, (_, file) => (file ? URL.createObjectURL(file) : null))
     .reset(uploadReset);
 
   const $uploadResult = createStore<{ url: string } | null>(null)
     .on(uploadSuccess, (_, result) => result)
     .reset(uploadReset);
-
-  // Флаг для отслеживания процесса загрузки
-  const $uploadInProgress = createStore(false)
-    .on(uploadRequested, () => true)
-    .reset([uploadSuccess, uploadFailed, uploadReset]);
 
   // Эффект для очистки URL объекта
   const revokeObjectUrlFx = createEffect<string, void>((url) => {
@@ -82,9 +70,9 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
 
   // Логика загрузки файла
   const uploadStarted = sample({
-    source: { photo: $selectedPhoto, params: $entityParams, inProgress: $uploadInProgress },
+    source: { photo: $selectedPhoto, params: $entityParams },
     clock: uploadRequested,
-    filter: ({ photo, params, inProgress }) => photo !== null && !!params.entityId && !inProgress,
+    filter: ({ photo, params }) => photo !== null && !!params.entityId,
     fn: ({ photo, params }) => ({
       file: photo as File,
       entityId: params.entityId,
@@ -109,10 +97,6 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   // Обрабатываем успешную загрузку
   sample({
     clock: uploadFileMutation.finished.success,
-    filter: (response) => {
-      // Проверяем, что результат существует и не был уже обработан
-      return !!response.result;
-    },
     fn: ({ result }) => {
       if (!result) {
         throw new Error("Не удалось загрузить файл");
@@ -120,6 +104,7 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
 
       // Приводим результат к нужному типу
       const fileResult = result as UploadFileResult;
+      console.log("Получен ответ от сервера:", fileResult);
 
       // Проверяем успешность операции
       if (fileResult.success === false) {
@@ -153,12 +138,6 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
     target: setIsUploading,
   });
 
-  // Сбрасываем выбранный файл после успешной загрузки
-  sample({
-    clock: uploadSuccess,
-    target: uploadReset,
-  });
-
   // Вызываем колбэк при успешной загрузке
   sample({
     clock: uploadSuccess,
@@ -176,7 +155,7 @@ const uploadPhotoFactory = createFactory((props: UploadPhotoProps) => {
   // Очистка URL объекта при сбросе превью
   sample({
     source: $previewUrl,
-    clock: [uploadReset, photoSelectedDebounced],
+    clock: [uploadReset, photoSelected],
     filter: (prevUrl): prevUrl is string => prevUrl !== null && prevUrl.startsWith("blob:"),
     target: revokeObjectUrlFx,
   });

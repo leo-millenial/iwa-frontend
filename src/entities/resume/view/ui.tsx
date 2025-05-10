@@ -2,6 +2,8 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Calendar, FileText, Globe, GraduationCap, Mail, MapPin, Phone } from "lucide-react";
 
+import { ResumeStatusBadge } from "@/entities/resume";
+
 import { IFullName, IResume, LanguageLevel, SkillLevel } from "@/shared/types/resume.interface.ts";
 import { EmploymentType } from "@/shared/types/vacancy.interface.ts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
@@ -88,6 +90,9 @@ export const ResumeView = ({ resume }: { resume: IResume }) => {
                 </Avatar>
                 <h2 className="text-xl font-bold">{formatFullName(resume.fullName)}</h2>
                 <p className="text-muted-foreground">{resume.position}</p>
+
+                {/* Статус резюме */}
+                <ResumeStatusBadge status={resume.status} />
 
                 {resume.income && (
                   <Badge variant="outline" className="mt-2">

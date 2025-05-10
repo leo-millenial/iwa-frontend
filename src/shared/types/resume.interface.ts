@@ -59,6 +59,12 @@ export interface IWorkExperience {
   website?: string; // сбер.ru
   responsibilitiesDescription: string; // Комментарий. делал то да сё
 }
+export enum ResumeStatus {
+  ActivelySearching = "ActivelySearching", // Активно ищу работу
+  NotSearching = "NotSearching", // Не ищу работу
+  OpenToOffers = "OpenToOffers", // Готов к предложениям
+  Hidden = "Hidden", // Закрыть от просмотра
+}
 
 export interface IResume {
   _id: string;
@@ -81,6 +87,7 @@ export interface IResume {
   languages?: ILanguage[];
   createdAt?: Date | null;
   updatedAt?: Date | null;
+  status: ResumeStatus;
 }
 
 export interface ResumeSearchParams {
