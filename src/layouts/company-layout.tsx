@@ -1,6 +1,6 @@
 import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
-import { LogOut, MessageSquare, Plus, Search, User } from "lucide-react";
+import { LogOut, MessageSquare, Plus, User } from "lucide-react";
 
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button";
@@ -84,9 +84,9 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
           </Link>
 
           {/* Иконки */}
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Search className="h-5 w-5" />
-          </Button>
+          {/*<Button variant="ghost" size="icon" className="rounded-full">*/}
+          {/*  <Search className="h-5 w-5" />*/}
+          {/*</Button>*/}
 
           <Button variant="ghost" size="icon" className="rounded-full">
             <MessageSquare className="h-5 w-5" />
