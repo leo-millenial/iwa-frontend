@@ -67,7 +67,7 @@ const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number
         <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-10">
           <div className="rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
             <img
-              // src={resume?.avatarUrl}
+              src={resume?.photo}
               alt={resume.fullName.firstName}
               className="h-20 w-20 object-cover"
             />

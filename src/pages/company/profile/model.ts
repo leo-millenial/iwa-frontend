@@ -137,6 +137,7 @@ export const $brands = createStore<string[]>([])
   .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.brands ?? [])
   .reset(editingCancelled);
 
+// Обновляем логику для $certificateUrls
 export const $certificateUrls = createStore<string[]>([])
   .on(certificateAdded, (state) => [...state, ""])
   .on(certificateRemoved, (state, index) => {
@@ -149,7 +150,12 @@ export const $certificateUrls = createStore<string[]>([])
     newCertificates[index] = value;
     return newCertificates;
   })
-  .on(companyFieldChanged.certificateFile, (state, fileUrl) => [...state, fileUrl])
+  .on(companyFieldChanged.certificateFile, (state, fileUrl) => {
+    if (state.includes(fileUrl)) {
+      return state;
+    }
+    return [...state, fileUrl];
+  })
   .on(
     updateCompanyMutation.finished.success,
     (_, { result }) => result?.company.certificateUrls ?? [],
@@ -157,6 +163,7 @@ export const $certificateUrls = createStore<string[]>([])
   .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.certificateUrls ?? [])
   .reset(editingCancelled);
 
+// Обновляем логику для $documentUrls
 export const $documentUrls = createStore<string[]>([])
   .on(documentAdded, (state) => [...state, ""])
   .on(documentRemoved, (state, index) => {
@@ -169,10 +176,77 @@ export const $documentUrls = createStore<string[]>([])
     newDocuments[index] = value;
     return newDocuments;
   })
-  .on(companyFieldChanged.documentFile, (state, fileId) => [...state, `/api/files/${fileId}`])
+  .on(companyFieldChanged.documentFile, (state, fileUrl) => {
+    if (state.includes(fileUrl)) {
+      return state;
+    }
+    return [...state, fileUrl];
+  })
   .on(updateCompanyMutation.finished.success, (_, { result }) => result?.company.documentUrls ?? [])
   .on(getCompanyByIdQuery.finished.success, (_, { result }) => result?.documentUrls ?? [])
   .reset(editingCancelled);
+
+// Добавляем стор для хранения оригинальных значений всех полей компании
+export const $originalCompanyForm = createStore<{
+  name: string;
+  region: string;
+  city: string;
+  inn: number;
+  phone: string;
+  employeesCount: number;
+  websiteUrl: string;
+  description: string;
+  brands: string[];
+  certificateUrls: string[];
+  documentUrls: string[];
+  logoUrl: string;
+}>({
+  name: "",
+  region: "",
+  city: "",
+  inn: 0,
+  phone: "",
+  employeesCount: 0,
+  websiteUrl: "",
+  description: "",
+  brands: [],
+  certificateUrls: [],
+  documentUrls: [],
+  logoUrl: "",
+}).on(getCompanyByIdQuery.finished.success, (_, { result }) => ({
+  name: result?.name ?? "",
+  region: result?.region ?? "",
+  city: result?.city ?? "",
+  inn: result?.inn ?? 0,
+  phone: result?.phone ?? "",
+  employeesCount: result?.employeesCount ?? 0,
+  websiteUrl: result?.websiteUrl ?? "",
+  description: result?.description ?? "",
+  brands: result?.brands ?? [],
+  certificateUrls: result?.certificateUrls ?? [],
+  documentUrls: result?.documentUrls ?? [],
+  logoUrl: result?.logoUrl ?? "",
+}));
+
+// Сохраняем оригинальные значения при начале редактирования
+sample({
+  // @ts-expect-error
+  clock: editingStarted,
+  source: $company,
+  filter: Boolean,
+  target: $originalCompanyForm,
+});
+
+// Добавляем обработчик для отправки запроса при отмене редактирования
+sample({
+  clock: editingCancelled,
+  source: {
+    id: $companyId,
+    data: $originalCompanyForm,
+  },
+  filter: ({ id }) => Boolean(id),
+  target: updateCompanyMutation.start,
+});
 
 // Стор для отслеживания состояния редактирования
 export const $isEditing = createStore(false)
@@ -180,6 +254,7 @@ export const $isEditing = createStore(false)
   .on(editingCancelled, () => false)
   .on(updateCompanyMutation.finished.success, () => false);
 
+// Объединяем все поля формы в один стор
 export const $companyForm = combine({
   name: $name,
   region: $region,
@@ -197,6 +272,10 @@ export const $companyForm = combine({
 
 // Стор для отслеживания состояния загрузки
 export const $pending = updateCompanyMutation.$pending;
+export const $requestSource = createStore<"save" | "cancel" | null>(null)
+  .on(formSubmitted, () => "save")
+  .on(editingCancelled, () => "cancel")
+  .reset(updateCompanyMutation.$finished);
 
 // Загрузка данных компании при открытии страницы
 sample({

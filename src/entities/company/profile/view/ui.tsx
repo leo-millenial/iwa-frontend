@@ -11,7 +11,7 @@ export const CompanyProfileView = ({ company }: { company: ICompany }) => {
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="general">Основная информация</TabsTrigger>
-          {/*<TabsTrigger value="media">Медиа и документы</TabsTrigger>*/}
+          <TabsTrigger value="media">Медиа и документы</TabsTrigger>
         </TabsList>
 
         {/* Вкладка с основной информацией */}
