@@ -1,9 +1,13 @@
 import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
-import { Briefcase, Edit, Eye, Plus, Trash2 } from "lucide-react";
+import { Briefcase, Edit, Eye, Plus, Trash2, User } from "lucide-react";
+
+import { UploadPhoto } from "@/features/upload";
 
 import { routes } from "@/shared/routing";
+import { FileType } from "@/shared/types/file.interface.ts";
 import { IResume } from "@/shared/types/resume.interface.ts";
+import { UserRole } from "@/shared/types/user.interface.ts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,12 +27,13 @@ import {
   $error,
   $isDeleteDialogOpen,
   $isLoading,
-  $resumeToDelete,
+  $photoUrl,
   $resumes,
   cancelDeleteClicked,
   confirmDeleteClicked,
   deleteResumeClicked,
   editResumeClicked,
+  photoUploaded,
   resumeCardClicked,
 } from "./model.ts";
 
@@ -106,30 +111,75 @@ export const JobseekerProfilePage = () => {
     isLoading,
     error,
     isDeleteDialogOpen,
-    resumeToDelete,
+    photoUrl,
     handleResumeCardClick,
     handleEditResumeClick,
     handleDeleteResumeClick,
     handleConfirmDelete,
     handleCancelDelete,
+    handlePhotoUploaded,
   ] = useUnit([
     $resumes,
     $isLoading,
     $error,
     $isDeleteDialogOpen,
-    $resumeToDelete,
+    $photoUrl,
     resumeCardClicked,
     editResumeClicked,
     deleteResumeClicked,
     confirmDeleteClicked,
     cancelDeleteClicked,
+    photoUploaded,
   ]);
 
   return (
     <>
       <div className="container py-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Мои резюме</h1>
+          <h1 className="text-2xl font-bold">Мой профиль</h1>
+        </div>
+
+        {/* Карточка с фотографией профиля */}
+        <div className="mb-8 max-w-md">
+          <Card>
+            <CardHeader>
+              <CardTitle>Фотография профиля</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="w-40 h-40 rounded-full overflow-hidden mb-4 bg-muted flex items-center justify-center">
+                {photoUrl ? (
+                  <img
+                    src={photoUrl}
+                    alt={`Фото ${viewer?.jobseeker?.profile.fullName.firstName || "профиля"}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-muted-foreground text-center p-4 flex flex-col items-center justify-center h-full">
+                    <User className="h-12 w-12 mb-2" />
+                    <span>Нет фото</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="w-full">
+                <UploadPhoto
+                  entityId={jobseekerId}
+                  entityType={UserRole.Jobseeker}
+                  fileType={FileType.PHOTO}
+                  onSuccess={handlePhotoUploaded}
+                  className="mb-4"
+                />
+
+                <div className="text-xs text-muted-foreground mt-2 text-center">
+                  Рекомендуемый размер: 400x400 пикселей
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Мои резюме</h2>
           <Button asChild>
             <Link to={routes.jobseeker.resume.create} params={{ jobseekerId }}>
               <Plus className="h-4 w-4 mr-2" /> Создать резюме

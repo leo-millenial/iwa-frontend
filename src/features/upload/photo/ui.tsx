@@ -54,9 +54,6 @@ export const UploadPhoto = (props: UploadPhotoComponentProps) => {
     }
   };
 
-  // Для отладки
-  console.log("Состояние компонента:", { isUploading, uploadError, previewUrl, uploadResult });
-
   return (
     <div className={cn("flex flex-col items-center", props.className)}>
       <input
