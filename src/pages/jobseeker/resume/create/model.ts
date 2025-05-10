@@ -2,7 +2,6 @@ import { combine, createEffect, createEvent, createStore, sample } from "effecto
 import { reset } from "patronum";
 
 import { createResumeMutation } from "@/shared/api/resume";
-import { fileUrlByFileId } from "@/shared/config";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import {
@@ -23,8 +22,8 @@ import { $viewer } from "@/shared/viewer";
 export const currentRoute = routes.jobseeker.resume.create;
 
 export interface ResumeForm {
-  photo: string;
-  video: string;
+  photoUrl: string;
+  videoUrl: string;
   jobseekerId: string;
   position: string;
   income?: Income;
@@ -121,9 +120,7 @@ export const uploadVideoFx = createEffect<File, string, Error>(async (file) => {
 
 export const $pending = createResumeMutation.$pending;
 
-export const $photo = createStore<string>("")
-  .on(photoChanged, (_, fileId) => fileUrlByFileId(fileId))
-  .reset(resetForm);
+export const $photoUrl = $viewer.map((viewer) => viewer?.jobseeker?.profile.photoUrl || "");
 
 export const $video = createStore<string>("")
   .on(uploadVideoFx.doneData, (_, videoUrl) => videoUrl)
@@ -277,7 +274,7 @@ export const $fullName = combine(
 // Объединяем все сторы в один общий стор формы
 export const $resumeForm = combine({
   jobseekerId: $jobseekerId,
-  photo: $photo,
+  photo: $photoUrl,
   video: $video,
   position: $position,
   income: $income,

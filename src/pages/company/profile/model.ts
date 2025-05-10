@@ -1,7 +1,6 @@
 import { combine, createEvent, createStore, sample } from "effector";
 
 import { getCompanyByIdQuery, updateCompanyMutation } from "@/shared/api/company";
-import { fileUrlByFileId } from "@/shared/config";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import { ICompany } from "@/shared/types/company.interface.ts";
@@ -150,7 +149,7 @@ export const $certificateUrls = createStore<string[]>([])
     newCertificates[index] = value;
     return newCertificates;
   })
-  .on(companyFieldChanged.certificateFile, (state, fileId) => [...state, fileUrlByFileId(fileId)])
+  .on(companyFieldChanged.certificateFile, (state, fileUrl) => [...state, fileUrl])
   .on(
     updateCompanyMutation.finished.success,
     (_, { result }) => result?.company.certificateUrls ?? [],

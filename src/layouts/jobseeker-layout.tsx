@@ -25,17 +25,10 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
         <div className="flex items-center gap-8">
-          <LogoLink />
+          <LogoLink to={routes.jobseeker.profile} params={{ jobseekerId }} />
 
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">
-            <Link
-              to={routes.jobseeker.profile}
-              params={{ jobseekerId }}
-              className="text-foreground/80 hover:text-foreground transition-colors"
-            >
-              Профиль
-            </Link>
             <Link
               to={routes.help}
               className="text-foreground/80 hover:text-foreground transition-colors"

@@ -33,13 +33,13 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   // Получаем данные компании из viewer.company
   const companyName = viewer.company.name || "";
   const companyId = viewer.company._id || "";
-  const userId = viewer.company.userId || "";
+  const userId = viewer.company?.userId || "";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
         <div className="flex items-center gap-8">
-          <LogoLink />
+          <LogoLink to={routes.company.search} params={{ companyId }} />
 
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">

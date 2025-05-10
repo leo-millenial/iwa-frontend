@@ -1,9 +1,8 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect, sample } from "effector";
 
-import { resolveFileField } from "@/shared/lib/file";
 import { $headers } from "@/shared/tokens";
-import { FileField, FileType } from "@/shared/types/file.interface.ts";
+import { FileType } from "@/shared/types/file.interface.ts";
 import { UserRole } from "@/shared/types/user.interface.ts";
 
 // Определяем интерфейс для данных загрузки файла
@@ -51,28 +50,6 @@ const getUploadUrl = (data: UploadFileDto): string => {
   }
 
   throw new Error(`Неподдерживаемый тип сущности: ${entityType}`);
-};
-
-// Функция для определения, является ли поле одиночным или множественным
-export const isFieldSingle = (entityType: UserRole, fileType: FileType): boolean => {
-  try {
-    const { single } = resolveFileField(entityType, fileType);
-    return single;
-  } catch (error) {
-    console.error(error);
-    return true; // По умолчанию считаем поле одиночным
-  }
-};
-
-// Функция для получения ключа поля в сущности
-export const getFieldKey = (entityType: UserRole, fileType: FileType): FileField => {
-  try {
-    const { key } = resolveFileField(entityType, fileType);
-    return key;
-  } catch (error) {
-    console.error(error);
-    throw new Error(`Не удалось определить ключ поля для ${entityType} и ${fileType}`);
-  }
 };
 
 const uploadFileFx = createEffect<

@@ -146,5 +146,6 @@ sample({
 
 sample({
   clock: openResumeClicked,
+  fn: ({ resumeId }) => ({ params: { resumeId } }),
   target: routes.resume.open,
 });

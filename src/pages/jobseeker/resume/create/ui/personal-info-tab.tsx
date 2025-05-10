@@ -12,7 +12,6 @@ import {
   $gender,
   $income,
   $phone,
-  $photo,
   $position,
   birthdayChanged,
   cityChanged,
@@ -21,18 +20,12 @@ import {
   incomeAmountChanged,
   incomeCurrencyChanged,
   phoneChanged,
-  photoChanged,
   positionChanged,
   updateFullName,
 } from "@/pages/jobseeker/resume/create/model.ts";
 import { genderLabels } from "@/pages/jobseeker/resume/create/ui/index.tsx";
 
-import { UploadPhoto } from "@/features/upload";
-
-import { FileType } from "@/shared/types/file.interface.ts";
 import { Gender } from "@/shared/types/resume.interface.ts";
-import { UserRole } from "@/shared/types/user.interface.ts";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Calendar } from "@/shared/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -41,16 +34,13 @@ import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/shared/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { $viewer } from "@/shared/viewer";
 
 interface PersonalInfoTabProps {
   onNext: () => void;
 }
 
 export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
-  const viewer = useUnit($viewer);
   const [
-    photo,
     position,
     gender,
     birthday,
@@ -66,11 +56,9 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     handlePhoneChange,
     handleCityChange,
     handleUpdateFullName,
-    handlePhotoChange,
     handleIncomeAmountChange,
     handleIncomeCurrencyChange,
   ] = useUnit([
-    $photo,
     $position,
     $gender,
     $birthday,
@@ -86,7 +74,6 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
     phoneChanged,
     cityChanged,
     updateFullName,
-    photoChanged,
     incomeAmountChanged,
     incomeCurrencyChanged,
   ]);
@@ -99,21 +86,21 @@ export const PersonalInfoTab = ({ onNext }: PersonalInfoTabProps) => {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Фото профиля */}
-        <div className="flex flex-col items-center space-y-4">
-          <Avatar className="h-32 w-32">
-            <AvatarImage src={photo} alt={fullName?.firstName} />
-            <AvatarFallback>
-              {fullName?.firstName?.[0]}
-              {fullName?.lastName?.[0]}
-            </AvatarFallback>
-          </Avatar>
-          <UploadPhoto
-            entityId={viewer?.jobseeker?._id}
-            fileType={FileType.Photo}
-            entityType={UserRole.Jobseeker}
-            onSuccess={(photoId) => handlePhotoChange(photoId)}
-          />
-        </div>
+        {/*<div className="flex flex-col items-center space-y-4">*/}
+        {/*  <Avatar className="h-32 w-32">*/}
+        {/*    <AvatarImage src={photo} alt={fullName?.firstName} />*/}
+        {/*    <AvatarFallback>*/}
+        {/*      {fullName?.firstName?.[0]}*/}
+        {/*      {fullName?.lastName?.[0]}*/}
+        {/*    </AvatarFallback>*/}
+        {/*  </Avatar>*/}
+        {/*  <UploadPhoto*/}
+        {/*    entityId={viewer?.jobseeker?._id}*/}
+        {/*    fileType={FileType.PHOTO}*/}
+        {/*    entityType={UserRole.Jobseeker}*/}
+        {/*    onSuccess={(photoId) => handlePhotoChange(photoId)}*/}
+        {/*  />*/}
+        {/*</div>*/}
 
         {/* ФИО */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
