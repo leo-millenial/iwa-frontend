@@ -1,6 +1,7 @@
 import { createEvent, createStore, sample } from "effector";
 
-import { deleteResumeMutation, getResumeListQuery } from "@/shared/api/resume";
+import { getJobseekerByIdQuery } from "@/shared/api/jobseeker";
+import { deleteResumeMutation } from "@/shared/api/resume";
 import { routes } from "@/shared/routing";
 import { IResume } from "@/shared/types/resume.interface.ts";
 import { UserRole } from "@/shared/types/user.interface.ts";
@@ -13,6 +14,7 @@ export const authenticatedRoute = chainAuthenticated(routes.jobseeker.profile, {
   otherwise: routes.auth.signIn.open,
 });
 
+export const photoUploaded = createEvent<string>();
 export const resumeCardClicked = createEvent<string>();
 export const editResumeClicked = createEvent<string>();
 export const deleteResumeClicked = createEvent<string>();
@@ -20,8 +22,9 @@ export const confirmDeleteClicked = createEvent();
 export const cancelDeleteClicked = createEvent();
 
 // Сторы
+export const $photoUrl = createStore<string | null>(null);
 export const $resumes = createStore<IResume[]>([]);
-export const $isLoading = getResumeListQuery.$pending;
+export const $isLoading = getJobseekerByIdQuery.$pending;
 export const $error = createStore<string | null>(null);
 export const $resumeToDelete = createStore<string | null>(null);
 export const $isDeleteDialogOpen = createStore(false);
@@ -30,13 +33,22 @@ sample({
   clock: currentRoute.opened,
   source: currentRoute.$params,
   filter: (params) => Boolean(params.jobseekerId),
-  fn: (params) => ({ jobseekerId: params.jobseekerId }),
-  target: getResumeListQuery.start,
+  fn: (params) => params.jobseekerId,
+  target: getJobseekerByIdQuery.start,
 });
 
-$resumes.on(getResumeListQuery.finished.success, (_, { result: resumes }) => resumes);
+$photoUrl
+  .on(
+    getJobseekerByIdQuery.finished.success,
+    (_, { result: jobseeker }) => jobseeker.profile.photoUrl,
+  )
+  .on(photoUploaded, (_, photoUrl) => photoUrl);
+$resumes.on(
+  getJobseekerByIdQuery.finished.success,
+  (_, { result: jobseeker }) => jobseeker.resumes,
+);
 
-$error.on(getResumeListQuery.finished.failure, (_, { error }) => error.message);
+$error.on(getJobseekerByIdQuery.finished.failure, (_, { error }) => error.message);
 $error.on(deleteResumeMutation.finished.failure, (_, { error }) => error.message);
 
 // Управление диалогом удаления

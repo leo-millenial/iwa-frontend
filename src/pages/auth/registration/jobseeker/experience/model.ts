@@ -46,6 +46,7 @@ export const setFormError = createEvent<ExperienceFormError>();
 // Хранилища для состояния формы
 export const $workExperiences = createStore<IWorkExperience[]>([]);
 export const $currentExperience = createStore<IWorkExperience>({
+  // @ts-expect-error
   _id: crypto.randomUUID(),
   currentJob: false,
 });
@@ -74,6 +75,7 @@ $currentExperience
   .on(experienceEditStarted, (_, experience) => experience)
   .reset(experienceAdded)
   .reset(experienceEdited)
+  // @ts-expect-error
   .on(experienceEditCancelled, () => ({
     _id: crypto.randomUUID(),
     currentJob: false,

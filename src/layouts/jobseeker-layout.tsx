@@ -1,6 +1,6 @@
 import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
-import { LogOut, MessageSquare, Plus, Search, User } from "lucide-react";
+import { LogOut, MessageSquare, Plus, User } from "lucide-react";
 
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button.tsx";
@@ -25,17 +25,10 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
         <div className="flex items-center gap-8">
-          <LogoLink />
+          <LogoLink to={routes.jobseeker.profile} params={{ jobseekerId }} />
 
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">
-            <Link
-              to={routes.jobseeker.search}
-              params={{ jobseekerId }}
-              className="text-foreground/80 hover:text-foreground transition-colors"
-            >
-              Вакансии
-            </Link>
             <Link
               to={routes.help}
               className="text-foreground/80 hover:text-foreground transition-colors"
@@ -58,9 +51,9 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
           </Link>
 
           {/* Иконки */}
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Search className="h-5 w-5" />
-          </Button>
+          {/*<Button variant="ghost" size="icon" className="rounded-full">*/}
+          {/*  <Search className="h-5 w-5" />*/}
+          {/*</Button>*/}
 
           <Button variant="ghost" size="icon" className="rounded-full">
             <MessageSquare className="h-5 w-5" />

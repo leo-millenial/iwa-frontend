@@ -1,3 +1,4 @@
+import { useUnit } from "effector-react";
 import { Mail, MessageCircle, MessageSquare, Phone, PhoneCall } from "lucide-react";
 
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
@@ -5,9 +6,12 @@ import { LayoutJobseeker } from "@/layouts/jobseeker-layout.tsx";
 
 import { Button } from "@/shared/ui/button.tsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card.tsx";
+import { $viewer } from "@/shared/viewer";
 
 export const HelpPage = () => {
-  const role = "Company"; // todo $viewer.role
+  const viewer = useUnit($viewer);
+
+  const role = viewer!.user.role;
 
   const Layout = role === "Company" ? LayoutCompany : LayoutJobseeker;
 

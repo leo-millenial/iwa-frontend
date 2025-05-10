@@ -2,7 +2,6 @@ import { combine, createEffect, createEvent, createStore, sample } from "effecto
 import { reset } from "patronum";
 
 import { createResumeMutation } from "@/shared/api/resume";
-import { fileUrlByFileId } from "@/shared/config";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
 import { routes } from "@/shared/routing";
 import {
@@ -23,8 +22,8 @@ import { $viewer } from "@/shared/viewer";
 export const currentRoute = routes.jobseeker.resume.create;
 
 export interface ResumeForm {
-  photo: string;
-  video: string;
+  photoUrl: string;
+  videoUrl: string;
   jobseekerId: string;
   position: string;
   income?: Income;
@@ -121,9 +120,7 @@ export const uploadVideoFx = createEffect<File, string, Error>(async (file) => {
 
 export const $pending = createResumeMutation.$pending;
 
-export const $photo = createStore<string>("")
-  .on(photoChanged, (_, fileId) => fileUrlByFileId(fileId))
-  .reset(resetForm);
+export const $photoUrl = $viewer.map((viewer) => viewer?.jobseeker?.profile.photoUrl || "");
 
 export const $video = createStore<string>("")
   .on(uploadVideoFx.doneData, (_, videoUrl) => videoUrl)
@@ -198,10 +195,11 @@ export const $workExperience = createStore<IWorkExperience[]>([])
   .on(removeWorkExperience, (state, index) => state.filter((_, i) => i !== index))
   .reset(resetForm);
 
-export const $education = createStore<IEducation[]>([])
+export const $education = createStore<(IEducation & { id: string })[]>([])
   .on(addEducation, (state) => [
     ...state,
     {
+      id: crypto.randomUUID(),
       university: "",
       faculty: "",
       degree: "",
@@ -277,8 +275,8 @@ export const $fullName = combine(
 // Объединяем все сторы в один общий стор формы
 export const $resumeForm = combine({
   jobseekerId: $jobseekerId,
-  photo: $photo,
-  video: $video,
+  photoUrl: $photoUrl,
+  videoUrl: $video,
   position: $position,
   income: $income,
   fullName: $fullName,
@@ -357,18 +355,18 @@ export const $formValid = combine(
   $birthDateValid,
   $salaryValid,
   (
-    positionValid,
-    fullNameValid,
-    emailValid,
-    phoneValid,
-    cityValid,
-    workExperienceValid,
-    educationsValid,
-    skillsValid,
-    languagesValid,
-    aboutMeValid,
-    birthDateValid,
-    salaryValid,
+    positionValid: boolean,
+    fullNameValid: boolean,
+    emailValid: boolean,
+    phoneValid: boolean,
+    cityValid: boolean,
+    workExperienceValid: boolean,
+    educationsValid: boolean,
+    skillsValid: boolean,
+    languagesValid: boolean,
+    aboutMeValid: boolean,
+    birthDateValid: boolean,
+    salaryValid: boolean,
   ) =>
     positionValid &&
     fullNameValid &&
@@ -480,6 +478,7 @@ sample({
 
 // Отправляем форму, если она валидна
 sample({
+  // @ts-expect-error
   clock: submitForm,
   filter: $formValid,
   source: $resumeForm,
@@ -499,7 +498,7 @@ sample({
   clock: createResumeMutation.$succeeded,
   source: { jobseekerId: $jobseekerId },
   fn: ({ jobseekerId }) => ({ params: { jobseekerId } }),
-  target: routes.jobseeker.search.open,
+  target: routes.jobseeker.profile.open,
 });
 
 sample({

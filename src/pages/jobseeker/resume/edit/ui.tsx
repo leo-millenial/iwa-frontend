@@ -181,7 +181,12 @@ export const JobseekerResumeEditPage = () => {
                       onChange={(e) => handleIncomeAmountChange(e.target.value)}
                       placeholder="Например: 150000"
                     />
-                    <Select value={incomeCurrency} onValueChange={handleIncomeCurrencyChange}>
+                    <Select
+                      value={
+                        typeof incomeCurrency === "number" ? String(incomeCurrency) : incomeCurrency
+                      }
+                      onValueChange={handleIncomeCurrencyChange}
+                    >
                       <SelectTrigger className="w-[100px]">
                         <SelectValue placeholder="Валюта" />
                       </SelectTrigger>

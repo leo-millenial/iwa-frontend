@@ -87,6 +87,7 @@ const $formData = combine({
 });
 
 sample({
+  // @ts-expect-error
   clock: formSubmitted,
   source: $formData,
   target: createVacancyMutation.start,

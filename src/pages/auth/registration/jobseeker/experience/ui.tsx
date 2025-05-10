@@ -345,7 +345,6 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                             captionLayout="dropdown-buttons"
                             selected={currentExperience.startDate || undefined}
                             onSelect={(date) => handleCurrentExperienceChanged({ startDate: date })}
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -391,8 +390,6 @@ export const AuthRegistrationJobseekerExperiencePage = () => {
                             mode="single"
                             selected={currentExperience.endDate || undefined}
                             onSelect={(date) => handleCurrentExperienceChanged({ endDate: date })}
-                            initialFocus
-                            disabled={currentExperience.currentJob}
                           />
                         </PopoverContent>
                       </Popover>

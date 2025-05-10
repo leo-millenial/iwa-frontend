@@ -23,6 +23,7 @@ const skillContract = obj({
   id: or(str, val(null), val(undefined)), // Добавлено: id для навыка
   name: str,
   level: str,
+  plan: or(str, val(null), val(undefined)), // Добавлено: план
 });
 
 const languageContract = obj({
@@ -69,8 +70,6 @@ const jobseekerContract = obj({
   _id: str,
   userId: str,
   resumes: arr(resumeContract),
-  documentFileIds: arr(str),
-  certificateFileIds: arr(str),
 });
 
 const companySubscriptionContract = obj({

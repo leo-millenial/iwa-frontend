@@ -68,7 +68,7 @@ sample({
   filter: ({ result }) =>
     Boolean(result.user && result.user.role === UserRole.Jobseeker && result.jobseeker),
   fn: ({ result }) => ({ params: { jobseekerId: result.jobseeker!._id } }),
-  target: routes.jobseeker.search.open,
+  target: routes.jobseeker.profile.open,
 });
 
 sample({

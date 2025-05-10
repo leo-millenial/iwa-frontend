@@ -1,6 +1,6 @@
 import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
-import { LogOut, MessageSquare, Plus, Search, User } from "lucide-react";
+import { LogOut, MessageSquare, Plus, User } from "lucide-react";
 
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button";
@@ -33,13 +33,12 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   // Получаем данные компании из viewer.company
   const companyName = viewer.company.name || "";
   const companyId = viewer.company._id || "";
-  const userId = viewer.company.userId || "";
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
         <div className="flex items-center gap-8">
-          <LogoLink />
+          <LogoLink to={routes.company.search} params={{ companyId }} />
 
           {/* Навигация */}
           <nav className="hidden md:flex space-x-6">
@@ -66,7 +65,6 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
             </Link>
             <Link
               to={routes.help}
-              params={{ viewerId: userId }}
               className="text-foreground/80 hover:text-foreground transition-colors"
             >
               Помощь
@@ -84,9 +82,9 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
           </Link>
 
           {/* Иконки */}
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Search className="h-5 w-5" />
-          </Button>
+          {/*<Button variant="ghost" size="icon" className="rounded-full">*/}
+          {/*  <Search className="h-5 w-5" />*/}
+          {/*</Button>*/}
 
           <Button variant="ghost" size="icon" className="rounded-full">
             <MessageSquare className="h-5 w-5" />
