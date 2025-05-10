@@ -132,13 +132,13 @@ $position
 
 $photo
   .on(photoChanged, (_, photo) => photo)
-  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.photo)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.photo);
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.photo || "")
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.photo || "");
 
 $video
   .on(videoChanged, (_, video) => video)
-  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.video)
-  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.video);
+  .on(getResumeByIdQuery.finished.success, (_, { result }) => result.video || "")
+  .on(updateResumeMutation.finished.success, (_, { result }) => result.resume?.video || "");
 
 $gender
   .on(genderChanged, (_, gender) => gender)
