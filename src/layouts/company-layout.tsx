@@ -2,6 +2,9 @@ import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
 import { LogOut, MessageSquare, Plus, User } from "lucide-react";
 
+import { SocketStatusBadge } from "@/features/chat";
+import { $isConnected } from "@/features/chat/connect";
+
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button";
 import {
@@ -17,6 +20,7 @@ import { $viewer, viewerLoggedOut } from "@/shared/viewer";
 export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   const viewer = useUnit($viewer);
   const handleLoggedOut = useUnit(viewerLoggedOut);
+  const isConnected = useUnit($isConnected);
 
   // Проверка наличия viewer и company
   if (!viewer || !viewer.company) {
@@ -33,7 +37,6 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
   // Получаем данные компании из viewer.company
   const companyName = viewer.company.name || "";
   const companyId = viewer.company._id || "";
-
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <header className="flex justify-between items-center p-4 bg-background/80 backdrop-blur-sm z-20 border-b sticky top-0">
@@ -85,10 +88,19 @@ export const LayoutCompany = ({ children }: { children: React.ReactNode }) => {
           {/*<Button variant="ghost" size="icon" className="rounded-full">*/}
           {/*  <Search className="h-5 w-5" />*/}
           {/*</Button>*/}
+          <SocketStatusBadge />
 
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MessageSquare className="h-5 w-5" />
-          </Button>
+          {isConnected && (
+            <Link
+              className="flex items-center gap-2 w-full"
+              to={routes.company.chats}
+              params={{ companyId }}
+            >
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <MessageSquare className="h-5 w-5" />
+              </Button>
+            </Link>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

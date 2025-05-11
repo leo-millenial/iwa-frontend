@@ -37,6 +37,9 @@ export const routes = {
       view: createRoute({ path: "/company/:companyId/vacancy/:vacancyId" }),
       edit: createRoute({ path: "/company/:companyId/vacancy/:vacancyId/edit" }),
     },
+
+    chats: createRoute({ path: "/company/:companyId/chats" }),
+    chat: createRoute({ path: "/company/:companyId/chat/:chatId" }),
   },
 
   jobseeker: {
@@ -79,6 +82,8 @@ export const routesMap = [
   routes.company.vacancy.create,
   routes.company.vacancy.view,
   routes.company.vacancy.edit,
+  routes.company.chats,
+  routes.company.chat,
 
   /* Jobseeker routes */
   routes.jobseeker.search,

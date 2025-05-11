@@ -38,6 +38,11 @@ sample({
   target: [clearToken, routes.home.open, $viewer.reinit],
 });
 
+sample({
+  clock: appStarted,
+  target: getMeQuery.start,
+});
+
 // Создаем стор для хранения статуса авторизации
 export const $viewerStatus = createStore(ViewerStatus.Initial);
 persist({ store: $viewerStatus, key: "viewer_status", pickup: appStarted });
