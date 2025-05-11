@@ -37,6 +37,9 @@ export const routes = {
       view: createRoute({ path: "/company/:companyId/vacancy/:vacancyId" }),
       edit: createRoute({ path: "/company/:companyId/vacancy/:vacancyId/edit" }),
     },
+
+    chats: createRoute({ path: "/company/:companyId/chats" }),
+    chat: createRoute({ path: "/company/:companyId/chat/:chatId" }),
   },
 
   jobseeker: {
@@ -47,6 +50,9 @@ export const routes = {
       view: createRoute({ path: "/jobseeker/:jobseekerId/resume/:resumeId" }),
       edit: createRoute({ path: "/jobseeker/:jobseekerId/resume/:resumeId/edit" }),
     },
+
+    chats: createRoute({ path: "/jobseeker/:jobseekerId/chats" }),
+    chat: createRoute({ path: "/jobseeker/:jobseekerId/chat/:chatId" }),
   },
 };
 
@@ -79,6 +85,8 @@ export const routesMap = [
   routes.company.vacancy.create,
   routes.company.vacancy.view,
   routes.company.vacancy.edit,
+  routes.company.chats,
+  routes.company.chat,
 
   /* Jobseeker routes */
   routes.jobseeker.search,
@@ -86,6 +94,8 @@ export const routesMap = [
   routes.jobseeker.resume.create,
   routes.jobseeker.resume.view,
   routes.jobseeker.resume.edit,
+  routes.jobseeker.chats,
+  routes.jobseeker.chat,
 
   /* END ROUTE */
   notFoundRoute,

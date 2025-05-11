@@ -2,6 +2,9 @@ import { Link } from "@argon-router/react";
 import { useUnit } from "effector-react";
 import { LogOut, MessageSquare, Plus, User } from "lucide-react";
 
+import { SocketStatusBadge } from "@/features/chat";
+import { $isConnected } from "@/features/chat/connect";
+
 import { routes } from "@/shared/routing";
 import { Button } from "@/shared/ui/button.tsx";
 import {
@@ -17,6 +20,7 @@ import { $viewer, viewerLoggedOut } from "@/shared/viewer";
 export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => {
   const viewer = useUnit($viewer);
   const handleLoggedOut = useUnit(viewerLoggedOut);
+  const isConnected = useUnit($isConnected);
 
   const viewerName = viewer?.user.firstName || "";
   const jobseekerId = viewer?.jobseeker?._id || "";
@@ -55,9 +59,19 @@ export const LayoutJobseeker = ({ children }: { children: React.ReactNode }) => 
           {/*  <Search className="h-5 w-5" />*/}
           {/*</Button>*/}
 
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MessageSquare className="h-5 w-5" />
-          </Button>
+          <SocketStatusBadge />
+
+          {isConnected && (
+            <Link
+              className="flex items-center gap-2 w-full"
+              to={routes.jobseeker.chats}
+              params={{ jobseekerId }}
+            >
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <MessageSquare className="h-5 w-5" />
+              </Button>
+            </Link>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

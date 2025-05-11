@@ -3,10 +3,10 @@ import { createRouteView } from "@argon-router/react";
 import { LayoutCompany } from "@/layouts/company-layout.tsx";
 
 import { currentRoute } from "./model";
-import { CompanyProfilePage } from "./ui.tsx";
+import { ChatsPage } from "./ui.tsx";
 
 export default createRouteView({
-  view: CompanyProfilePage,
+  view: ChatsPage,
   route: currentRoute,
   layout: LayoutCompany,
 });
