@@ -30,9 +30,11 @@ export const SocketStatusBadge = () => {
           </span>
         </div>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
-        <p>{isConnected ? "Вы онлайн" : "Чат временно не доступен"}</p>
-      </TooltipContent>
+      {!isConnected && (
+        <TooltipContent side="bottom">
+          <p>Чат временно не доступен</p>
+        </TooltipContent>
+      )}
     </Tooltip>
   );
 };
