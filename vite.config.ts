@@ -1,39 +1,10 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), ""); // подгружает .env
-
-  return {
-    plugins: [
-      react({
-        babel: {
-          babelrc: true,
-        },
-      }),
-      tailwindcss(),
-    ],
-    resolve: {
-      alias: {
-        "@": path.resolve(__dirname, "./src"),
-      },
-    },
-    server: {
-      proxy: {
-        "/api": {
-          target: env.VITE_API_URL,
-          changeOrigin: true,
-          secure: false,
-        },
-      },
-    },
-  };
-});
-
-/*
-plugins: [
+export default defineConfig({
+  plugins: [
     react({
       babel: {
         babelrc: true,
@@ -55,4 +26,4 @@ plugins: [
       },
     },
   },
- */
+});
