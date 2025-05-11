@@ -1,5 +1,5 @@
 import { useUnit } from "effector-react";
-import { ChevronUp, Filter, MoreVertical, Search, User, X } from "lucide-react";
+import { ChevronUp, Filter, MessageSquare, MoreVertical, Search, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
@@ -19,7 +19,10 @@ import {
   skillsChanged,
 } from "@/pages/company/search/model.ts";
 
+import { InviteToChatModal, openModal, setFormMeta } from "@/features/chat/invite";
+
 import { IResume } from "@/shared/types/resume.interface.ts";
+import { UserRole } from "@/shared/types/user.interface.ts";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -32,10 +35,14 @@ import {
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label.tsx";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { $viewer } from "@/shared/viewer";
 
 // Компонент карточки соискателя
 const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number) => void }) => {
   const handleOpenResumeClick = useUnit(openResumeClicked);
+
+  const viewer = useUnit($viewer);
+  const companyId = viewer?.company?._id ?? "";
 
   return (
     <Card key={resume._id} className="overflow-hidden hover:shadow-md transition-shadow">
@@ -141,6 +148,21 @@ const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number
               <DropdownMenuItem onClick={() => handleOpenResumeClick({ resumeId: resume._id })}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Отрыкть резюме</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setFormMeta({
+                    companyId,
+                    jobseekerId: resume.jobseekerId,
+                    initiator: UserRole.Company,
+                    resumeId: resume._id,
+                  });
+
+                  openModal();
+                }}
+              >
+                <MessageSquare className="mr-2 h-4 w-4" />
+                <span>Пригласить в чат</span>
               </DropdownMenuItem>
               {/*<DropdownMenuItem onClick={() => onToggleFavorite(resume._id)}>*/}
               {/*  {resume.isFavorite ? (*/}
@@ -409,6 +431,10 @@ export const CompanySearchPage = () => {
     $skills,
   ]);
 
+  const viewer = useUnit($viewer);
+
+  const vacancyList = viewer?.company?.vacancies ?? [];
+
   const [handleSearchChange, handleResetFilters] = useUnit([searchChanged, resetFilters]);
 
   const [showScrollToTop, setShowScrollToTop] = useState(false);
@@ -540,6 +566,8 @@ export const CompanySearchPage = () => {
           </div>
         </div>
       </div>
+
+      <InviteToChatModal role={UserRole.Company} vacancies={vacancyList} />
 
       {/* Кнопка "к началу страницы" */}
       {showScrollToTop && (

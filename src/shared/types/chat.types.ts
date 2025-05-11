@@ -17,11 +17,11 @@ export interface IMessage {
   createdAt: string; // ISO date
 }
 
-export interface InitiateChatRequest {
-  vacancyId: string;
-  resumeId: string;
+export interface InviteToChatParams {
   companyId: string;
   jobseekerId: string;
+  vacancyId: string;
+  resumeId: string;
   initialMessage: string;
   initiator: UserRole;
 }
