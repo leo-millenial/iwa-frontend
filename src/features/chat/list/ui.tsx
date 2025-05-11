@@ -1,16 +1,24 @@
+import { useUnit } from "effector-react";
 import { Eye } from "lucide-react";
 
 import { ChatStatus, IChat } from "@/shared/types/chat.types.ts";
+import { UserRole } from "@/shared/types/user.interface.ts";
+import { $viewer } from "@/shared/viewer";
 
 interface Props {
   chats: IChat[];
   pending: boolean;
-  onChatOpen: (companyId: string, chatId: string) => void;
+  onChatOpen: (userId: string, chatId: string) => void;
 }
 
 export const ChatList = ({ chats, pending, onChatOpen }: Props) => {
+  const viewer = useUnit($viewer);
+
   if (pending) return <div className="p-4">🔄 Загрузка чатов...</div>;
   if (!chats?.length) return <div className="p-4">📭 Чатов нет</div>;
+
+  const userId = (chat: IChat) =>
+    viewer?.user.role === UserRole.Jobseeker ? chat.jobseekerId : chat.companyId;
 
   return (
     <ul className="space-y-4">
@@ -31,7 +39,7 @@ export const ChatList = ({ chats, pending, onChatOpen }: Props) => {
           </div>
 
           <button
-            onClick={() => onChatOpen(chat.companyId, chat._id)}
+            onClick={() => onChatOpen(userId(chat), chat._id)}
             className="text-blue-600 flex items-center gap-1 text-sm"
           >
             <Eye size={16} /> Открыть

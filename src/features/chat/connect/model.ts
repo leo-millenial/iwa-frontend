@@ -133,12 +133,19 @@ sample({
 
 // 🧭 Установка активного чата
 sample({
-  clock: routes.company.chat.opened,
+  clock: [routes.company.chat.opened, routes.jobseeker.chat.opened],
   fn: ({ params }) => params.chatId,
   target: setActiveChat,
 });
 
 sample({
-  clock: [appStarted, $accessToken, routes.company.chat.opened, routes.company.chats.opened],
+  clock: [
+    appStarted,
+    $accessToken,
+    routes.company.chat.opened,
+    routes.company.chats.opened,
+    routes.jobseeker.chat.opened,
+    routes.jobseeker.chats.opened,
+  ],
   target: fetchMessages,
 });
