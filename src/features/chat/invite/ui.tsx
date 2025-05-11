@@ -4,7 +4,7 @@ import { IResume } from "@/shared/types/resume.interface.ts";
 import { UserRole } from "@/shared/types/user.interface";
 import { IVacancy } from "@/shared/types/vacancy.interface.ts";
 import { Button } from "@/shared/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog.tsx";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { Textarea } from "@/shared/ui/textarea";
 
