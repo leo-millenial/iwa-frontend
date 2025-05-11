@@ -124,7 +124,7 @@ sample({
   target: connectFx,
 });
 
-// 🔄 Подключение при открытии маршрута company.chat
+// 🔄 Подключение при открытии маршрута company.chat | jobseeker.chat
 sample({
   clock: [appStarted, $accessToken],
   filter: Boolean,
