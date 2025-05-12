@@ -7,3 +7,8 @@ from = "/api/*"
 to = "https://iwa-dev-api.duckdns.org/api/:splat"
 status = 200
 force = true
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
