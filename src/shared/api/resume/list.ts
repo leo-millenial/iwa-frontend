@@ -1,6 +1,7 @@
 import { createQuery } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { IResume, ResumeSearchParams } from "@/shared/types/resume.interface.ts";
 
@@ -10,7 +11,7 @@ const getResumeListFx = createEffect<
   IResume[]
 >(async ({ headers, params }) => {
   // Формируем URL с параметрами запроса
-  const url = new URL("/api/resume/list", window.location.origin);
+  const url = new URL("/api/resume/list", API_BASE_URL);
 
   // Добавляем параметры в URL, если они определены
   if (params) {

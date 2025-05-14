@@ -190,7 +190,14 @@ const ResumeCard = ({ resume }: { resume: IResume; onToggleFavorite: (id: number
 };
 
 // Компонент для отображения пустого состояния
-const EmptyState = ({ onReset }: { onReset: () => void }) => (
+// Компонент для отображения пустого состояния
+const EmptyState = ({
+  onReset,
+  hasActiveFilters,
+}: {
+  onReset: () => void;
+  hasActiveFilters: boolean;
+}) => (
   <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
     <div className="rounded-full bg-gray-100 p-4 mb-4">
       <Search className="h-8 w-8 text-gray-400" />
@@ -199,9 +206,11 @@ const EmptyState = ({ onReset }: { onReset: () => void }) => (
     <p className="text-muted-foreground max-w-md">
       Попробуйте изменить параметры поиска или сбросить фильтры
     </p>
-    <Button variant="outline" className="mt-4" onClick={onReset}>
-      Сбросить все фильтры
-    </Button>
+    {hasActiveFilters && (
+      <Button variant="outline" className="mt-4" onClick={onReset}>
+        Сбросить все фильтры
+      </Button>
+    )}
   </div>
 );
 
@@ -526,7 +535,7 @@ export const CompanySearchPage = () => {
             {pending ? (
               <LoadingState />
             ) : resumeList.length === 0 ? (
-              <EmptyState onReset={handleResetFilters} />
+              <EmptyState onReset={handleResetFilters} hasActiveFilters={activeFiltersCount > 0} />
             ) : (
               <>
                 {/* Информация о результатах */}

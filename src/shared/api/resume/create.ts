@@ -1,6 +1,7 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect, sample } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { IResume } from "@/shared/types/resume.interface.ts";
 
@@ -12,7 +13,7 @@ const createResumeFx = createEffect<
   { headers: Record<string, string>; data: BodyData },
   Omit<IResume, "_id">
 >(async ({ headers, data }) => {
-  const url = new URL("/api/resume/create", window.location.origin);
+  const url = new URL("/api/resume/create", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",

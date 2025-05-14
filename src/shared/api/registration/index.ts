@@ -2,6 +2,10 @@ import { createMutation } from "@farfetched/core";
 import { createEffect } from "effector";
 import { z } from "zod";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
+
+console.log("API_BASE_URL:", API_BASE_URL);
+
 // Типы для запросов и ответов
 export const zAuthTokens = z.object({
   access_token: z.string(),
@@ -52,7 +56,7 @@ type AuthTokens = {
 
 // Эффекты
 const startRegistrationFx = createEffect(async (data: RegistrationStep1Data) => {
-  const url = new URL("/api/registration/start", window.location.origin);
+  const url = new URL("/api/registration/start", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -71,7 +75,7 @@ const startRegistrationFx = createEffect(async (data: RegistrationStep1Data) => 
 });
 
 const step2Fx = createEffect(async (data: RegistrationStep2Data) => {
-  const url = new URL("/api/registration/full-name", window.location.origin);
+  const url = new URL("/api/registration/full-name", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -90,7 +94,7 @@ const step2Fx = createEffect(async (data: RegistrationStep2Data) => {
 });
 
 const step3Fx = createEffect(async (data: RegistrationStep3Data) => {
-  const url = new URL("/api/registration/phone", window.location.origin);
+  const url = new URL("/api/registration/phone", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -109,7 +113,7 @@ const step3Fx = createEffect(async (data: RegistrationStep3Data) => {
 });
 
 const sendSmsFx = createEffect(async (data: RegistrationSendSmsData) => {
-  const url = new URL("/api/registration/send-sms", window.location.origin);
+  const url = new URL("/api/registration/send-sms", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -128,7 +132,7 @@ const sendSmsFx = createEffect(async (data: RegistrationSendSmsData) => {
 });
 
 const verifySmsFx = createEffect(async (data: RegistrationVerifySmsData) => {
-  const url = new URL("/api/registration/verify-sms", window.location.origin);
+  const url = new URL("/api/registration/verify-sms", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -147,7 +151,7 @@ const verifySmsFx = createEffect(async (data: RegistrationVerifySmsData) => {
 });
 
 const step5Fx = createEffect(async (data: RegistrationStep5Data) => {
-  const url = new URL("/api/registration/send-data", window.location.origin);
+  const url = new URL("/api/registration/send-data", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",
@@ -166,7 +170,7 @@ const step5Fx = createEffect(async (data: RegistrationStep5Data) => {
 });
 
 const completeRegistrationFx = createEffect(async (params: { sessionId: string }) => {
-  const url = new URL("/api/registration/complete", window.location.origin);
+  const url = new URL("/api/registration/complete", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",

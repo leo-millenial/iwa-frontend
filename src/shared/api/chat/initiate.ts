@@ -1,6 +1,7 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { IChat, InviteToChatParams } from "@/shared/types/chat.types.ts";
 
@@ -8,7 +9,7 @@ const initiateChatFx = createEffect<
   { headers: Record<string, string>; data: InviteToChatParams },
   IChat
 >(async ({ headers, data }) => {
-  const url = new URL("/api/chat/initiate", window.location.origin);
+  const url = new URL("/api/chat/initiate", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",

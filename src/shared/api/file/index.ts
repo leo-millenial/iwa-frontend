@@ -1,6 +1,7 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect, sample } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { FileType } from "@/shared/types/file.interface.ts";
 import { UserRole } from "@/shared/types/user.interface.ts";
@@ -57,7 +58,7 @@ const uploadFileFx = createEffect<
   unknown,
   Error
 >(async ({ headers, data }) => {
-  const url = new URL(getUploadUrl(data), window.location.origin);
+  const url = new URL(getUploadUrl(data), API_BASE_URL);
 
   const formData = new FormData();
   formData.append("file", data.file);

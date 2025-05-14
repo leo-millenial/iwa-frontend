@@ -1,13 +1,14 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 
 const deleteVacancyFx = createEffect<
   { headers: Record<string, string>; companyId: string; id: string },
   void
 >(async ({ headers, companyId, id }) => {
-  const url = new URL(`/api/vacancy/delete/${id}`, window.location.origin);
+  const url = new URL(`/api/vacancy/delete/${id}`, API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "DELETE",

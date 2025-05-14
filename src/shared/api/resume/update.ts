@@ -8,7 +8,7 @@ const updateResumeFx = createEffect<
   { headers: Record<string, string>; id: string; data: Partial<IResume> },
   { resume: IResume }
 >(async ({ headers, id, data }) => {
-  const url = new URL(`/api/resume/update/${id}`, window.location.origin);
+  const url = new URL(`/api/resume/update/${id}`, API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "PUT",

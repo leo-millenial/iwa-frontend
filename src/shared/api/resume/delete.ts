@@ -1,11 +1,12 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 
 const deleteResumeFx = createEffect<{ headers: Record<string, string>; id: string }, void>(
   async ({ headers, id }) => {
-    const url = new URL(`/api/resume/delete/${id}`, window.location.origin);
+    const url = new URL(`/api/resume/delete/${id}`, API_BASE_URL);
 
     const response = await fetch(url.toString(), {
       method: "DELETE",

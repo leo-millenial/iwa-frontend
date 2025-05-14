@@ -1,6 +1,7 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { ICompany } from "@/shared/types/company.interface.ts";
 
@@ -14,7 +15,7 @@ const updateCompanyFx = createEffect<
   UpdateCompanyResponse,
   Error
 >(async ({ headers, data, id }) => {
-  const url = new URL(`/api/companies/update/${id}`, window.location.origin);
+  const url = new URL(`/api/companies/update/${id}`, API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "PUT",

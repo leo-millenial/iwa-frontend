@@ -1,6 +1,7 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect, sample } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { IVacancy } from "@/shared/types/vacancy.interface.ts";
 
@@ -8,7 +9,7 @@ const createVacancyFx = createEffect<
   { headers: Record<string, string>; data: IVacancy },
   Omit<IVacancy, "_id">
 >(async ({ headers, data }) => {
-  const url = new URL("/api/vacancy/create", window.location.origin);
+  const url = new URL("/api/vacancy/create", API_BASE_URL);
 
   const response = await fetch(url.toString(), {
     method: "POST",

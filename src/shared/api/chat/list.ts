@@ -1,6 +1,7 @@
 import { createQuery } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { ChatStatus, IChat } from "@/shared/types/chat.types.ts";
 
@@ -8,7 +9,7 @@ const fetchChatListFx = createEffect<
   { headers: Record<string, string>; status?: ChatStatus },
   IChat[]
 >(async ({ headers, status }) => {
-  const url = new URL("/api/chat/list", window.location.origin);
+  const url = new URL("/api/chat/list", API_BASE_URL);
   if (status) url.searchParams.set("status", status);
 
   const response = await fetch(url.toString(), {

@@ -1,12 +1,13 @@
 import { createQuery } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { IChat } from "@/shared/types/chat.types.ts";
 
 const fetchChatByIdFx = createEffect<{ headers: Record<string, string>; chatId: string }, IChat>(
   async ({ headers, chatId }) => {
-    const url = new URL(`/api/chat/${chatId}`, window.location.origin);
+    const url = new URL(`/api/chat/${chatId}`, API_BASE_URL);
 
     const response = await fetch(url.toString(), {
       headers,
