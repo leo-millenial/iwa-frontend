@@ -1,6 +1,7 @@
 import { createMutation } from "@farfetched/core";
 import { attach, createEffect } from "effector";
 
+import { API_BASE_URL } from "@/shared/config/api.ts";
 import { $headers } from "@/shared/tokens";
 import { IResume } from "@/shared/types/resume.interface.ts";
 
