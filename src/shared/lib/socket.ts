@@ -5,8 +5,13 @@ let socket: Socket | null = null;
 export const connectSocket = (token: string): Socket => {
   const socketUrl = import.meta.env.VITE_SOCKET_URL;
 
-  socket = io(socketUrl, { transports: ["websocket"], auth: { token } });
-
+  socket = io(socketUrl, {
+    transports: ["websocket", "polling"],
+    auth: { token },
+    path: "/socket.io/",
+    reconnectionAttempts: 5,
+    reconnectionDelay: 1000,
+  });
   return socket;
 };
 
