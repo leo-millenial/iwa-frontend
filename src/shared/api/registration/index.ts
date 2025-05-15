@@ -4,8 +4,6 @@ import { z } from "zod";
 
 import { API_BASE_URL } from "@/shared/config/api.ts";
 
-console.log("API_BASE_URL:", API_BASE_URL);
-
 // Типы для запросов и ответов
 export const zAuthTokens = z.object({
   access_token: z.string(),

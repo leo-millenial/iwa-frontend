@@ -117,31 +117,18 @@ sample({
   target: registrationResponseSucceed,
 });
 
-interface ApiErrorResponse {
-  statusCode: number;
-  message: string;
-  error: string;
-}
-
-function isApiErrorResponse(error: unknown): error is ApiErrorResponse {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "statusCode" in error &&
-    "message" in error &&
-    "error" in error &&
-    typeof error.message === "string"
-  );
-}
-
 sample({
   clock: startRegistrationMutation.finished.failure,
   fn: ({ error }) => {
-    if (isApiErrorResponse(error) && error.statusCode === 400) {
-      if (error.message.includes("уже существует")) {
+    // Проверяем, является ли ошибка экземпляром Error
+    if (error instanceof Error) {
+      const errorMessage = error.message;
+
+      if (errorMessage.includes("Пользователь с таким email уже существует")) {
         return "EMAIL_ALREADY_EXISTS" as const;
       }
     }
+
     return null;
   },
   target: setError,
