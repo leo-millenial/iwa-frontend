@@ -1,6 +1,6 @@
 import { createEvent, createStore, sample } from "effector";
 import { persist } from "effector-storage/session";
-import { debug, or } from "patronum";
+import { or } from "patronum";
 
 import { PERSIST_KEYS } from "@/pages/auth/registration/jobseeker/experience/consts.ts";
 
@@ -75,8 +75,6 @@ $workExperiences
   )
   .on(experienceRemoved, (state, id) => state.filter((exp) => exp.id !== id))
   .on(autoAddCurrentExperience, (state, experience) => [...state, experience]);
-
-debug({ $workExperiences });
 
 $currentExperience
   .on(currentExperienceChanged, (state, changes) => ({ ...state, ...changes }))

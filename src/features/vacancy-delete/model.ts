@@ -1,6 +1,5 @@
 import { sample } from "effector";
 import { createEvent, createStore } from "effector";
-import { debug } from "patronum";
 
 import { deleteVacancyMutation } from "@/shared/api/vacancy";
 import { showErrorToast, showSuccessToast } from "@/shared/lib/toast";
@@ -27,8 +26,6 @@ sample({
   fn: () => true,
   target: $isModalOpen,
 });
-
-debug({});
 
 // Закрытие модального окна при отмене или подтверждении
 sample({
