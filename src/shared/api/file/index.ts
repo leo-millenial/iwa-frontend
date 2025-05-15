@@ -30,7 +30,7 @@ export interface UploadFileDto {
 export const getFileUploadErrorMessage = (error: FileUploadError): string => {
   switch (error) {
     case "FILE_TOO_LARGE":
-      return `Размер файла превышает максимально допустимый (${MAX_FILE_SIZE / 1024 / 1024}MB)`;
+      return `Размер файла превышает максимально допустимый`;
     case "UNSUPPORTED_FILE_TYPE":
       return "Неподдерживаемый тип файла";
     case "UPLOAD_FAILED":
