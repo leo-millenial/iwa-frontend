@@ -1,5 +1,5 @@
 import { combine, createEvent, createStore, sample } from "effector";
-import { debug, or } from "patronum";
+import { or } from "patronum";
 
 import { updateResumeMutation } from "@/shared/api/resume";
 import { getResumeByIdQuery } from "@/shared/api/resume/get-by-id.ts";
@@ -58,9 +58,6 @@ export const updateWorkExperience = createEvent<{
 }>();
 export const removeWorkExperience = createEvent<number>();
 
-debug({ updateWorkExperience });
-
-// События для образования
 export const addEducation = createEvent();
 export const updateEducation = createEvent<{
   index: number;
@@ -365,8 +362,6 @@ export const $formData = combine({
   skills: $skills,
   languages: $languages,
 });
-
-// debug({ $formData });
 
 // Отправка формы
 sample({

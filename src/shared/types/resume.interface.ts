@@ -67,7 +67,7 @@ export enum ResumeStatus {
 }
 
 export interface IResume {
-  _id: string;
+  _id?: string;
   photo?: string;
   video?: string;
   jobseekerId: string;
@@ -75,7 +75,7 @@ export interface IResume {
   income: Income;
   fullName: IFullName;
   gender: Gender;
-  birthday: Date | null;
+  birthday: Date;
   email: string;
   phone: string;
   city: string;
@@ -85,9 +85,9 @@ export interface IResume {
   aboutMe?: string;
   certificates?: CertificateUrl[];
   languages?: ILanguage[];
-  createdAt?: Date | null;
-  updatedAt?: Date | null;
   status: ResumeStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ResumeSearchParams {

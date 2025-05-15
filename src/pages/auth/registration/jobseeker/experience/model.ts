@@ -1,6 +1,6 @@
 import { createEvent, createStore, sample } from "effector";
 import { persist } from "effector-storage/session";
-import { not, or } from "patronum";
+import { debug, or } from "patronum";
 
 import { PERSIST_KEYS } from "@/pages/auth/registration/jobseeker/experience/consts.ts";
 
@@ -32,7 +32,6 @@ export const currentRoute = routes.auth.registrationFlow.jobseeker.experience;
 
 export type ExperienceFormError = null | "EMPTY_REQUIRED_FIELDS" | "INVALID_DATES" | "SERVER_ERROR";
 
-// События для управления формой
 export const formSubmitted = createEvent();
 export const experienceAdded = createEvent<IWorkExperience>();
 export const experienceEdited = createEvent<IWorkExperience>();
@@ -42,12 +41,12 @@ export const experienceEditCancelled = createEvent();
 export const activeExperienceIndexChanged = createEvent<number>();
 export const currentExperienceChanged = createEvent<Partial<IWorkExperience>>();
 export const setFormError = createEvent<ExperienceFormError>();
+export const autoAddCurrentExperience = createEvent<IWorkExperience>();
 
-// Хранилища для состояния формы
 export const $workExperiences = createStore<IWorkExperience[]>([]);
+
 export const $currentExperience = createStore<IWorkExperience>({
-  // @ts-expect-error
-  _id: crypto.randomUUID(),
+  id: crypto.randomUUID(),
   currentJob: false,
 });
 export const $isEditing = createStore<boolean>(false);
@@ -55,29 +54,37 @@ export const $activeExperienceIndex = createStore<number>(0);
 export const $formError = createStore<ExperienceFormError>(null);
 export const $pending = or(step3Mutation.$pending);
 
-// Настройка персистентности данных
+const isValidExperience = (experience: IWorkExperience): boolean => {
+  return Boolean(
+    experience.position?.trim() &&
+      experience.company?.trim() &&
+      experience.startDate instanceof Date,
+  );
+};
+
 persist({
   store: $workExperiences,
   key: PERSIST_KEYS.EXPERIENCE,
   pickup: appStarted,
 });
 
-// Обработчики событий
 $workExperiences
   .on(experienceAdded, (state, experience) => [...state, experience])
   .on(experienceEdited, (state, editedExperience) =>
     state.map((exp) => (exp.id === editedExperience.id ? editedExperience : exp)),
   )
-  .on(experienceRemoved, (state, id) => state.filter((exp) => exp.id !== id));
+  .on(experienceRemoved, (state, id) => state.filter((exp) => exp.id !== id))
+  .on(autoAddCurrentExperience, (state, experience) => [...state, experience]);
+
+debug({ $workExperiences });
 
 $currentExperience
   .on(currentExperienceChanged, (state, changes) => ({ ...state, ...changes }))
   .on(experienceEditStarted, (_, experience) => experience)
   .reset(experienceAdded)
   .reset(experienceEdited)
-  // @ts-expect-error
   .on(experienceEditCancelled, () => ({
-    _id: crypto.randomUUID(),
+    id: crypto.randomUUID(),
     currentJob: false,
   }));
 
@@ -107,6 +114,38 @@ $formError
 
 sample({
   clock: formSubmitted,
-  filter: not($formError),
+  source: {
+    currentExperience: $currentExperience,
+    workExperiences: $workExperiences,
+  },
+  filter: ({ currentExperience, workExperiences }) =>
+    workExperiences.length === 0 && isValidExperience(currentExperience),
+  fn: ({ currentExperience }) => currentExperience,
+  target: autoAddCurrentExperience,
+});
+
+sample({
+  clock: formSubmitted,
+  source: {
+    currentExperience: $currentExperience,
+    workExperiences: $workExperiences,
+  },
+  filter: ({ currentExperience, workExperiences }) =>
+    workExperiences.length === 0 && !isValidExperience(currentExperience),
+  fn: () => "EMPTY_REQUIRED_FIELDS" as const,
+  target: setFormError,
+});
+
+sample({
+  clock: formSubmitted,
+  source: $formError,
+  filter: (formError) => formError === null,
+  fn: () => ({}),
+  target: routes.auth.registrationFlow.jobseeker.about.open,
+});
+
+sample({
+  clock: autoAddCurrentExperience,
+  fn: () => ({}),
   target: routes.auth.registrationFlow.jobseeker.about.open,
 });

@@ -260,13 +260,15 @@ const $educationsValid = $educations.map(
     ),
 );
 
-const $skillsValid = $skills.map(
-  (skills) => skills.length > 0 && skills?.every((skill) => Boolean(skill.name?.trim())),
-);
+const $skillsValid = $skills.map((skills) => {
+  const filledSkills = skills.filter((skill) => Boolean(skill.name?.trim()));
+  return filledSkills.length > 0;
+});
 
-const $languagesValid = $languages.map(
-  (languages) => languages.length > 0 && languages.every((lang) => Boolean(lang.name?.trim())),
-);
+const $languagesValid = $languages.map((languages) => {
+  const filledLanguages = languages.filter((lang) => Boolean(lang.name?.trim()));
+  return filledLanguages.length > 0;
+});
 
 const $aboutMeValid = $aboutMe.map((aboutMe) => aboutMe.length <= 1000 && aboutMe.length > 0);
 
